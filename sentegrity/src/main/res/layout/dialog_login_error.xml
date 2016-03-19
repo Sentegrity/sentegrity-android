@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="High Risk"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textSize="23dp"
+        android:textColor="#212121"
+        android:layout_marginBottom="10dp"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="#212121"
+        android:text="Some problem may have occurred. This attempt has been recorded.\n\n Enter password to continue."
+        android:textSize="18dp"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Just a demo"
+        android:textSize="18dp"
+        android:id="@+id/password"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="Login"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:textColor="#ffffff"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="View Issues"
+        android:gravity="center"
+        android:textSize="22dp"
+        android:textColor="#ffffff"/>
+
+
+
+</LinearLayout>
