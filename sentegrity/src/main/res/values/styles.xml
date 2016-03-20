@@ -8,4 +8,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <declare-styleable name="ScoreLayout">
+        <attr name="pie_stroke" format="dimension" />
+        <attr name="pie_main_color" format="color" />
+        <attr name="pie_back_color" format="color" />
+        <attr name="title_text" format="string" />
+        <attr name="percentage_text_size" format="dimension" />
+        <attr name="title_text_size" format="dimension" />
+    </declare-styleable>
+
 </resources>

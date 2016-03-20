@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -29,96 +31,101 @@
 
     </LinearLayout>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="70dp"
-        android:text="0"
-        android:textColor="#000000"
-        android:textSize="70dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="80dp"
-        android:text="TrustScore"
-        android:textColor="#bec3c7"
-        android:textSize="30dp" />
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="10dp">
+        android:layout_height="match_parent"
+        android:layout_marginTop="35dp"
+        android:orientation="vertical">
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="70dp"
-            android:layout_marginLeft="70dp">
 
-            <ImageView
-                android:layout_width="70dp"
+        <com.sentegrity.android.widget.ScoreLayout
+            android:id="@+id/score_layout"
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:layout_gravity="center_horizontal"
+            custom:pie_main_color="@color/colorPrimaryDark"
+            custom:pie_back_color="@color/colorGray"
+            custom:pie_stroke="15dp"
+            custom:title_text_size="30dp"
+            custom:percentage_text_size="70dp"
+            android:layout_margin="20dp"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
                 android:layout_height="70dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/mobile_64px_grey" />
+                android:layout_marginLeft="70dp">
 
-            <ImageView
-                android:layout_marginBottom="-5dp"
-                android:layout_width="65dp"
+                <ImageView
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/mobile_64px_grey" />
+
+                <ImageView
+                    android:layout_width="65dp"
+                    android:layout_height="65dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="-5dp"
+                    android:layout_marginLeft="25dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/error_yellow" />
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="0dp"
                 android:layout_height="65dp"
-                android:layout_marginLeft="25dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/error_yellow"
-                android:layout_alignParentBottom="true"/>
-        </RelativeLayout>
-        <TextView
-            android:gravity="center_vertical"
-            android:layout_width="0dp"
-            android:layout_height="65dp"
-            android:layout_weight="1"
-            android:textSize="28dp"
-            android:fontFamily="sans-serif-light"
-            android:paddingRight="10dp"
-            android:paddingLeft="10dp"
-            android:text="High Risk Device"/>
-    </LinearLayout>
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="High Risk Device"
+                android:textSize="28dp" />
+        </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-        <RelativeLayout
-            android:layout_width="wrap_content"
-            android:layout_height="70dp"
-            android:layout_marginLeft="70dp">
-
-            <ImageView
-                android:layout_width="70dp"
+            <RelativeLayout
+                android:layout_width="wrap_content"
                 android:layout_height="70dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/user_grey" />
+                android:layout_marginLeft="70dp">
 
-            <ImageView
-                android:layout_marginBottom="-5dp"
-                android:layout_width="65dp"
+                <ImageView
+                    android:layout_width="70dp"
+                    android:layout_height="70dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/user_grey" />
+
+                <ImageView
+                    android:layout_width="65dp"
+                    android:layout_height="65dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="-5dp"
+                    android:layout_marginLeft="25dp"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/error_yellow" />
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="0dp"
                 android:layout_height="65dp"
-                android:layout_marginLeft="25dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/error_yellow"
-                android:layout_alignParentBottom="true"/>
-        </RelativeLayout>
-        <TextView
-            android:gravity="center_vertical"
-            android:layout_width="0dp"
-            android:layout_height="65dp"
-            android:layout_weight="1"
-            android:textSize="28dp"
-            android:fontFamily="sans-serif-light"
-            android:paddingRight="10dp"
-            android:paddingLeft="10dp"
-            android:text="User Anomaly"/>
+                android:layout_weight="1"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="User Anomaly"
+                android:textSize="28dp" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</RelativeLayout>
