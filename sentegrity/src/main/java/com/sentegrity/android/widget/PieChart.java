@@ -5,8 +5,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.view.animation.Animation;
-import android.view.animation.Transformation;
 import android.widget.RelativeLayout;
 
 import com.sentegrity.android.R;
@@ -39,11 +37,22 @@ public class PieChart extends RelativeLayout {
         setWillNotDraw(false);
     }
 
+    /**
+     * Sets colors for the pie chart
+     *
+     * @param mainColor main color - defined by the percentage number
+     * @param bkgColor standard background color of the chart
+     */
     public void setColors(int mainColor, int bkgColor){
         this.mainColor = mainColor;
         this.bkgColor = bkgColor;
     }
 
+    /**
+     * Sets pie width in pixels
+     *
+     * @param stroke
+     */
     public void setStroke(float stroke){
         paint.setStrokeWidth(stroke);
     }
@@ -52,6 +61,11 @@ public class PieChart extends RelativeLayout {
         return percentage;
     }
 
+    /**
+     * Updates current percentage and redraws view
+     *
+     * @param percentage new percentage
+     */
     public void updatePercentage(int percentage) {
         this.percentage = percentage;
         invalidate();

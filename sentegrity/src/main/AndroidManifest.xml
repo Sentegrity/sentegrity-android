@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sentegrity.android" >
 
     <application
@@ -16,6 +17,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.DashboardActivity" >
+        </activity>
+        <activity android:name=".activities.UserInfoActivity" >
+        </activity>
+        <activity android:name=".activities.DeviceInfoActivity" >
         </activity>
     </application>
 

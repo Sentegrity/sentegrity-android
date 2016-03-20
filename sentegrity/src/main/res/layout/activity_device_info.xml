@@ -17,7 +17,8 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@drawable/sentegrity_logo_big" />
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_arrow_back_black_24dp" />
 
         <View
             android:layout_width="0dp"
@@ -27,6 +28,7 @@
         <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:scaleType="centerInside"
             android:src="@drawable/ic_menu_black_48dp" />
 
     </LinearLayout>
@@ -34,20 +36,20 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="35dp"
+        android:layout_marginTop="10dp"
         android:orientation="vertical">
 
 
         <com.sentegrity.android.widget.ScoreLayout
             android:id="@+id/score_layout"
-            android:layout_width="220dp"
-            android:layout_height="220dp"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
             android:layout_gravity="center_horizontal"
             custom:pie_main_color="@color/colorPrimaryDark"
             custom:pie_back_color="@color/colorGray"
-            custom:pie_stroke="15dp"
-            custom:title_text_size="30dp"
-            custom:percentage_text_size="70dp"
+            custom:pie_stroke="10dp"
+            custom:title_text_size="20dp"
+            custom:percentage_text_size="50dp"
             android:layout_margin="20dp"/>
 
 
@@ -91,43 +93,5 @@
                 android:textSize="28dp" />
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:id="@+id/user_info">
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="70dp"
-                android:layout_marginLeft="70dp">
-
-                <ImageView
-                    android:layout_width="70dp"
-                    android:layout_height="70dp"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/user_grey" />
-
-                <ImageView
-                    android:layout_width="65dp"
-                    android:layout_height="65dp"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="-5dp"
-                    android:layout_marginLeft="25dp"
-                    android:scaleType="fitXY"
-                    android:src="@drawable/error_yellow" />
-            </RelativeLayout>
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="65dp"
-                android:layout_weight="1"
-                android:fontFamily="sans-serif-light"
-                android:gravity="center_vertical"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:text="User Anomaly"
-                android:textSize="28dp" />
-        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

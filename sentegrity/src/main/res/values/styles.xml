@@ -8,6 +8,8 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+
+    <!-- Styles used for defining custom Score Layout -->
     <declare-styleable name="ScoreLayout">
         <attr name="pie_stroke" format="dimension" />
         <attr name="pie_main_color" format="color" />

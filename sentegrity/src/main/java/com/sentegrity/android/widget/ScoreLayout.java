@@ -2,12 +2,10 @@ package com.sentegrity.android.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.RelativeLayout;
@@ -65,10 +63,20 @@ public class ScoreLayout extends RelativeLayout {
         arr.recycle();
     }
 
+    /**
+     * Sets title of the score layout.
+     *
+     * @param title will be shown under current percentage count
+     */
     public void setTitle(String title){
         this.title.setText(title);
     }
 
+    /**
+     * Animates percentage from current state.
+     *
+     * @param percentage new percentage - must be between 0 and 100
+     */
     public void animatePercentage(final int percentage){
         if(percentage > 100 || percentage < 0){
             throw new IllegalArgumentException("Percentage must be between 0 and 100.");
@@ -87,6 +95,11 @@ public class ScoreLayout extends RelativeLayout {
         return percentage;
     }
 
+    /**
+     * Private method for updating percentage - Animation calls this method.
+     *
+     * @param percentage new percentage - updates current text, and pie
+     */
     private void setPercentage(int percentage) {
         this.percentage = percentage;
         percentageCount.setText(percentage + "");
