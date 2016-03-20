@@ -1,6 +1,5 @@
 package com.sentegrity.android.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -14,7 +13,7 @@ import java.util.Random;
 /**
  * Created by dmestrov on 20/03/16.
  */
-public class DashboardActivity extends Activity implements View.OnClickListener {
+public class DashboardActivity extends MenuActivity implements View.OnClickListener {
 
     private Random r = new Random();
 

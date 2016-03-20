@@ -5,5 +5,5 @@ import android.app.Activity;
 /**
  * Created by dmestrov on 20/03/16.
  */
-public class InformationActivity extends Activity {
+public class InformationActivity extends MenuActivity {
 }
