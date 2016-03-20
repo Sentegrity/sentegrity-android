@@ -1,4 +1,4 @@
-package com.sentegrity.android;
+package com.sentegrity.android.activities;
 
 import android.app.Dialog;
 import android.os.Handler;
@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+
+import com.sentegrity.android.R;
 
 public class LoginActivity extends AppCompatActivity {
 
