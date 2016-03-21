@@ -74,8 +74,8 @@ public class PieChart extends RelativeLayout {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        w = (int) (w - paint.getStrokeWidth());
-        h = (int) (h - paint.getStrokeWidth());
+        w = (int) (w - paint.getStrokeWidth() / 2);
+        h = (int) (h - paint.getStrokeWidth() / 2);
         if (w > h) {
             rect.set(w / 2 - h / 2 + paint.getStrokeWidth(), 0 + paint.getStrokeWidth() / 2, w / 2 + h / 2, h);
         } else {
