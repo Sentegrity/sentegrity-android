@@ -7,11 +7,14 @@ import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 
 import com.sentegrity.android.R;
+import com.sentegrity.core_detection.CoreDetection;
+import com.sentegrity.core_detection.policy.SentegrityPolicy;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -35,6 +38,10 @@ public class LoginActivity extends AppCompatActivity {
             public void run() {
                 progressDialog.cancel();
                 showError();
+
+                Log.d("coreDetection", "policy start parse");
+                SentegrityPolicy policy = CoreDetection.getInstance().parsePolicy("default.policy");
+                Log.d("coreDetection", "policy end parse");
             }
         }, 1000);
     }
