@@ -14,6 +14,9 @@ import android.widget.EditText;
 
 import com.sentegrity.android.R;
 import com.sentegrity.core_detection.CoreDetection;
+import com.sentegrity.core_detection.CoreDetectionCallback;
+import com.sentegrity.core_detection.computation.SentegrityTrustScoreComputation;
+import com.sentegrity.core_detection.logger.SentegrityError;
 import com.sentegrity.core_detection.policy.SentegrityPolicy;
 
 public class LoginActivity extends AppCompatActivity {
@@ -33,17 +36,16 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.setMessage("Mobile Security Posture");
         progressDialog.show();
 
-        new Handler().postDelayed(new Runnable() {
+        SentegrityPolicy policy = CoreDetection.getInstance().parsePolicy("default.policy");
+        CoreDetection.getInstance().performCoreDetectionWithPolicy(policy, new CoreDetectionCallback() {
             @Override
-            public void run() {
-                progressDialog.cancel();
-                showError();
-
-                Log.d("coreDetection", "policy start parse");
-                SentegrityPolicy policy = CoreDetection.getInstance().parsePolicy("default.policy");
-                Log.d("coreDetection", "policy end parse");
+            public void onFinish(SentegrityTrustScoreComputation computationResult, SentegrityError error, boolean success) {
+                if(success){
+                    progressDialog.cancel();
+                    showError();
+                }
             }
-        }, 1000);
+        });
     }
 
     private void showError() {

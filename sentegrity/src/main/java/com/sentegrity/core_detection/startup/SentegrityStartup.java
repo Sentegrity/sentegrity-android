@@ -27,4 +27,52 @@ public class SentegrityStartup implements Serializable {
 
     @SerializedName("lastOSVersion")
     private String lastOSVersion;
+
+    public String getDeviceSalt() {
+        return deviceSalt;
+    }
+
+    public int getCoreDetectionChecksum() {
+        return coreDetectionChecksum;
+    }
+
+    public List<SentegrityHistory> getRunHistory() {
+        return runHistory;
+    }
+
+    public String getUserSalt() {
+        return userSalt;
+    }
+
+    public String getLastState() {
+        return lastState;
+    }
+
+    public String getLastOSVersion() {
+        return lastOSVersion;
+    }
+
+    public void setDeviceSalt(String deviceSalt) {
+        this.deviceSalt = deviceSalt;
+    }
+
+    public void setCoreDetectionChecksum(int coreDetectionChecksum) {
+        this.coreDetectionChecksum = coreDetectionChecksum;
+    }
+
+    public void setRunHistory(List<SentegrityHistory> runHistory) {
+        this.runHistory = runHistory;
+    }
+
+    public void setUserSalt(String userSalt) {
+        this.userSalt = userSalt;
+    }
+
+    public void setLastState(String lastState) {
+        this.lastState = lastState;
+    }
+
+    public void setLastOSVersion(String lastOSVersion) {
+        this.lastOSVersion = lastOSVersion;
+    }
 }

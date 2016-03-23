@@ -49,5 +49,55 @@ public class SentegrityPolicy implements Serializable {
     @SerializedName("trustFactors")
     private List<SentegrityTrustFactor> trustFactors;
 
+    public int getPolicyID() {
+        return policyID;
+    }
 
+    public String getAppID() {
+        return appID;
+    }
+
+    public int getRevision() {
+        return revision;
+    }
+
+    public int getUserThreshold() {
+        return userThreshold;
+    }
+
+    public int getSystemThreshold() {
+        return systemThreshold;
+    }
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public String getContactPhone() {
+        return contactPhone;
+    }
+
+    public String getContactURL() {
+        return contactURL;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public SentegrityDNEModifiers getDneModifiers() {
+        return dneModifiers;
+    }
+
+    public List<SentegrityClassification> getClassifications() {
+        return classifications;
+    }
+
+    public List<SentegritySubclassification> getSubclassifications() {
+        return subclassifications;
+    }
+
+    public List<SentegrityTrustFactor> getTrustFactors() {
+        return trustFactors;
+    }
 }

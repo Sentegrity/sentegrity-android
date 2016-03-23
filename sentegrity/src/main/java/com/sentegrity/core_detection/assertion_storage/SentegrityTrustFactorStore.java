@@ -7,7 +7,23 @@ import android.content.Context;
  */
 public class SentegrityTrustFactorStore {
 
-    public static synchronized void initialize(Context context){
+    private static SentegrityTrustFactorStore sInstance;
 
+    final private Context context;
+
+    public SentegrityTrustFactorStore(Context context) {
+        this.context = context;
+    }
+
+    public static synchronized void initialize(Context context){
+        sInstance = new SentegrityTrustFactorStore(context);
+    }
+
+    public static SentegrityTrustFactorStore getInstance(){
+        if(sInstance == null || sInstance.context == null) {
+            throw new IllegalStateException("Please call CoreDetection.initialize({context}) before requesting the instance.");
+        } else {
+            return sInstance;
+        }
     }
 }
