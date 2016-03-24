@@ -144,6 +144,7 @@ public class CoreDetection {
         }
 
         SentegrityStartupStore.getInstance().setCurrentState("Starting Core Detection");
+
     }
 
 
