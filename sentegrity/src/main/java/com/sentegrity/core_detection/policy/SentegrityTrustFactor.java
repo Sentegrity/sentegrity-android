@@ -43,6 +43,9 @@ public class SentegrityTrustFactor implements Serializable {
     @SerializedName("weight")
     private int weight;
 
+    @SerializedName("dnePenalty")
+    private int dnePenalty;
+
     @SerializedName("learnMode")
     private int learnMode;
 

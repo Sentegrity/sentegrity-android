@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.sentegrity.core_detection.assertion_storage.SentegrityAssertionStore;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorStore;
+import com.sentegrity.core_detection.dispatch.SentegrityTrustFactorDispatcher;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
 import com.sentegrity.core_detection.logger.ErrorDetails;
 import com.sentegrity.core_detection.logger.ErrorDomain;
@@ -145,6 +146,7 @@ public class CoreDetection {
 
         SentegrityStartupStore.getInstance().setCurrentState("Starting Core Detection");
 
+        SentegrityTrustFactorDispatcher.performTrustFactorAnalysis(policy.getTrustFactors(), policy.getTimeout());
     }
 
 

@@ -63,7 +63,7 @@ public class SentegrityStartupStore {
         }
     }
 
-    private SentegrityStartup getStartupData() {
+    public SentegrityStartup getStartupData() {
         //TODO: handle errors
         File f = new File(storePath + "/" + SentegrityConstants.STARTUP_FILE_NAME);
 
