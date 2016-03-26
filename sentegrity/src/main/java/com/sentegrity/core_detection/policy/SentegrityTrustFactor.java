@@ -64,7 +64,7 @@ public class SentegrityTrustFactor implements Serializable {
     private int decayMode;
 
     @SerializedName("decayMetric")
-    private float decayMetric;
+    private double decayMetric;
 
     @SerializedName("wipeOnUpdate")
     private int wipeOnUpdate;
@@ -152,7 +152,7 @@ public class SentegrityTrustFactor implements Serializable {
         return decayMode;
     }
 
-    public float getDecayMetric() {
+    public double getDecayMetric() {
         return decayMetric;
     }
 

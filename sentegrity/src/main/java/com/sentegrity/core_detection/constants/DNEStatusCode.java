@@ -26,4 +26,8 @@ public enum DNEStatusCode{
         }
         return OK;
     }
+
+    public int getId(){
+        return id;
+    }
 }

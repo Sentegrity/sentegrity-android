@@ -3,7 +3,7 @@
   "appID": "default",
   "revision": 1,
   "userThreshold": 80,
-  "systemThreshold": 5e0,
+  "systemThreshold": 50,
   "timeout": 15,
   "contactPhone": "18005556666",
   "contactURL": "www.application.com",

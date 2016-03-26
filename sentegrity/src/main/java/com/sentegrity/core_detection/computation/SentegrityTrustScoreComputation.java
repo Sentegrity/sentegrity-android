@@ -1,9 +1,22 @@
 package com.sentegrity.core_detection.computation;
 
-import com.google.gson.annotations.SerializedName;
-import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
-import com.sentegrity.core_detection.policy.SentegrityPolicy;
+import android.text.TextUtils;
 
+import com.google.gson.annotations.SerializedName;
+import com.sentegrity.core_detection.assertion_storage.SentegrityStoredAssertion;
+import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
+import com.sentegrity.core_detection.constants.DNEStatusCode;
+import com.sentegrity.core_detection.logger.ErrorDetails;
+import com.sentegrity.core_detection.logger.ErrorDomain;
+import com.sentegrity.core_detection.logger.Logger;
+import com.sentegrity.core_detection.logger.SentegrityError;
+import com.sentegrity.core_detection.policy.SentegrityClassification;
+import com.sentegrity.core_detection.policy.SentegrityPolicy;
+import com.sentegrity.core_detection.policy.SentegritySubclassification;
+import com.sentegrity.core_detection.policy.SentegrityTrustFactor;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -23,8 +36,8 @@ public class SentegrityTrustScoreComputation {
     private List<SentegrityTrustFactorOutput> userTrustFactorsWithErrors;
     private List<SentegrityTrustFactorOutput> systemTrustFactorsWithErrors;
 
-    private List<SentegrityTrustFactorOutput> userAllTrustFactorOutputObjects;
-    private List<SentegrityTrustFactorOutput> systemAllTrustFactorOutputObjects;
+    private List<SentegrityTrustFactor> userAllTrustFactors;
+    private List<SentegrityTrustFactor> systemAllTrustFactors;
 
     @SerializedName("systemBreachScore")
     private int systemBreachScore;
@@ -116,11 +129,6 @@ public class SentegrityTrustScoreComputation {
     @SerializedName("attemptTransparentAuthentication")
     private boolean attemptTransparentAuthentication;
 
-
-    public static SentegrityTrustScoreComputation performTrustFactorComputation(SentegrityPolicy policy, List<SentegrityTrustFactorOutput> trustFactorOutputs){
-        return new SentegrityTrustScoreComputation();
-    }
-
     public SentegrityPolicy getPolicy() {
         return policy;
     }
@@ -149,12 +157,12 @@ public class SentegrityTrustScoreComputation {
         return systemTrustFactorsWithErrors;
     }
 
-    public List<SentegrityTrustFactorOutput> getUserAllTrustFactorOutputObjects() {
-        return userAllTrustFactorOutputObjects;
+    public List<SentegrityTrustFactor> getUserAllTrustFactors() {
+        return userAllTrustFactors;
     }
 
-    public List<SentegrityTrustFactorOutput> getSystemAllTrustFactorOutputObjects() {
-        return systemAllTrustFactorOutputObjects;
+    public List<SentegrityTrustFactor> getSystemAllTrustFactors() {
+        return systemAllTrustFactors;
     }
 
     public int getSystemBreachScore() {
@@ -305,12 +313,12 @@ public class SentegrityTrustScoreComputation {
         this.systemTrustFactorsWithErrors = systemTrustFactorsWithErrors;
     }
 
-    public void setUserAllTrustFactorOutputObjects(List<SentegrityTrustFactorOutput> userAllTrustFactorOutputObjects) {
-        this.userAllTrustFactorOutputObjects = userAllTrustFactorOutputObjects;
+    public void setUserAllTrustFactors(List<SentegrityTrustFactor> userAllTrustFactors) {
+        this.userAllTrustFactors = userAllTrustFactors;
     }
 
-    public void setSystemAllTrustFactorOutputObjects(List<SentegrityTrustFactorOutput> systemAllTrustFactorOutputObjects) {
-        this.systemAllTrustFactorOutputObjects = systemAllTrustFactorOutputObjects;
+    public void setSystemAllTrustFactors(List<SentegrityTrustFactor> systemAllTrustFactors) {
+        this.systemAllTrustFactors = systemAllTrustFactors;
     }
 
     public void setSystemBreachScore(int systemBreachScore) {
@@ -431,5 +439,654 @@ public class SentegrityTrustScoreComputation {
 
     public void setTransparentAuthenticationTrustFactors(List<SentegrityTrustFactorOutput> transparentAuthenticationTrustFactors) {
         this.transparentAuthenticationTrustFactors = transparentAuthenticationTrustFactors;
+    }
+
+
+    private static double weightPercentCalculate(SentegrityTrustFactorOutput trustFactorOutput) {
+        SentegrityStoredAssertion highestStoredAssertion = trustFactorOutput.getStoredTrustFactor().getAssertions().get(0);
+
+        double currentAssertionDecayMetricTotal = 0;
+        double currentAssertionDecayMetricAverage = 0;
+        double highestStoredAssertionDecayMetric = highestStoredAssertion.getDecayMetric();
+        double trustFactorPolicyDecayMetric = trustFactorOutput.getTrustFactor().getDecayMetric();
+
+        for (SentegrityStoredAssertion assertion : trustFactorOutput.getStoredAssertionObjectsMatched()) {
+            currentAssertionDecayMetricTotal = currentAssertionDecayMetricTotal + assertion.getDecayMetric();
+        }
+
+        currentAssertionDecayMetricAverage = currentAssertionDecayMetricTotal / trustFactorOutput.getStoredAssertionObjectsMatched().size();
+
+        double percent = Math.abs(1 - ((highestStoredAssertionDecayMetric - currentAssertionDecayMetricAverage) / (highestStoredAssertionDecayMetric - trustFactorPolicyDecayMetric)));
+
+        return percent;
+    }
+
+    public static SentegrityTrustScoreComputation performTrustFactorComputation(SentegrityPolicy policy, List<SentegrityTrustFactorOutput> trustFactorOutputs) {
+        if (policy == null || policy.getPolicyID() < 0) {
+            SentegrityError error = SentegrityError.CORE_DETECTION_NO_POLICY_PROVIDED;
+            error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
+            error.setDetails(new ErrorDetails().setDescription("No policy provided").setFailureReason("Unable to set trust factors").setRecoverySuggestion("Try passing a valid policy to set trust factors"));
+
+            Logger.INFO("No policy provided", error);
+            return null;
+        }
+
+        if (trustFactorOutputs == null || trustFactorOutputs.size() < 1) {
+            SentegrityError error = SentegrityError.NO_TRUSTFACTORS_SET_TO_ANALYZE;
+            error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
+            error.setDetails(new ErrorDetails().setDescription("No trust factors found to compute").setFailureReason("Unable to set aassertion objects").setRecoverySuggestion("Try providing trust factor outputs"));
+
+            Logger.INFO("No TrustFactorOutputObjects found to comput", error);
+            return null;
+        }
+
+        if (policy.getClassifications() == null || policy.getClassifications().size() < 1) {
+            SentegrityError error = SentegrityError.NO_CLASSIFICATIONS_FOUND;
+            error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
+            error.setDetails(new ErrorDetails().setDescription("No Classifications Found.").setFailureReason("Unable to find classifications in policy").setRecoverySuggestion("Try checking if policy has valid classifications"));
+
+            Logger.INFO("No classifications found", error);
+            return null;
+        }
+
+        if (policy.getSubclassifications() == null || policy.getSubclassifications().size() < 1) {
+            SentegrityError error = SentegrityError.NO_SUBCLASSIFICATIONS_FOUND;
+            error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
+            error.setDetails(new ErrorDetails().setDescription("No subclassifications Found.").setFailureReason("Unable to find subclassifications in policy").setRecoverySuggestion("Try checking if policy has valid subclassifications"));
+
+            Logger.INFO("No subclassifications found", error);
+            return null;
+        }
+
+        for (SentegrityClassification classification : policy.getClassifications()) {
+
+
+            List<SentegrityTrustFactorOutput> trustFactorsNotLearnedInClass = new ArrayList();
+            List<SentegrityTrustFactorOutput> trustFactorsAttributingToScoreInClass = new ArrayList();
+            List<SentegrityTrustFactorOutput> trustFactorWithErrorsInClass = new ArrayList();
+
+
+            List<SentegrityTrustFactor> trustFactorsInClass = new ArrayList();
+            List<SentegritySubclassification> subClassesInClass = new ArrayList();
+            List<SentegrityTrustFactorOutput> trustFactorsToWhitelistInClass = new ArrayList();
+            List<SentegrityTrustFactorOutput> trustFactorsForTransparentAuthInClass = new ArrayList();
+
+
+            List<String> statusInClass = new ArrayList();
+            List<String> issuesInClass = new ArrayList();
+            List<String> suggestionsInClass = new ArrayList();
+
+
+            for (SentegritySubclassification subclassification : policy.getSubclassifications()) {
+
+                List<SentegrityTrustFactor> trustFactorsInSubClass = new ArrayList();
+
+                List<DNEStatusCode> subClassDNECodes = new ArrayList();
+
+                boolean subClassContainsTrustFactor = false;
+                boolean subClassAnalysisIsIncomplete = false;
+
+                for (SentegrityTrustFactorOutput trustFactorOutput : trustFactorOutputs) {
+
+                    if (trustFactorOutput.getTrustFactor().getClassificationID() == classification.getID() && trustFactorOutput.getTrustFactor().getSubclassificationID() == subclassification.getID()) {
+
+                        subClassContainsTrustFactor = true;
+
+                        if (trustFactorOutput.isForComputation()) {
+
+                            if (trustFactorOutput.getStatusCode() == DNEStatusCode.OK) {
+
+                                if (!trustFactorOutput.getStoredTrustFactor().isLearned()) {
+                                    trustFactorsToWhitelistInClass.add(trustFactorOutput);
+                                    trustFactorsNotLearnedInClass.add(trustFactorOutput);
+                                    continue;
+                                }
+
+                                if (trustFactorOutput.isMatchFound()) {
+                                    //User anomaly
+                                    if (classification.getComputationMethod() == 1) {
+                                        trustFactorsForTransparentAuthInClass.add(trustFactorOutput);
+                                        trustFactorsAttributingToScoreInClass.add(trustFactorOutput);
+
+                                        if (trustFactorOutput.getTrustFactor().getPartialWeight() == 1) {
+                                            double percent = weightPercentCalculate(trustFactorOutput);
+
+                                            int partialWeight = (int) (percent * trustFactorOutput.getTrustFactor().getWeight());
+                                            subclassification.setBaseWeight(subclassification.getBaseWeight() + partialWeight);
+
+                                            trustFactorOutput.setAppliedWeight(partialWeight);
+                                            trustFactorOutput.setPercentAppliedWeight(percent);
+
+                                            if (partialWeight < (trustFactorOutput.getTrustFactor().getWeight() * 0.25)) {
+
+                                                if (!TextUtils.isEmpty(trustFactorOutput.getTrustFactor().getLowConfidenceIssueMessage())) {
+                                                    if (!issuesInClass.contains(trustFactorOutput.getTrustFactor().getLowConfidenceIssueMessage())) {
+                                                        issuesInClass.add(trustFactorOutput.getTrustFactor().getLowConfidenceIssueMessage());
+                                                    }
+                                                }
+
+                                                if (!TextUtils.isEmpty(trustFactorOutput.getTrustFactor().getLowConfidenceSuggestionMessage())) {
+                                                    if (!suggestionsInClass.contains(trustFactorOutput.getTrustFactor().getLowConfidenceSuggestionMessage())) {
+                                                        suggestionsInClass.add(trustFactorOutput.getTrustFactor().getLowConfidenceSuggestionMessage());
+                                                    }
+                                                }
+
+                                            }
+
+
+                                        } else {
+                                            subclassification.setBaseWeight(subclassification.getBaseWeight() + trustFactorOutput.getTrustFactor().getWeight());
+
+                                            trustFactorOutput.setAppliedWeight(trustFactorOutput.getTrustFactor().getWeight());
+                                            trustFactorOutput.setPercentAppliedWeight(1);
+                                        }
+                                    } else {
+
+
+                                    }
+
+                                } else {
+
+                                    trustFactorsToWhitelistInClass.add(trustFactorOutput);
+
+                                    // System classification and user policy
+                                    if (classification.getComputationMethod() == 0) {
+
+                                        trustFactorsAttributingToScoreInClass.add(trustFactorOutput);
+
+                                        if (trustFactorOutput.getTrustFactor().getPartialWeight() == 1) {
+
+                                            double percent = weightPercentCalculate(trustFactorOutput);
+                                            int partialWeight = (int) (percent * trustFactorOutput.getTrustFactor().getWeight());
+                                            subclassification.setBaseWeight(subclassification.getBaseWeight() + partialWeight);
+
+                                            trustFactorOutput.setAppliedWeight(partialWeight);
+                                            trustFactorOutput.setPercentAppliedWeight(percent);
+
+
+                                        } else {
+                                            subclassification.setBaseWeight(subclassification.getBaseWeight() + trustFactorOutput.getTrustFactor().getWeight());
+
+                                            trustFactorOutput.setAppliedWeight(trustFactorOutput.getTrustFactor().getWeight());
+                                            trustFactorOutput.setPercentAppliedWeight(1);
+
+                                        }
+                                    } else {
+
+
+                                    }
+
+
+                                    if (!TextUtils.isEmpty(trustFactorOutput.getTrustFactor().getNotFoundIssueMessage())) {
+                                        if (!issuesInClass.contains(trustFactorOutput.getTrustFactor().getNotFoundIssueMessage())) {
+                                            issuesInClass.add(trustFactorOutput.getTrustFactor().getNotFoundIssueMessage());
+                                        }
+                                    }
+
+                                    if (!TextUtils.isEmpty(trustFactorOutput.getTrustFactor().getNotFoundSuggestionMessage())) {
+                                        if (!suggestionsInClass.contains(trustFactorOutput.getTrustFactor().getNotFoundSuggestionMessage())) {
+                                            suggestionsInClass.add(trustFactorOutput.getTrustFactor().getNotFoundSuggestionMessage());
+                                        }
+                                    }
+
+                                }
+                            } else {
+
+                                trustFactorWithErrorsInClass.add(trustFactorOutput);
+                                subClassDNECodes.add(trustFactorOutput.getStatusCode());
+
+                                subClassAnalysisIsIncomplete = true;
+
+                                if (classification.getComputationMethod() == 1) {
+                                    addSuggestions(classification, subclassification, suggestionsInClass, trustFactorOutput);
+                                } else if (classification.getComputationMethod() == 0) {
+
+                                    if (classification.getType() != 0 && !("wifi").equals(subclassification.getName())) {
+                                        addSuggestionAndCalculateWeight(classification, subclassification, suggestionsInClass, policy, trustFactorOutput);
+                                    }
+
+                                }
+                            }
+
+                            trustFactorsInClass.add(trustFactorOutput.getTrustFactor());
+                            trustFactorsInSubClass.add(trustFactorOutput.getTrustFactor());
+                        }
+                    }
+
+                }
+
+                if (subClassContainsTrustFactor) {
+
+                    if (!subClassAnalysisIsIncomplete) {
+                        statusInClass.add(subclassification.getName() + " check complete");
+                    } else {
+                        if (subClassDNECodes.contains(DNEStatusCode.DISABLED)) {
+                            statusInClass.add(subclassification.getName() + " check disabled");
+                        } else if (subClassDNECodes.contains(DNEStatusCode.NO_DATA)) {
+                            statusInClass.add(subclassification.getName() + " check complete");
+                        } else if (subClassDNECodes.contains(DNEStatusCode.UNAUTHORIZED)) {
+                            statusInClass.add(subclassification.getName() + " check unauthorized");
+                        } else if (subClassDNECodes.contains(DNEStatusCode.EXPIRED)) {
+                            statusInClass.add(subclassification.getName() + " check expired");
+                        } else if (subClassDNECodes.contains(DNEStatusCode.UNSUPPORTED)) {
+                            statusInClass.add(subclassification.getName() + " check unsupported");
+                        } else if (subClassDNECodes.contains(DNEStatusCode.UNAVAILABLE)) {
+                            statusInClass.add(subclassification.getName() + " check unavailable");
+                        } else if (subClassDNECodes.contains(DNEStatusCode.INVALID)) {
+                            statusInClass.add(subclassification.getName() + " check invalid");
+                        } else {
+                            statusInClass.add(subclassification.getName() + " check error");
+                        }
+                    }
+
+                    subclassification.setTotalWeight((int) (subclassification.getBaseWeight() * (1 - (0.1 * subclassification.getWeight()))));
+
+                    classification.setScore(classification.getScore() + subclassification.getTotalWeight());
+
+                    subclassification.setTrustFactors(trustFactorsInSubClass);
+                    subClassesInClass.add(subclassification);
+                }
+
+            }
+
+            classification.setSubclassifications(subClassesInClass);
+
+            classification.setTrustFactors(trustFactorsInClass);
+
+            classification.setTrustFactorsToWhitelist(trustFactorsToWhitelistInClass);
+
+            classification.setTrustFactorsForTransparentAuthentication(trustFactorsForTransparentAuthInClass);
+
+            classification.setStatus(statusInClass);
+            classification.setIssues(issuesInClass);
+            classification.setSuggestions(suggestionsInClass);
+
+            classification.setTrustFactorsNotLearned(trustFactorsNotLearnedInClass);
+            classification.setTrustFactorsTriggered(trustFactorsAttributingToScoreInClass);
+            classification.setTrustFacotrsWithErrors(trustFactorWithErrorsInClass);
+        }
+
+        SentegrityTrustScoreComputation computationResult = new SentegrityTrustScoreComputation();
+        computationResult.setPolicy(policy);
+
+
+        return computationResult.analyzeResults();
+    }
+
+    private SentegrityTrustScoreComputation analyzeResults() {
+        List<String> systemIssues = new ArrayList<>();
+        List<String> systemSuggestions = new ArrayList<>();
+        List<String> systemSubClassStatuses = new ArrayList<>();
+
+        List<String> userIssues = new ArrayList<>();
+        List<String> userSuggestions = new ArrayList<>();
+        List<String> userAuthenticators = new ArrayList<>();
+        List<String> userSubClassStatuses = new ArrayList<>();
+
+        List<SentegrityTrustFactorOutput> systemTrustFactorsAttributingToScore = new ArrayList<>();
+        List<SentegrityTrustFactorOutput> systemTrustFactorsNotLearned = new ArrayList<>();
+        List<SentegrityTrustFactorOutput> systemTrustFactorsWithErrors = new ArrayList<>();
+        List<SentegrityTrustFactor> systemAllTrustFactors = new ArrayList<>();
+        List<SentegrityTrustFactorOutput> systemTrustFactorsToWhitelist = new ArrayList<>();
+
+        List<SentegrityTrustFactorOutput> userTrustFactorsAttributingToScore = new ArrayList<>();
+        List<SentegrityTrustFactorOutput> userTrustFactorsNotLearned = new ArrayList<>();
+        List<SentegrityTrustFactorOutput> userTrustFactorsWithErrors = new ArrayList<>();
+        List<SentegrityTrustFactor> userAllTrustFactors = new ArrayList<>();
+        List<SentegrityTrustFactorOutput> userTrustFactorsToWhitelist = new ArrayList<>();
+
+        List<SentegrityTrustFactorOutput> userTrustFactorsForTransparentAuthentication = new ArrayList<>();
+
+        SentegrityClassification systemBreachClass = null;
+        SentegrityClassification systemPolicyClass = null;
+        SentegrityClassification systemSecurityClass = null;
+        SentegrityClassification userAnomalyClass = null;
+        SentegrityClassification userPolicyClass = null;
+
+        int systemTrustScoreSum = 0;
+        int userTrustScoreSum = 0;
+
+        boolean systemPolicyViolation = false;
+        boolean userPolicyViolation = false;
+
+        for (SentegrityClassification classification : policy.getClassifications()) {
+            if (classification.getType() == 0) {
+                systemTrustScoreSum = systemTrustScoreSum + classification.getScore();
+
+                int currentScore = 0;
+
+                if (classification.getComputationMethod() == 0) {
+                    currentScore = Math.min(100, Math.max(0, 100 - classification.getScore()));
+                } else if (classification.getComputationMethod() == 1) {
+                    currentScore = Math.min(100, classification.getScore());
+                }
+
+
+                switch (classification.getID()) {
+                    case 1:
+                        systemBreachClass = classification;
+                        setSystemBreachScore(currentScore);
+                        break;
+                    case 2:
+                        systemPolicyClass = classification;
+                        setSystemPolicyScore(currentScore);
+                        if (currentScore < 100) {
+                            systemPolicyViolation = true;
+                        }
+                        break;
+                    case 3:
+                        systemSecurityClass = classification;
+                        setSystemSecurityScore(currentScore);
+                        break;
+                    default:
+                        break;
+                }
+
+                systemIssues.addAll(classification.getIssues());
+                systemSuggestions.addAll(classification.getSuggestions());
+                systemSubClassStatuses.addAll(classification.getStatus());
+
+                systemTrustFactorsAttributingToScore.addAll(classification.getTrustFactorsTriggered());
+                systemTrustFactorsNotLearned.addAll(classification.getTrustFactorsNotLearned());
+                systemTrustFactorsWithErrors.addAll(classification.getTrustFacotrsWithErrors());
+                systemAllTrustFactors.addAll(classification.getTrustFactors());
+
+                systemTrustFactorsToWhitelist.addAll(classification.getTrustFactorsToWhitelist());
+            } else {
+
+                int currentScore = 0;
+
+                if (classification.getComputationMethod() == 0) {
+                    currentScore = Math.min(100, Math.max(0, 100 - classification.getScore()));
+                } else if (classification.getComputationMethod() == 1) {
+                    currentScore = Math.min(100, classification.getScore());
+                }
+
+
+                switch (classification.getID()) {
+                    case 4:
+                        userPolicyClass = classification;
+                        setUserPolicyScore(currentScore);
+                        if (currentScore < 100) {
+                            userPolicyViolation = true;
+                        }
+                        break;
+                    case 5:
+                        userAnomalyClass = classification;
+                        setUserAnomalyScore(currentScore);
+                        break;
+                    default:
+                        break;
+                }
+
+                userIssues.addAll(classification.getIssues());
+                userSuggestions.addAll(classification.getSuggestions());
+                userSubClassStatuses.addAll(classification.getStatus());
+                userAuthenticators.addAll(classification.getAuthenticators());
+
+                userTrustFactorsAttributingToScore.addAll(classification.getTrustFactorsTriggered());
+                userTrustFactorsNotLearned.addAll(classification.getTrustFactorsNotLearned());
+                userTrustFactorsWithErrors.addAll(classification.getTrustFacotrsWithErrors());
+                userAllTrustFactors.addAll(classification.getTrustFactors());
+
+                userTrustFactorsToWhitelist.addAll(classification.getTrustFactorsToWhitelist());
+
+                userTrustFactorsForTransparentAuthentication.addAll(classification.getTrustFactorsForTransparentAuthentication());
+            }
+        }
+
+        setSystemGUIIssues(systemIssues);
+        setSystemGUISuggestions(systemSuggestions);
+        setSystemGUIAnalysis(systemSubClassStatuses);
+
+        setUserGUIIssues(userIssues);
+        setUserGUISuggestions(userSuggestions);
+        setUserGUIAnalysis(userSubClassStatuses);
+        setUserGUIAuthenticators(userAuthenticators);
+
+        setTransparentAuthenticationTrustFactors(userTrustFactorsForTransparentAuthentication);
+
+        setProtectModeUserWhitelist(userTrustFactorsToWhitelist);
+        setProtectModeSystemWhitelist(systemTrustFactorsToWhitelist);
+
+        setUserAllTrustFactors(userAllTrustFactors);
+        setSystemAllTrustFactors(systemAllTrustFactors);
+
+        setUserTrustFactorsAttributingToScore(userTrustFactorsAttributingToScore);
+        setSystemTrustFactorsAttributingToScore(systemTrustFactorsAttributingToScore);
+
+        setUserTrustFactorsNotLearned(userTrustFactorsNotLearned);
+        setSystemTrustFactorsNotLearned(systemTrustFactorsNotLearned);
+
+        setUserTrustFactorsWithErrors(userTrustFactorsWithErrors);
+        setSystemTrustFactorsWithErrors(systemTrustFactorsWithErrors);
+
+
+        if (systemPolicyViolation) {
+            setSystemScore(0);
+        } else {
+            setSystemScore(Math.min(100, Math.max(0, 100 - systemTrustScoreSum)));
+        }
+
+        if (userPolicyViolation) {
+            setUserScore(0);
+        } else {
+            setUserScore(Math.min(100, userTrustScoreSum));
+        }
+
+        setDeviceScore((getSystemScore() + getUserScore()) / 2);
+
+        setDeviceTrusted(true);
+        setUserTrusted(true);
+        setSystemTrusted(true);
+        setAttemptTransparentAuthentication(true);
+
+        if (getSystemScore() < policy.getSystemThreshold()) {
+            setSystemTrusted(false);
+            setDeviceTrusted(false);
+            setAttemptTransparentAuthentication(false);
+        }
+        if (getUserScore() < policy.getUserThreshold()) {
+            setUserTrusted(false);
+            setDeviceTrusted(false);
+            setAttemptTransparentAuthentication(false);
+        }
+
+        if (!isSystemTrusted()) {
+            setProtectModeWhitelist(getProtectModeSystemWhitelist());
+
+            if (getSystemBreachScore() <= getSystemSecurityScore()) {
+                setProtectModeClassID(systemBreachClass.getID());
+                setProtectModeAction(systemBreachClass.getProtectModeAction());
+                setProtectModeMessage(systemBreachClass.getProtectModeMessage());
+
+                setSystemGUIIconID(systemBreachClass.getID());
+                setSystemGUIIconText(systemBreachClass.getDescription());
+            } else if (getSystemPolicyScore() <= getSystemSecurityScore()) {
+                setProtectModeClassID(systemPolicyClass.getID());
+                setProtectModeAction(systemPolicyClass.getProtectModeAction());
+                setProtectModeMessage(systemPolicyClass.getProtectModeMessage());
+
+                setSystemGUIIconID(systemPolicyClass.getID());
+                setSystemGUIIconText(systemPolicyClass.getDescription());
+            } else {
+                setProtectModeClassID(systemSecurityClass.getID());
+                setProtectModeAction(systemSecurityClass.getProtectModeAction());
+                setProtectModeMessage(systemSecurityClass.getProtectModeMessage());
+
+                setSystemGUIIconID(systemSecurityClass.getID());
+                setSystemGUIIconText(systemSecurityClass.getDescription());
+            }
+
+        } else {
+            setSystemGUIIconID(0);
+            setSystemGUIIconText("Device Trusted");
+        }
+
+        if (!isUserTrusted()) {
+
+            if (getUserPolicyScore() <= getUserAnomalyScore()) {
+
+                if (isSystemTrusted()) {
+                    setProtectModeClassID(userPolicyClass.getID());
+                    setProtectModeAction(userPolicyClass.getProtectModeAction());
+                    setProtectModeMessage(userPolicyClass.getProtectModeMessage());
+
+                    setProtectModeWhitelist(getProtectModeUserWhitelist());
+                } else {
+
+                    if (getProtectModeWhitelist() != null || getProtectModeWhitelist().size() < 1) {
+                        setProtectModeWhitelist(new ArrayList<SentegrityTrustFactorOutput>());
+                    }
+
+                    getProtectModeWhitelist().addAll(getProtectModeUserWhitelist());
+                }
+                setUserGUIIconID(userPolicyClass.getID());
+                setUserGUIIconText(userPolicyClass.getDescription());
+
+            } else {
+
+                if (isSystemTrusted()) {
+                    setProtectModeClassID(userAnomalyClass.getID());
+                    setProtectModeAction(userAnomalyClass.getProtectModeAction());
+                    setProtectModeMessage(userAnomalyClass.getProtectModeMessage());
+
+                    setProtectModeWhitelist(userAnomalyClass.getTrustFactorsToWhitelist());
+                } else {
+
+                    if (getProtectModeWhitelist() != null || getProtectModeWhitelist().size() < 1) {
+                        setProtectModeWhitelist(new ArrayList<SentegrityTrustFactorOutput>());
+                    }
+
+                    getProtectModeWhitelist().addAll(userAnomalyClass.getTrustFactorsToWhitelist());
+                }
+
+                setUserGUIIconID(userAnomalyClass.getID());
+                setUserGUIIconText(userAnomalyClass.getDescription());
+            }
+
+        } else {
+            setUserGUIIconID(0);
+            setUserGUIIconText("User Trusted");
+        }
+
+
+        return this;
+    }
+
+    private static void addSuggestions(SentegrityClassification classification, SentegritySubclassification subclassification, List<String> suggestions, SentegrityTrustFactorOutput output) {
+        switch (output.getStatusCode()) {
+            case UNAUTHORIZED:
+                if (!TextUtils.isEmpty(subclassification.getDneUnauthorized())) {
+                    if (!suggestions.contains(subclassification.getDneUnauthorized())) {
+                        suggestions.add(subclassification.getDneUnauthorized());
+                    }
+                }
+                break;
+            case DISABLED:
+                if (!TextUtils.isEmpty(subclassification.getDneDisabled())) {
+                    if (!suggestions.contains(subclassification.getDneDisabled())) {
+                        suggestions.add(subclassification.getDneDisabled());
+                    }
+                }
+                break;
+            case EXPIRED:
+                if (!TextUtils.isEmpty(subclassification.getDneExpired())) {
+                    if (!suggestions.contains(subclassification.getDneExpired())) {
+                        suggestions.add(subclassification.getDneExpired());
+                    }
+                }
+                break;
+            case NO_DATA:
+                if (!TextUtils.isEmpty(subclassification.getDneNoData())) {
+                    if (!suggestions.contains(subclassification.getDneNoData())) {
+                        suggestions.add(subclassification.getDneNoData());
+                    }
+                }
+                break;
+            case INVALID:
+                if (!TextUtils.isEmpty(subclassification.getDneInvalid())) {
+                    if (!suggestions.contains(subclassification.getDneInvalid())) {
+                        suggestions.add(subclassification.getDneInvalid());
+                    }
+                }
+                break;
+        }
+    }
+
+    private static void addSuggestionAndCalculateWeight(SentegrityClassification classification, SentegritySubclassification subclassification, List<String> suggestions, SentegrityPolicy policy, SentegrityTrustFactorOutput output) {
+        double penaltyMod = 0;
+        switch (output.getStatusCode()){
+            case ERROR:
+                penaltyMod = policy.getDneModifiers().getError();
+                break;
+            case UNAUTHORIZED:
+                penaltyMod = policy.getDneModifiers().getUnauthorized();
+                if (!TextUtils.isEmpty(subclassification.getDneUnauthorized())) {
+                    if (!suggestions.contains(subclassification.getDneUnauthorized())) {
+                        suggestions.add(subclassification.getDneUnauthorized());
+                    }
+                }
+                break;
+            case UNSUPPORTED:
+                penaltyMod = policy.getDneModifiers().getUnsupported();
+                if (!TextUtils.isEmpty(subclassification.getDneUnsupported())) {
+                    if (!suggestions.contains(subclassification.getDneUnsupported())) {
+                        suggestions.add(subclassification.getDneUnsupported());
+                    }
+                }
+                break;
+            case UNAVAILABLE:
+                penaltyMod = policy.getDneModifiers().getUnavailable();
+                if (!TextUtils.isEmpty(subclassification.getDneUnavailable())) {
+                    if (!suggestions.contains(subclassification.getDneUnavailable())) {
+                        suggestions.add(subclassification.getDneUnavailable());
+                    }
+                }
+                break;
+            case DISABLED:
+                penaltyMod = policy.getDneModifiers().getDisabled();
+                if (!TextUtils.isEmpty(subclassification.getDneDisabled())) {
+                    if (!suggestions.contains(subclassification.getDneDisabled())) {
+                        suggestions.add(subclassification.getDneDisabled());
+                    }
+                }
+                break;
+            case EXPIRED:
+                penaltyMod = policy.getDneModifiers().getExpired();
+                if (!TextUtils.isEmpty(subclassification.getDneExpired())) {
+                    if (!suggestions.contains(subclassification.getDneExpired())) {
+                        suggestions.add(subclassification.getDneExpired());
+                    }
+                }
+                break;
+            case NO_DATA:
+                penaltyMod = policy.getDneModifiers().getNoData();
+                if (!TextUtils.isEmpty(subclassification.getDneNoData())) {
+                    if (!suggestions.contains(subclassification.getDneNoData())) {
+                        suggestions.add(subclassification.getDneNoData());
+                    }
+                }
+                break;
+            case INVALID:
+                penaltyMod = policy.getDneModifiers().getInvalid();
+                if (!TextUtils.isEmpty(subclassification.getDneInvalid())) {
+                    if (!suggestions.contains(subclassification.getDneInvalid())) {
+                        suggestions.add(subclassification.getDneInvalid());
+                    }
+                }
+                break;
+            default:
+                penaltyMod = policy.getDneModifiers().getError();
+                break;
+        }
+
+        int weight = (int) (output.getTrustFactor().getWeight() * penaltyMod);
+
+        subclassification.setBaseWeight(subclassification.getBaseWeight() + weight);
+
+        output.setAppliedWeight(weight);
+
+        output.setPercentAppliedWeight(1);
     }
 }

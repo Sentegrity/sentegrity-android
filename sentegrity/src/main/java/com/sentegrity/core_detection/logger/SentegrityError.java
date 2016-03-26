@@ -29,7 +29,14 @@ public enum SentegrityError {
     NO_TRUSTFACTOR_OUTPUT_OBJECTS_FOR_COMPUTATION(5),
 
     // Unable to perform computation as no trustfactor objects provided
-    ERROR_DURING_COMPUTATION(6);
+    ERROR_DURING_COMPUTATION(6),
+
+
+    // No classifications found
+    NO_CLASSIFICATIONS_FOUND(33),
+
+    // No subclassifications found
+    NO_SUBCLASSIFICATIONS_FOUND(34);
 
     private int code;
 

@@ -30,4 +30,60 @@ public class SentegrityStoredTrustFactor implements Serializable {
 
     @SerializedName("assertionObjects")
     private List<SentegrityStoredAssertion> assertions;
+
+    public int getFactorID() {
+        return factorID;
+    }
+
+    public int getRevision() {
+        return revision;
+    }
+
+    public long getFirstRun() {
+        return firstRun;
+    }
+
+    public double getDecayMetric() {
+        return decayMetric;
+    }
+
+    public boolean isLearned() {
+        return learned;
+    }
+
+    public int getRunCount() {
+        return runCount;
+    }
+
+    public List<SentegrityStoredAssertion> getAssertions() {
+        return assertions;
+    }
+
+    public void setFactorID(int factorID) {
+        this.factorID = factorID;
+    }
+
+    public void setRevision(int revision) {
+        this.revision = revision;
+    }
+
+    public void setFirstRun(long firstRun) {
+        this.firstRun = firstRun;
+    }
+
+    public void setDecayMetric(double decayMetric) {
+        this.decayMetric = decayMetric;
+    }
+
+    public void setLearned(boolean learned) {
+        this.learned = learned;
+    }
+
+    public void setRunCount(int runCount) {
+        this.runCount = runCount;
+    }
+
+    public void setAssertions(List<SentegrityStoredAssertion> assertions) {
+        this.assertions = assertions;
+    }
 }
