@@ -23,7 +23,13 @@ public enum SentegrityError {
     NO_CALLBACK_BLOCK_PROVIDED(2),
 
     // No TrustFactors set to analyze
-    NO_TRUSTFACTORS_SET_TO_ANALYZE(3);
+    NO_TRUSTFACTORS_SET_TO_ANALYZE(3),
+
+    // Unable to perform computation as no trustfactor objects provided
+    NO_TRUSTFACTOR_OUTPUT_OBJECTS_FOR_COMPUTATION(5),
+
+    // Unable to perform computation as no trustfactor objects provided
+    ERROR_DURING_COMPUTATION(6);
 
     private int code;
 

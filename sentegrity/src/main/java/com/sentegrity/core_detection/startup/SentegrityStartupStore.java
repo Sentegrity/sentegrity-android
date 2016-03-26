@@ -73,7 +73,7 @@ public class SentegrityStartupStore {
 
             sentegrityStartup.setUserSalt(SentegrityConstants.USER_SALT_DEFAULT);
             sentegrityStartup.setDeviceSalt(deviceSalt());
-            sentegrityStartup.setLastOSVersion(Build.VERSION.RELEASE); // user release or sdk ?? (eg. "4.3" or 18)
+            sentegrityStartup.setLastOSVersion(Build.VERSION.RELEASE); // user release or sdk ?? (i.e. "4.3" or 18)
 
             if (setStartupData(sentegrityStartup)) {
                 return sentegrityStartup;
@@ -95,7 +95,7 @@ public class SentegrityStartupStore {
         return null;
     }
 
-    private boolean setStartupData(SentegrityStartup startup) {
+    public boolean setStartupData(SentegrityStartup startup) {
         //TODO: handle errors
         String stringJson = new Gson().toJson(startup);
 

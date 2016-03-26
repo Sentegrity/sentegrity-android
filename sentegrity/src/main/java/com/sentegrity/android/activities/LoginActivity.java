@@ -37,7 +37,7 @@ public class LoginActivity extends AppCompatActivity {
         progressDialog.show();
 
         SentegrityPolicy policy = CoreDetection.getInstance().parsePolicy("default.policy");
-        CoreDetection.getInstance().performCoreDetectionWithPolicy(policy, new CoreDetectionCallback() {
+        CoreDetection.getInstance().performCoreDetection(policy, new CoreDetectionCallback() {
             @Override
             public void onFinish(SentegrityTrustScoreComputation computationResult, SentegrityError error, boolean success) {
                 if(success){

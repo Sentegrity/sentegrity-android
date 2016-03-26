@@ -8,7 +8,7 @@ import android.util.Log;
 public class Logger {
 
     public static void INFO(String info, SentegrityError error){
-        Log.d(error.getDomain().getName(), info + "; " + error.getDetails().toString());
+        Log.e(error.getDomain().getName(), info + "; " + error.getDetails().toString());
     }
 
     public static void INFO(String info){
