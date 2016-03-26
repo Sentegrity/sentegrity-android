@@ -3,6 +3,7 @@ package com.sentegrity.core_detection.assertion_storage;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -56,7 +57,7 @@ public class SentegrityStoredTrustFactor implements Serializable {
     }
 
     public List<SentegrityStoredAssertion> getAssertions() {
-        return assertions;
+        return assertions != null ? assertions : new ArrayList<SentegrityStoredAssertion>();
     }
 
     public void setFactorID(int factorID) {

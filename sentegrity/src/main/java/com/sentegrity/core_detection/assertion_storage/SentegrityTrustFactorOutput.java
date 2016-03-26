@@ -4,7 +4,9 @@ import com.google.gson.annotations.SerializedName;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.policy.SentegrityTrustFactor;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by dmestrov on 21/03/16.
@@ -116,7 +118,7 @@ public class SentegrityTrustFactorOutput {
     }
 
     public List<SentegrityStoredAssertion> getStoredAssertionObjectsMatched() {
-        return storedAssertionObjectsMatched;
+        return storedAssertionObjectsMatched != null ? storedAssertionObjectsMatched : new ArrayList<SentegrityStoredAssertion>();
     }
 
     public List<SentegrityStoredAssertion> getCandidateAssertionObjectsForWhitelisting() {
@@ -124,7 +126,7 @@ public class SentegrityTrustFactorOutput {
     }
 
     public List<SentegrityStoredAssertion> getCandidateAssertionObjects() {
-        return candidateAssertionObjects;
+        return candidateAssertionObjects != null ? candidateAssertionObjects : new ArrayList<SentegrityStoredAssertion>();
     }
 
     public DNEStatusCode getStatusCode() {

@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by dmestrov on 23/03/16.
@@ -93,6 +94,7 @@ public class SentegrityTrustFactorDispatcher {
             Method m = Class.forName(className).getDeclaredMethod(method, List.class);
             output = (SentegrityTrustFactorOutput) m.invoke(null, data);
 
+            output.setStatusCode(DNEStatusCode.getByID(new Random().nextInt(9)));
             //create new instance of interface and call run()
             //TrustFactorDispatch dispatch = (TrustFactorDispatch) Class.forName(className).newInstance();
             //output = dispatch.run(method, data);

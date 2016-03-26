@@ -10,6 +10,7 @@ import com.google.gson.JsonSyntaxException;
 import com.sentegrity.core_detection.assertion_storage.SentegrityAssertionStore;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorStore;
+import com.sentegrity.core_detection.baseline_analysis.SentegrityBaselineAnalysis;
 import com.sentegrity.core_detection.computation.SentegrityTrustScoreComputation;
 import com.sentegrity.core_detection.dispatch.SentegrityTrustFactorDispatcher;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
@@ -64,7 +65,6 @@ public class CoreDetection {
     public static synchronized void initialize(Context context) {
         if (sInstance == null) {
             sInstance = new CoreDetection(context);
-            SentegrityAssertionStore.initialize(context);
             SentegrityTrustFactorStore.initialize(context);
             SentegrityStartupStore.initialize(context);
 
@@ -178,7 +178,21 @@ public class CoreDetection {
                     return null;
                 }
 
-                SentegrityTrustScoreComputation computationResults = SentegrityTrustScoreComputation.performTrustFactorComputation(policy, outputs);
+                List<SentegrityTrustFactorOutput> updatedOutputs = SentegrityBaselineAnalysis.performBaselineAnalysis(outputs, policy);
+                if(updatedOutputs == null){
+                    SentegrityError error = SentegrityError.NO_TRUSTFACTOR_OUTPUT_OBJECTS_FOR_COMPUTATION;
+                    error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
+                    error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No trust factors output objects available for computation").setRecoverySuggestion("Double check provided trust factors to analyze"));
+
+                    Logger.INFO("Perform Core Detection Unsuccessful", error);
+                    this.success = false;
+                    this.computation = new SentegrityTrustScoreComputation();
+                    this.error = error;
+                    //processCoreDetectionResponse(new SentegrityTrustScoreComputation(), false, error);
+                    return null;
+                }
+
+                SentegrityTrustScoreComputation computationResults = SentegrityTrustScoreComputation.performTrustFactorComputation(policy, updatedOutputs);
                 if(computationResults == null){
                     SentegrityError error = SentegrityError.ERROR_DURING_COMPUTATION;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
@@ -254,8 +268,7 @@ public class CoreDetection {
     /**
      * Call if you want to restart data
      */
-    public synchronized void logout(){
-        SentegrityAssertionStore.initialize(context);
+    public synchronized void reset(){
         SentegrityTrustFactorStore.initialize(context);
         SentegrityStartupStore.initialize(context);
         SentegrityTrustFactorDatasets.destroy();

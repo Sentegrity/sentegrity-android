@@ -1,10 +1,8 @@
 package com.sentegrity.core_detection.assertion_storage;
 
-import android.content.Context;
-
 import com.google.gson.annotations.SerializedName;
-import com.sentegrity.core_detection.policy.SentegrityTrustFactor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,9 +14,9 @@ public class SentegrityAssertionStore {
     private String appId;
 
     @SerializedName("storedTrustfactorObject")
-    private List<SentegrityTrustFactor> trustFactors;
+    private List<SentegrityStoredTrustFactor> trustFactors;
 
-    public List<SentegrityTrustFactor> getTrustFactors() {
+    public List<SentegrityStoredTrustFactor> getTrustFactors() {
         return trustFactors;
     }
 
@@ -30,27 +28,100 @@ public class SentegrityAssertionStore {
         this.appId = appId;
     }
 
-    public void setTrustFactors(List<SentegrityTrustFactor> trustFactors) {
+    public void setTrustFactors(List<SentegrityStoredTrustFactor> trustFactors) {
         this.trustFactors = trustFactors;
     }
 
-    private static SentegrityAssertionStore sInstance;
-
-    final private Context context;
-
-    public SentegrityAssertionStore(Context context) {
-        this.context = context;
-    }
-
-    public static synchronized void initialize(Context context){
-        sInstance = new SentegrityAssertionStore(context);
-    }
-
-    public static SentegrityAssertionStore getInstance(){
-        if(sInstance == null || sInstance.context == null) {
-            throw new IllegalStateException("Please call CoreDetection.initialize({context}) before requesting the instance.");
-        } else {
-            return sInstance;
+    public boolean addAllToStore(List<SentegrityStoredTrustFactor> list) {
+        if (list == null || list.size() < 1) {
+            return false;
         }
+
+        for (SentegrityStoredTrustFactor storedTrustFactor : list) {
+            if (!addToStore(storedTrustFactor)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public boolean addToStore(SentegrityStoredTrustFactor storedTrustFactor) {
+
+        if (storedTrustFactor == null)
+            return false;
+
+        if (trustFactors == null)
+            trustFactors = new ArrayList<>();
+
+        trustFactors.add(storedTrustFactor);
+
+        return true;
+    }
+
+    public boolean replaceInStore(SentegrityStoredTrustFactor storedTrustFactor) {
+        if (storedTrustFactor == null) {
+            return false;
+        }
+
+        SentegrityStoredTrustFactor existing = getStoredTrustFactor(storedTrustFactor.getFactorID());
+
+        if (existing != null) {
+            if (!removeFromStore(existing)) {
+                return false;
+            }
+        }
+        if(!addToStore(storedTrustFactor)){
+            return false;
+        }
+        return true;
+    }
+
+    private boolean removeFromStore(SentegrityStoredTrustFactor existing) {
+        if (existing == null) {
+            return false;
+        }
+
+        if(getStoredTrustFactor(existing.getFactorID()) != null){
+            trustFactors.remove(existing);
+
+            //TODO: different object? removeFromStore by id?
+        }else{
+            return false;
+        }
+        return false;
+    }
+
+
+    public SentegrityStoredTrustFactor createStoredTrustFactor(SentegrityTrustFactorOutput output) {
+        if (output == null)
+            return null;
+
+        SentegrityStoredTrustFactor storedTrustFactor = new SentegrityStoredTrustFactor();
+        storedTrustFactor.setFactorID(output.getTrustFactor().getID());
+        storedTrustFactor.setRevision(output.getTrustFactor().getRevision());
+        storedTrustFactor.setDecayMetric(output.getTrustFactor().getDecayMetric());
+        storedTrustFactor.setLearned(false);
+        storedTrustFactor.setFirstRun(System.currentTimeMillis());
+        storedTrustFactor.setRunCount(0);
+
+        return storedTrustFactor;
+    }
+
+    public SentegrityStoredTrustFactor getStoredTrustFactor(int id) {
+        if (id < 1)
+            return null;
+
+        if (getTrustFactors() == null || getTrustFactors().size() < 1) {
+            return null;
+        }
+
+        for (SentegrityStoredTrustFactor trustFactor : getTrustFactors()) {
+            if (trustFactor.getFactorID() == id) {
+                return trustFactor;
+            }
+        }
+
+        return null;
     }
 }

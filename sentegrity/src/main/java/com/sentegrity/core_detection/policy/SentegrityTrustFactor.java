@@ -156,8 +156,8 @@ public class SentegrityTrustFactor implements Serializable {
         return decayMetric;
     }
 
-    public int getWipeOnUpdate() {
-        return wipeOnUpdate;
+    public boolean isWipeOnUpdate() {
+        return wipeOnUpdate > 0;
     }
 
     public String getDispatch() {
@@ -168,8 +168,8 @@ public class SentegrityTrustFactor implements Serializable {
         return implementation;
     }
 
-    public int getWhitelistable() {
-        return whitelistable;
+    public boolean isWhitelistable() {
+        return whitelistable > 0;
     }
 
     public int getPrivateAPI() {

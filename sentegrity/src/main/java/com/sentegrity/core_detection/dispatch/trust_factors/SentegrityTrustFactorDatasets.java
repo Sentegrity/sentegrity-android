@@ -20,6 +20,10 @@ public class SentegrityTrustFactorDatasets {
         return sInstance;
     }
 
+    public long getRunTime() {
+        return runTime;
+    }
+
     /**
      * Call on reloading login
      */
