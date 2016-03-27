@@ -1,5 +1,7 @@
 package com.sentegrity.core_detection.dispatch.trust_factors;
 
+import java.util.List;
+
 /**
  * Created by dmestrov on 23/03/16.
  */
@@ -10,7 +12,7 @@ public class SentegrityTrustFactorDatasets {
     private static SentegrityTrustFactorDatasets sInstance;
 
     public SentegrityTrustFactorDatasets() {
-        this.runTime = System.currentTimeMillis() / 1000;
+        this.runTime = System.currentTimeMillis();
     }
 
     public static synchronized SentegrityTrustFactorDatasets getInstance(){
@@ -24,6 +26,9 @@ public class SentegrityTrustFactorDatasets {
         return runTime;
     }
 
+    public static boolean validatePayload(List<Object> payload){
+        return !(payload == null || payload.size() < 1);
+    }
     /**
      * Call on reloading login
      */

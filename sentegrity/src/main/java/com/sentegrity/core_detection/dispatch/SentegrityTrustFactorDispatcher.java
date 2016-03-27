@@ -81,7 +81,7 @@ public class SentegrityTrustFactorDispatcher {
 
         output.setTrustFactor(trustFactor);
         if(output.getOutput() != null && output.getOutput().size() > 0){
-            output.setAsertionObjectsFromOutputWithDeviceSalt(startup.getDeviceSalt());
+            output.setAssertionObjectsFromOutputWithDeviceSalt(startup.getDeviceSalt());
         }
 
         return output;
@@ -94,7 +94,6 @@ public class SentegrityTrustFactorDispatcher {
             Method m = Class.forName(className).getDeclaredMethod(method, List.class);
             output = (SentegrityTrustFactorOutput) m.invoke(null, data);
 
-            output.setStatusCode(DNEStatusCode.getByID(new Random().nextInt(9)));
             //create new instance of interface and call run()
             //TrustFactorDispatch dispatch = (TrustFactorDispatch) Class.forName(className).newInstance();
             //output = dispatch.run(method, data);

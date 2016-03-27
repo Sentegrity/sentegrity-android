@@ -3,6 +3,7 @@ package com.sentegrity.core_detection.assertion_storage;
 import com.google.gson.annotations.SerializedName;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.policy.SentegrityTrustFactor;
+import com.sentegrity.core_detection.utilities.Helpers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,10 +49,6 @@ public class SentegrityTrustFactorOutput {
 
     @SerializedName("percentAppliedWeight")
     private double percentAppliedWeight;
-
-    public void setAsertionObjectsFromOutputWithDeviceSalt(String deviceSalt){
-
-    }
 
     public SentegrityTrustFactorOutput(){
         statusCode = DNEStatusCode.OK;
@@ -114,7 +111,7 @@ public class SentegrityTrustFactorOutput {
     }
 
     public List<String> getOutput() {
-        return output;
+        return output != null ? output : new ArrayList<String>();
     }
 
     public List<SentegrityStoredAssertion> getStoredAssertionObjectsMatched() {
@@ -152,4 +149,26 @@ public class SentegrityTrustFactorOutput {
     public double getPercentAppliedWeight() {
         return percentAppliedWeight;
     }
+
+
+    public void setAssertionObjectsFromOutputWithDeviceSalt(String deviceSalt){
+        List<SentegrityStoredAssertion> assertions = new ArrayList<>();
+
+        for(String trustFactorOutput : getOutput()){
+            SentegrityStoredAssertion assertion = new SentegrityStoredAssertion();
+
+            String hash = Helpers.getSHA1Hash(getTrustFactor().getID() + "1234567890" + deviceSalt + trustFactorOutput) + "-" + trustFactorOutput;
+
+            assertion.setHash(hash);
+            assertion.setLastTime(System.currentTimeMillis());
+            assertion.setHitCount(1);
+            assertion.setCreated(System.currentTimeMillis());
+            assertion.setDecayMetric(1.0);
+
+            assertions.add(assertion);
+        }
+
+        setCandidateAssertionObjects(assertions);
+    }
+
 }

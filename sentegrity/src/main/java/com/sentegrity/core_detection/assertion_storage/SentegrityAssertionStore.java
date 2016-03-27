@@ -13,7 +13,7 @@ public class SentegrityAssertionStore {
     @SerializedName("appid")
     private String appId;
 
-    @SerializedName("storedTrustfactorObject")
+    @SerializedName("storedTrustFactorObjects")
     private List<SentegrityStoredTrustFactor> trustFactors;
 
     public List<SentegrityStoredTrustFactor> getTrustFactors() {
@@ -26,6 +26,10 @@ public class SentegrityAssertionStore {
 
     public void setAppId(String appId) {
         this.appId = appId;
+    }
+
+    public SentegrityAssertionStore(){
+        trustFactors = new ArrayList<>();
     }
 
     public void setTrustFactors(List<SentegrityStoredTrustFactor> trustFactors) {
@@ -89,7 +93,7 @@ public class SentegrityAssertionStore {
         }else{
             return false;
         }
-        return false;
+        return true;
     }
 
 

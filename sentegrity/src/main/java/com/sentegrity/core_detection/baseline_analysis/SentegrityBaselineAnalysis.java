@@ -31,6 +31,7 @@ public class SentegrityBaselineAnalysis {
 
         if (assertionStore == null) {
             assertionStore = new SentegrityAssertionStore();
+            assertionStore.setAppId(policy.getAppID());
         }
 
         SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupData();
@@ -280,12 +281,19 @@ public class SentegrityBaselineAnalysis {
 
     private static SentegrityTrustFactorOutput performMetricBasedDecay(SentegrityTrustFactorOutput output) {
 
+        double miliSecondsInDay = 86400 * 1000;
+        double daysSinceCreation = 0;
         double hitsPerDay = 0;
 
         List<SentegrityStoredAssertion> assertionsToKeep = new ArrayList();
 
-        for (SentegrityStoredAssertion assertion : output.getStoredTrustFactor().getAssertions()) {
-            hitsPerDay = (double) assertion.getHitCount() / getDaysBetweenDates(System.currentTimeMillis(), assertion.getCreated());
+        for(SentegrityStoredAssertion assertion : output.getStoredTrustFactor().getAssertions()){
+            daysSinceCreation = (SentegrityTrustFactorDatasets.getInstance().getRunTime() - assertion.getCreated()) / miliSecondsInDay;
+            if(daysSinceCreation < 1){
+                daysSinceCreation = 1;
+            }
+
+            hitsPerDay = (double)assertion.getHitCount() / daysSinceCreation;
 
             assertion.setDecayMetric(hitsPerDay);
 
@@ -303,6 +311,6 @@ public class SentegrityBaselineAnalysis {
 
     private static int getDaysBetweenDates(long date1, long date2) {
         double miliSecondsInDay = 86400 * 1000;
-        return (int) Math.ceil(Math.abs(date1 - date2) / miliSecondsInDay);
+        return (int) (Math.abs(date1 - date2) / miliSecondsInDay);
     }
 }
