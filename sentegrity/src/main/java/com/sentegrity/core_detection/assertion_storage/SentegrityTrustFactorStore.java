@@ -36,6 +36,10 @@ public class SentegrityTrustFactorStore {
         }
     }
 
+    public String getStorePath() {
+        return storePath;
+    }
+
     public SentegrityAssertionStore setAssertionStore(SentegrityAssertionStore store, String appId){
         //TODO: handle errors
         String stringJson = new Gson().toJson(store);

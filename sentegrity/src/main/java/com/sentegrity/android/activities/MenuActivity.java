@@ -1,12 +1,17 @@
 package com.sentegrity.android.activities;
 
 import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
 import android.view.View;
 
 import com.sentegrity.android.R;
+import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorStore;
 
+import java.io.File;
 import java.util.MissingResourceException;
 
 /**
@@ -55,6 +60,7 @@ public class MenuActivity extends Activity {
                 case R.id.score_debug:
                     break;
                 case R.id.wipe_profile:
+                    showWipeAlert();
                     break;
                 case R.id.menu_handle:
                     drawer.openDrawer(Gravity.RIGHT);
@@ -62,6 +68,29 @@ public class MenuActivity extends Activity {
             }
         }
     };
+
+    private void showWipeAlert() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+
+        dialogBuilder.setTitle("Wipe profile");
+        dialogBuilder.setMessage("Are you sure you want to wipe the device profile? The demo will wipe all learned data.");
+        dialogBuilder.setPositiveButton("Reset", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                File f = new File(SentegrityTrustFactorStore.getInstance().getStorePath());
+                if(!f.exists())
+                    return;
+                for(File file : f.listFiles()){
+                    if(file.getName().endsWith(".store")){
+                        file.delete();
+                    }
+                }
+            }
+        });
+        dialogBuilder.setNegativeButton("Cancel", null);
+        AlertDialog b = dialogBuilder.create();
+        b.show();
+    }
 
     @Override
     public void onBackPressed() {
