@@ -1,15 +1,15 @@
 package com.sentegrity.android.activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Handler;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.sentegrity.android.R;
@@ -18,8 +18,12 @@ import com.sentegrity.core_detection.CoreDetectionCallback;
 import com.sentegrity.core_detection.computation.SentegrityTrustScoreComputation;
 import com.sentegrity.core_detection.logger.SentegrityError;
 import com.sentegrity.core_detection.policy.SentegrityPolicy;
+import com.sentegrity.core_detection.protect_mode.ProtectMode;
+import com.sentegrity.core_detection.startup.SentegrityStartupStore;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends Activity {
+
+    private SentegrityTrustScoreComputation computationResults;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,26 +33,82 @@ public class LoginActivity extends AppCompatActivity {
         startAnalyzing();
     }
 
-    private void startAnalyzing(){
+    private void startAnalyzing() {
         final ProgressDialog progressDialog = new ProgressDialog(this);
         progressDialog.setCancelable(false);
         progressDialog.setTitle("Analyzing");
         progressDialog.setMessage("Mobile Security Posture");
         progressDialog.show();
 
-        SentegrityPolicy policy = CoreDetection.getInstance().parsePolicy("default.policy");
+        final SentegrityPolicy policy = CoreDetection.getInstance().parsePolicy("default.policy");
         CoreDetection.getInstance().performCoreDetection(policy, new CoreDetectionCallback() {
             @Override
             public void onFinish(SentegrityTrustScoreComputation computationResult, SentegrityError error, boolean success) {
-                if(success){
+                if (success) {
+                    analyzeResults(computationResult, policy);
                     progressDialog.cancel();
-                    showError();
+                    //showError();
                 }
             }
         });
     }
 
-    private void showError() {
+    private void analyzeResults(SentegrityTrustScoreComputation computationResults, SentegrityPolicy policy) {
+        this.computationResults = computationResults;
+        if (computationResults.isDeviceTrusted()) {
+            showInfoDialog();
+            //update current state
+        } else {
+
+            final ProtectMode protectMode = new ProtectMode(policy, computationResults.getProtectModeWhitelist());
+
+            switch (computationResults.getProtectModeAction()) {
+                case 1:
+                    SentegrityStartupStore.getInstance().setCurrentState("Waiting for user password after anomaly");
+                    showError("Login required", "Enter password to continue", new OnLoginListener() {
+                        @Override
+                        public boolean onLogin(String password) {
+                            return protectMode.deactivateProtectMode(1, password);
+                        }
+                    });
+                    break;
+                case 2:
+                    SentegrityStartupStore.getInstance().setCurrentState("Waiting for user password after policy violation");
+                    showError("Policy violation", "You are in violation of a policy. This attempt has been recorded. \n\nEnter password to continue.", new OnLoginListener() {
+                        @Override
+                        public boolean onLogin(String password) {
+                            return protectMode.deactivateProtectMode(1, password);
+                        }
+                    });
+                    break;
+                case 3:
+                    SentegrityStartupStore.getInstance().setCurrentState("Waiting for user password after warning");
+                    showError("High risk device", "Access may result in data breach. This attempt has been recorded. \n\nEnter password to continue.", new OnLoginListener() {
+                        @Override
+                        public boolean onLogin(String password) {
+                            return protectMode.deactivateProtectMode(1, password);
+                        }
+                    });
+                    break;
+                case 4:
+                    SentegrityStartupStore.getInstance().setCurrentState("Waiting after locking out");
+                    accessDeniedError("Application locked", "Access denied");
+                    break;
+                case 5:
+                    SentegrityStartupStore.getInstance().setCurrentState("Waiting for user override password");
+                    showError("High risk device", "he conditions of this device require administrator approval to continue. \n\nEnter override PIN to continue.", new OnLoginListener() {
+                        @Override
+                        public boolean onLogin(String password) {
+                            return protectMode.deactivateProtectMode(1, password);
+                        }
+                    });
+                    break;
+            }
+        }
+
+    }
+
+    private void showError(final String title, final String message, final OnLoginListener clickListener) {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
 
         final View view = LayoutInflater.from(this).inflate(R.layout.dialog_login_error_password, null);
@@ -56,13 +116,20 @@ public class LoginActivity extends AppCompatActivity {
 
         dialogBuilder.setView(view);
 
-        dialogBuilder.setTitle("High Risk Device");
-        dialogBuilder.setMessage("Some problem may have occurred. This attempt has been recorded.\n\n Enter password to continue.");
+        dialogBuilder.setTitle(title);
+        dialogBuilder.setMessage(message);
         dialogBuilder.setPositiveButton("Login", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int whichButton) {
-                startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
-                finishAffinity();
+                if (clickListener.onLogin(password.getText().toString())) {
+                    showInfoDialog();
+
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(password.getWindowToken(), 0);
+                } else {
+                    dialog.dismiss();
+                    showError(title, message, clickListener);
+                }
             }
         });
         dialogBuilder.setNegativeButton("View Issues", new DialogInterface.OnClickListener() {
@@ -77,4 +144,47 @@ public class LoginActivity extends AppCompatActivity {
         b.show();
     }
 
+    private void accessDeniedError(String title, String message) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+
+        dialogBuilder.setTitle(title);
+        dialogBuilder.setMessage(message);
+        AlertDialog b = dialogBuilder.create();
+        b.setCancelable(false);
+        b.show();
+    }
+
+    private void showInfoDialog() {
+        if (computationResults.isDeviceTrusted()) {
+            showDialog("AccessGranted", "You've been transparently authenticated.");
+        } else if (computationResults.isSystemTrusted()) {
+            showDialog("What happened?", "A password was required\ndue to abnormal user activity.");
+        } else {
+            showDialog("What happened?", "Data breach may occur\ndue to a high risk device.");
+        }
+    }
+
+    private void showDialog(final String title, final String message) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+
+        dialogBuilder.setTitle(title);
+        dialogBuilder.setMessage(message);
+        dialogBuilder.setPositiveButton("View dashboard", null);
+        AlertDialog b = dialogBuilder.create();
+        b.setCancelable(false);
+        b.show();
+
+        b.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialog) {
+                startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
+                finishAffinity();
+            }
+        });
+    }
+
+
+    private interface OnLoginListener {
+        boolean onLogin(String password);
+    }
 }
