@@ -94,6 +94,9 @@ public class SentegrityTrustFactorDispatcher {
             Method m = Class.forName(className).getDeclaredMethod(method, List.class);
             output = (SentegrityTrustFactorOutput) m.invoke(null, data);
 
+            //setting random error code for testing purposes
+            if(!className.equals("Time"))
+                output.setStatusCode(DNEStatusCode.getByID(new Random().nextInt(5)));
             //create new instance of interface and call run()
             //TrustFactorDispatch dispatch = (TrustFactorDispatch) Class.forName(className).newInstance();
             //output = dispatch.run(method, data);

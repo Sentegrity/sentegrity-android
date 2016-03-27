@@ -1,8 +1,12 @@
 package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
+import com.google.gson.JsonObject;
+import com.google.gson.internal.LinkedTreeMap;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
+
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +25,14 @@ public class TrustFactorDispatchTime {
             return output;
         }
 
+        double hoursInBlock = (double) ((LinkedTreeMap)payload.get(0)).get("hoursInBlock");
+
         List<String> outputList = new ArrayList<>();
-        outputList.add("randomTime-" + new Random().nextInt(2));
+
+        String time = SentegrityTrustFactorDatasets.getInstance().getTimeDateString(hoursInBlock, true);
+
+        outputList.add(time);
+
         output.setOutput(outputList);
 
         return output;
