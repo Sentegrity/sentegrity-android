@@ -1,7 +1,9 @@
 package com.sentegrity.android.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -9,8 +11,11 @@ import android.widget.TextView;
 import com.sentegrity.android.R;
 import com.sentegrity.android.widget.ScoreLayout;
 import com.sentegrity.core_detection.CoreDetection;
+import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorStore;
 import com.sentegrity.core_detection.computation.SentegrityTrustScoreComputation;
+import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
 
+import java.io.File;
 import java.util.Random;
 
 
@@ -35,6 +40,7 @@ public class DashboardActivity extends MenuActivity implements View.OnClickListe
 
         findViewById(R.id.device_info).setOnClickListener(this);
         findViewById(R.id.user_info).setOnClickListener(this);
+        findViewById(R.id.reload).setOnClickListener(this);
 
         TextView deviceInfoText = (TextView) findViewById(R.id.device_info_text);
         TextView userInfoText = (TextView) findViewById(R.id.user_info_text);
@@ -66,6 +72,28 @@ public class DashboardActivity extends MenuActivity implements View.OnClickListe
                 Intent userInfo = new Intent(this, UserInfoActivity.class);
                 startActivity(userInfo);
                 break;
+            case R.id.reload:
+                showReloadAlert();
+                break;
         }
+    }
+
+    private void showReloadAlert(){
+
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+
+        dialogBuilder.setTitle("Refresh");
+        dialogBuilder.setMessage("Do you want to run detection again and update the score?");
+        dialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                CoreDetection.getInstance().reset();
+                startActivity(new Intent(DashboardActivity.this, LoginActivity.class));
+                finishAffinity();
+            }
+        });
+        dialogBuilder.setNegativeButton("Cancel", null);
+        AlertDialog b = dialogBuilder.create();
+        b.show();
     }
 }
