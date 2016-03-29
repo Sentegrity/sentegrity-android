@@ -750,17 +750,16 @@ public class SentegrityTrustScoreComputation {
         boolean userPolicyViolation = false;
 
         for (SentegrityClassification classification : policy.getClassifications()) {
+            int currentScore = 0;
+
+            if (classification.getComputationMethod() == 0) {
+                currentScore = Math.min(100, Math.max(0, 100 - classification.getScore()));
+            } else if (classification.getComputationMethod() == 1) {
+                currentScore = Math.min(100, classification.getScore());
+            }
+
             if (classification.getType() == 0) {
                 systemTrustScoreSum = systemTrustScoreSum + classification.getScore();
-
-                int currentScore = 0;
-
-                if (classification.getComputationMethod() == 0) {
-                    currentScore = Math.min(100, Math.max(0, 100 - classification.getScore()));
-                } else if (classification.getComputationMethod() == 1) {
-                    currentScore = Math.min(100, classification.getScore());
-                }
-
 
                 switch (classification.getID()) {
                     case 1:
@@ -793,14 +792,7 @@ public class SentegrityTrustScoreComputation {
 
                 systemTrustFactorsToWhitelist.addAll(classification.getTrustFactorsToWhitelist());
             } else {
-
-                int currentScore = 0;
-
-                if (classification.getComputationMethod() == 0) {
-                    currentScore = Math.min(100, Math.max(0, 100 - classification.getScore()));
-                } else if (classification.getComputationMethod() == 1) {
-                    currentScore = Math.min(100, classification.getScore());
-                }
+                userTrustScoreSum = userTrustScoreSum + classification.getScore();
 
 
                 switch (classification.getID()) {
@@ -838,7 +830,6 @@ public class SentegrityTrustScoreComputation {
         setSystemGUIIssues(systemIssues);
         setSystemGUISuggestions(systemSuggestions);
         setSystemGUIAnalysis(systemSubClassStatuses);
-
         setUserGUIIssues(userIssues);
         setUserGUISuggestions(userSuggestions);
         setUserGUIAnalysis(userSubClassStatuses);

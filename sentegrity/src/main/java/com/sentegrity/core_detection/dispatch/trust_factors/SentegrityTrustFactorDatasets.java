@@ -1,5 +1,11 @@
 package com.sentegrity.core_detection.dispatch.trust_factors;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
+import android.text.TextUtils;
+
 import java.util.Calendar;
 import java.util.List;
 
@@ -8,22 +14,34 @@ import java.util.List;
  */
 public class SentegrityTrustFactorDatasets {
 
-    final private long runTime;
+    private long runTime = -1;
 
     private int hourOfDay = -1;
     private int dayOfWeek = -1;
+    private String batteryState;
 
     private static SentegrityTrustFactorDatasets sInstance;
+    private final Context context;
 
-    public SentegrityTrustFactorDatasets() {
-        this.runTime = System.currentTimeMillis();
+    public SentegrityTrustFactorDatasets(Context context) {
+        this.context = context;
+        //reset runtime on initialization
+        this.runTime = -1;
     }
 
-    public static synchronized SentegrityTrustFactorDatasets getInstance() {
+    public static synchronized void initialize(Context context) {
+        sInstance = new SentegrityTrustFactorDatasets(context);
+    }
+
+    public static SentegrityTrustFactorDatasets getInstance() {
         if (sInstance == null) {
-            sInstance = new SentegrityTrustFactorDatasets();
+            throw new IllegalStateException("Please call CoreDetection.initialize({context}) before requesting the instance.");
+        } else {
+            if(sInstance.runTime < 0){
+                sInstance.runTime = System.currentTimeMillis();
+            }
+            return sInstance;
         }
-        return sInstance;
     }
 
     public long getRunTime() {
@@ -55,8 +73,50 @@ public class SentegrityTrustFactorDatasets {
         if (withDayOfWeek) {
             return "DAY_" + dayOfWeek + "_" + "HOUR_" + hourBlock;
         } else {
-            return "HOUR_" + hourOfDay;
+            return "HOUR_" + hourBlock;
         }
+    }
+
+    public String getBatteryState() {
+        if (TextUtils.isEmpty(batteryState)) {
+            IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+            Intent batteryStatus = context.registerReceiver(null, ifilter);
+            if(batteryStatus == null)
+                return "unknown";
+
+            //TODO: check other states
+            int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+            boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING;
+            boolean isFull = status == BatteryManager.BATTERY_STATUS_FULL;
+            boolean discharging = status == BatteryManager.BATTERY_STATUS_DISCHARGING;
+
+            if (isCharging) {
+                return batteryState = "pluggedCharging";
+            }
+            else if (isFull) {
+                return batteryState = "pluggedFull";
+            }
+            else if(discharging){
+                return batteryState = "unplugged";
+            }
+            else {
+                return batteryState = "unknown";
+            }
+        } else {
+            return batteryState;
+        }
+    }
+
+    public float getBatteryPercent() {
+        IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent batteryStatus = context.registerReceiver(null, ifilter);
+        if(batteryStatus == null)
+            return 0;
+
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+
+        return level / (float)scale;
     }
 
 
@@ -66,6 +126,5 @@ public class SentegrityTrustFactorDatasets {
     public static void destroy() {
         sInstance = null;
     }
-
 
 }

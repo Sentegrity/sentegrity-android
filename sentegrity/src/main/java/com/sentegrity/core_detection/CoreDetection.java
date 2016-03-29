@@ -67,6 +67,7 @@ public class CoreDetection {
             sInstance = new CoreDetection(context);
             SentegrityTrustFactorStore.initialize(context);
             SentegrityStartupStore.initialize(context);
+            SentegrityTrustFactorDatasets.initialize(context);
 
             startCoreDetectionActivities();
         }else{
@@ -271,7 +272,7 @@ public class CoreDetection {
     public synchronized void reset(){
         SentegrityTrustFactorStore.initialize(context);
         SentegrityStartupStore.initialize(context);
-        SentegrityTrustFactorDatasets.destroy();
+        SentegrityTrustFactorDatasets.initialize(context);
 
         startCoreDetectionActivities();
     }
