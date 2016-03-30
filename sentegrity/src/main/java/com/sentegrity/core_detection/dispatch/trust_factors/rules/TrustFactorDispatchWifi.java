@@ -1,7 +1,9 @@
 package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
+import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,7 +20,17 @@ public class TrustFactorDispatchWifi {
     }
 
     public static SentegrityTrustFactorOutput hotspotEnabled(List<Object> payload){
-        return new SentegrityTrustFactorOutput();
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        List<String> outputList = new ArrayList<>();
+
+        if(SentegrityTrustFactorDatasets.getInstance().isTethering()){
+            outputList.add("hotspotOn");
+        }
+
+        output.setOutput(outputList);
+
+        return output;
     }
 
     public static SentegrityTrustFactorOutput defaultSSID(List<Object> payload){

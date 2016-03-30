@@ -46,6 +46,7 @@ public class TrustFactorDispatchPower {
     }
 
     public static SentegrityTrustFactorOutput pluggedIn(List<Object> payload){
+        //TODO: rework and add all possible states
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         List<String> outputList = new ArrayList<>();

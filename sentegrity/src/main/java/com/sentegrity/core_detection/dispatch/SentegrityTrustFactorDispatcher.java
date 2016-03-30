@@ -96,9 +96,10 @@ public class SentegrityTrustFactorDispatcher {
 
             //setting random error code for testing purposes (disable available rules)
             ArrayList<String> list = new ArrayList<String>();
-            list.add("powerLevelTime");
-            list.add("accessTime");
-            list.add("pluggedIn");
+            list.add("powerLevelTime"); list.add("shortUptime");
+            list.add("accessTime");     list.add("pluggedIn");
+            list.add("hotspotEnabled");
+
             if(!list.contains(method))
                 output.setStatusCode(DNEStatusCode.getByID(new Random().nextInt(5)));
             //create new instance of interface and call run()

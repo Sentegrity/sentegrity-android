@@ -3,9 +3,14 @@ package com.sentegrity.core_detection.dispatch.trust_factors;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.text.TextUtils;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Calendar;
 import java.util.List;
 
@@ -19,6 +24,7 @@ public class SentegrityTrustFactorDatasets {
     private int hourOfDay = -1;
     private int dayOfWeek = -1;
     private String batteryState;
+    private Boolean tethering = null;
 
     private static SentegrityTrustFactorDatasets sInstance;
     private final Context context;
@@ -117,6 +123,20 @@ public class SentegrityTrustFactorDatasets {
         int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
 
         return level / (float)scale;
+    }
+
+    public Boolean isTethering() {
+        if(tethering == null){
+            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            try {
+                //TODO: recheck method, make it more bulletproof --> add to separate WifiInfo.java
+                Method method = wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
+                return tethering = (Boolean) method.invoke(wifiManager);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+        return tethering;
     }
 
 
