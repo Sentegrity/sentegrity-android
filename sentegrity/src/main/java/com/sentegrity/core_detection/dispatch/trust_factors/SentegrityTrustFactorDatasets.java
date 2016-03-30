@@ -7,6 +7,9 @@ import android.net.ConnectivityManager;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
+import android.os.Build;
+import android.provider.Settings;
+import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -25,6 +28,8 @@ public class SentegrityTrustFactorDatasets {
     private int dayOfWeek = -1;
     private String batteryState;
     private Boolean tethering = null;
+    private String carrierConnectionName;
+    private Boolean airplaneMode;
 
     private static SentegrityTrustFactorDatasets sInstance;
     private final Context context;
@@ -43,7 +48,7 @@ public class SentegrityTrustFactorDatasets {
         if (sInstance == null) {
             throw new IllegalStateException("Please call CoreDetection.initialize({context}) before requesting the instance.");
         } else {
-            if(sInstance.runTime < 0){
+            if (sInstance.runTime < 0) {
                 sInstance.runTime = System.currentTimeMillis();
             }
             return sInstance;
@@ -87,10 +92,10 @@ public class SentegrityTrustFactorDatasets {
         if (TextUtils.isEmpty(batteryState)) {
             IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
             Intent batteryStatus = context.registerReceiver(null, ifilter);
-            if(batteryStatus == null)
+            if (batteryStatus == null)
                 return "unknown";
 
-            //TODO: check other states
+            //TODO: check other states // implement real USB connection status
             int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
             boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING;
             boolean isFull = status == BatteryManager.BATTERY_STATUS_FULL;
@@ -98,14 +103,11 @@ public class SentegrityTrustFactorDatasets {
 
             if (isCharging) {
                 return batteryState = "pluggedCharging";
-            }
-            else if (isFull) {
+            } else if (isFull) {
                 return batteryState = "pluggedFull";
-            }
-            else if(discharging){
+            } else if (discharging) {
                 return batteryState = "unplugged";
-            }
-            else {
+            } else {
                 return batteryState = "unknown";
             }
         } else {
@@ -116,20 +118,20 @@ public class SentegrityTrustFactorDatasets {
     public float getBatteryPercent() {
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, ifilter);
-        if(batteryStatus == null)
+        if (batteryStatus == null)
             return 0;
 
         int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
 
-        return level / (float)scale;
+        return level / (float) scale;
     }
 
     public Boolean isTethering() {
-        if(tethering == null){
+        if (tethering == null) {
             WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
             try {
-                //TODO: recheck method, make it more bulletproof --> add to separate WifiInfo.java
+                //TODO: recheck method, make it more bulletproof --> add to separate class / WifiInfo.java
                 Method method = wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
                 return tethering = (Boolean) method.invoke(wifiManager);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
@@ -139,6 +141,29 @@ public class SentegrityTrustFactorDatasets {
         return tethering;
     }
 
+    public String getCarrierConnectionName() {
+        if (TextUtils.isEmpty(carrierConnectionName)) {
+            //TODO: recheck method, make it more bulletproof --> add to separate class / CellInfo.java
+            TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            return carrierConnectionName = manager.getNetworkOperatorName();
+        }
+        return carrierConnectionName;
+    }
+
+    public Boolean isAirplaneMode() {
+        if (airplaneMode == null) {
+            //TODO: recheck method, make it more bulletproof --> add to separate class / CellInfo.java
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                return airplaneMode = Settings.System.getInt(context.getContentResolver(),
+                        Settings.System.AIRPLANE_MODE_ON, 0) != 0;
+            } else {
+                return airplaneMode = Settings.Global.getInt(context.getContentResolver(),
+                        Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
+            }
+        }
+        return airplaneMode;
+    }
+
 
     /**
      * Call on reloading login
@@ -146,5 +171,4 @@ public class SentegrityTrustFactorDatasets {
     public static void destroy() {
         sInstance = null;
     }
-
 }

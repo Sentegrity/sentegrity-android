@@ -98,7 +98,8 @@ public class SentegrityTrustFactorDispatcher {
             ArrayList<String> list = new ArrayList<String>();
             list.add("powerLevelTime"); list.add("shortUptime");
             list.add("accessTime");     list.add("pluggedIn");
-            list.add("hotspotEnabled");
+            list.add("hotspotEnabled"); list.add("cellConnectionChange");
+            list.add("airplaneMode");
 
             if(!list.contains(method))
                 output.setStatusCode(DNEStatusCode.getByID(new Random().nextInt(5)));
