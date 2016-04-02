@@ -12,4 +12,8 @@ public class SentegrityConstants {
 
 
     public static final String STORE_FILETYPE = ".store";
+
+    public static final String HOTSPOT_SSID_LIST_FILE_NAME = "hotspot_ssids.list";
+    public static final String OUI_LIST_FILE_NAME = "oui.list";
+    public static final String DEFAULT_SSID_LIST_FILE_NAME = "default_ssids.list";
 }

@@ -78,12 +78,8 @@ public class SystemDebugActivity extends DebugActivity {
             }
 
             systemTrustFactorsToWhitelist += "--Name: " + output.getTrustFactor().getName() + "\n\n"
-                    + "Weight Applied: " + output.getAppliedWeight() + "\n"
-                    + "Weight Percent: " + output.getPercentAppliedWeight() + "\n"
-                    + "Use Partial: " + output.getTrustFactor().getPartialWeight() + "\n"
-                    + "Total Possible: " + output.getTrustFactor().getWeight() + "\n\n"
                     + "Current Assertions: " + "\n" + currentAssertions
-                    + "Matching Assertions: " + "\n" + storedAssertions;
+                    + "Stored Assertions: " + "\n" + storedAssertions;
         }
 
         complete += systemTrustFactorsToWhitelist;
@@ -110,7 +106,7 @@ public class SystemDebugActivity extends DebugActivity {
 
             systemTrustFactorsNotLearned += "--Name: " + output.getTrustFactor().getName() + "\n\n"
                     + "Current Assertions: " + "\n" + currentAssertions
-                    + "Matching Assertions: " + "\n" + storedAssertions;
+                    + "Stored Assertions: " + "\n" + storedAssertions;
         }
 
         complete += systemTrustFactorsNotLearned;

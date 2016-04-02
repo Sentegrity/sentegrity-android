@@ -110,7 +110,7 @@ public class UserDebugActivity extends DebugActivity {
 
             userTrustFactorsNotLearned += "--Name: " + output.getTrustFactor().getName() + "\n\n"
                     + "Current Assertions: " + "\n" + currentAssertions
-                    + "Matching Assertions: " + "\n" + storedAssertions;
+                    + "Stored Assertions: " + "\n" + storedAssertions;
         }
 
         complete += userTrustFactorsNotLearned;

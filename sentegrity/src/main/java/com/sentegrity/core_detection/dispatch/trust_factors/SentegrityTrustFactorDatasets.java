@@ -12,10 +12,9 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
-import com.google.gson.JsonSyntaxException;
+import com.sentegrity.core_detection.constants.SentegrityConstants;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
@@ -43,8 +42,11 @@ public class SentegrityTrustFactorDatasets {
     private static SentegrityTrustFactorDatasets sInstance;
     private final Context context;
 
+    private WifiManager wifiManager;
+
     public SentegrityTrustFactorDatasets(Context context) {
         this.context = context;
+        this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         //reset runtime on initialization
         this.runTime = -1;
     }
@@ -108,7 +110,7 @@ public class SentegrityTrustFactorDatasets {
             int plugged = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
             boolean isUSB = plugged == BatteryManager.BATTERY_PLUGGED_USB;
 
-            if(isUSB){
+            if (isUSB) {
                 return batteryState = "usbPlugged";
             }
 
@@ -144,9 +146,11 @@ public class SentegrityTrustFactorDatasets {
 
     public Boolean isTethering() {
         if (tethering == null) {
-            WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            //TODO: recheck method, make it more bulletproof --> add to separate class / WifiInfo.java
+            if (!updateWifiManager()) {
+                return null;
+            }
             try {
-                //TODO: recheck method, make it more bulletproof --> add to separate class / WifiInfo.java
                 Method method = wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
                 return tethering = (Boolean) method.invoke(wifiManager);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
@@ -183,34 +187,32 @@ public class SentegrityTrustFactorDatasets {
     public Boolean isWifiEnabled() {
         if (wifiEnabled == null) {
             //TODO: recheck method, make it more bulletproof --> add to separate class / WifiInfo.java
-            WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-            if(wifi == null){
+            if (!updateWifiManager()) {
                 return null;
             }
-            return wifiEnabled = wifi.isWifiEnabled();
+            return wifiEnabled = wifiManager.isWifiEnabled();
         }
         return wifiEnabled;
     }
 
     public WifiInfo getWifiInfo() {
-        if(wifiInfo == null){
+        if (wifiInfo == null) {
             //TODO: recheck method, make it more bulletproof --> add to separate class / WifiInfo.java
-            WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-            if(wifi == null){
+            if (!updateWifiManager()) {
                 return null;
             }
-            return wifiInfo = wifi.getConnectionInfo();
+            return wifiInfo = wifiManager.getConnectionInfo();
         }
         return wifiInfo;
     }
 
     public List<String> getSSIDList() {
-        AssetManager mg = context.getResources().getAssets();
-
-        List<String> list = new ArrayList<>();
-        String line;
         try {
-            InputStream is = mg.open("default_ssids.list");
+            AssetManager mg = context.getResources().getAssets();
+
+            List<String> list = new ArrayList<>();
+            String line;
+            InputStream is = mg.open(SentegrityConstants.DEFAULT_SSID_LIST_FILE_NAME);
             InputStreamReader inputReader = new InputStreamReader(is);
             BufferedReader buffReader = new BufferedReader(inputReader);
             /*int size = is.available();
@@ -219,66 +221,63 @@ public class SentegrityTrustFactorDatasets {
             is.close();
             list = new String(buffer, "UTF-8");*/
 
-            while((line = buffReader.readLine()) != null){
+            while ((line = buffReader.readLine()) != null) {
                 list.add(line);
             }
             return list;
 
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        } catch (JsonSyntaxException ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             return null;
         }
     }
 
     public List<String> getOUIList() {
-        AssetManager mg = context.getResources().getAssets();
-
-        List<String> list = new ArrayList<>();
-        String line;
         try {
-            InputStream is = mg.open("oui.list");
+            AssetManager mg = context.getResources().getAssets();
+
+            List<String> list = new ArrayList<>();
+            String line;
+            InputStream is = mg.open(SentegrityConstants.OUI_LIST_FILE_NAME);
             InputStreamReader inputReader = new InputStreamReader(is);
             BufferedReader buffReader = new BufferedReader(inputReader);
 
-            while((line = buffReader.readLine()) != null){
+            while ((line = buffReader.readLine()) != null) {
                 list.add(line);
             }
             return list;
 
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        } catch (JsonSyntaxException ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             return null;
         }
     }
 
     public List<String> getHotspotList() {
-        AssetManager mg = context.getResources().getAssets();
-
-        List<String> list = new ArrayList<>();
-        String line;
         try {
-            InputStream is = mg.open("hotspot_ssids.list");
+            AssetManager mg = context.getResources().getAssets();
+
+            List<String> list = new ArrayList<>();
+            String line;
+            InputStream is = mg.open(SentegrityConstants.HOTSPOT_SSID_LIST_FILE_NAME);
             InputStreamReader inputReader = new InputStreamReader(is);
             BufferedReader buffReader = new BufferedReader(inputReader);
 
-            while((line = buffReader.readLine()) != null){
+            while ((line = buffReader.readLine()) != null) {
                 list.add(line);
             }
             return list;
 
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            return null;
-        } catch (JsonSyntaxException ex){
+        } catch (Exception ex) {
             ex.printStackTrace();
             return null;
         }
+    }
+
+    private boolean updateWifiManager() {
+        if (wifiManager != null) return true;
+        wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        return wifiManager != null;
     }
 
 

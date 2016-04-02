@@ -282,7 +282,7 @@ public class SentegrityBaselineAnalysis {
         List<SentegrityStoredAssertion> candidateAssertionToWhiteList = new ArrayList();
         List<SentegrityStoredAssertion> storedAssertionObjectsMatched = new ArrayList();
 
-        boolean currentCandidateMatch = false;
+        boolean currentCandidateMatch;
 
         for (SentegrityStoredAssertion candidate : output.getCandidateAssertionObjects()) {
             currentCandidateMatch = false;
@@ -300,7 +300,6 @@ public class SentegrityBaselineAnalysis {
                     storedAssertionObjectsMatched.add(stored);
                     break;
                 }
-
 
             }
 
