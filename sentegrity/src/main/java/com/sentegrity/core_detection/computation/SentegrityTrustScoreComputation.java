@@ -1,6 +1,7 @@
 package com.sentegrity.core_detection.computation;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.gson.annotations.SerializedName;
 import com.sentegrity.core_detection.assertion_storage.SentegrityStoredAssertion;
@@ -498,6 +499,7 @@ public class SentegrityTrustScoreComputation {
             return null;
         }
 
+        long start = System.nanoTime();
         for (SentegrityClassification classification : policy.getClassifications()) {
 
 
@@ -522,6 +524,9 @@ public class SentegrityTrustScoreComputation {
                 List<SentegrityTrustFactor> trustFactorsInSubClass = new ArrayList();
 
                 List<DNEStatusCode> subClassDNECodes = new ArrayList();
+
+                subclassification.setBaseWeight(0);
+                subclassification.setTotalWeight(0);
 
                 boolean subClassContainsTrustFactor = false;
                 boolean subClassAnalysisIsIncomplete = false;
@@ -705,6 +710,8 @@ public class SentegrityTrustScoreComputation {
             classification.setTrustFactorsTriggered(trustFactorsAttributingToScoreInClass);
             classification.setTrustFacotrsWithErrors(trustFactorWithErrorsInClass);
         }
+
+        Log.d("timeCheck", "time: " + (System.nanoTime() - start));
 
         SentegrityTrustScoreComputation computationResult = new SentegrityTrustScoreComputation();
         computationResult.setPolicy(policy);
@@ -968,103 +975,91 @@ public class SentegrityTrustScoreComputation {
     private static void addSuggestions(SentegrityClassification classification, SentegritySubclassification subclassification, List<String> suggestions, SentegrityTrustFactorOutput output) {
         switch (output.getStatusCode()) {
             case UNAUTHORIZED:
-                if (!TextUtils.isEmpty(subclassification.getDneUnauthorized())) {
-                    if (!suggestions.contains(subclassification.getDneUnauthorized())) {
-                        suggestions.add(subclassification.getDneUnauthorized());
-                    }
+                if (!TextUtils.isEmpty(subclassification.getDneUnauthorized())
+                        && !suggestions.contains(subclassification.getDneUnauthorized())) {
+                    suggestions.add(subclassification.getDneUnauthorized());
                 }
                 break;
             case DISABLED:
-                if (!TextUtils.isEmpty(subclassification.getDneDisabled())) {
-                    if (!suggestions.contains(subclassification.getDneDisabled())) {
-                        suggestions.add(subclassification.getDneDisabled());
-                    }
+                if (!TextUtils.isEmpty(subclassification.getDneDisabled())
+                        && !suggestions.contains(subclassification.getDneDisabled())) {
+                    suggestions.add(subclassification.getDneDisabled());
                 }
                 break;
             case EXPIRED:
-                if (!TextUtils.isEmpty(subclassification.getDneExpired())) {
-                    if (!suggestions.contains(subclassification.getDneExpired())) {
-                        suggestions.add(subclassification.getDneExpired());
-                    }
+                if (!TextUtils.isEmpty(subclassification.getDneExpired())
+                        && !suggestions.contains(subclassification.getDneExpired())) {
+                    suggestions.add(subclassification.getDneExpired());
                 }
                 break;
             case NO_DATA:
-                if (!TextUtils.isEmpty(subclassification.getDneNoData())) {
-                    if (!suggestions.contains(subclassification.getDneNoData())) {
-                        suggestions.add(subclassification.getDneNoData());
-                    }
+                if (!TextUtils.isEmpty(subclassification.getDneNoData())
+                        && !suggestions.contains(subclassification.getDneNoData())) {
+                    suggestions.add(subclassification.getDneNoData());
                 }
                 break;
             case INVALID:
-                if (!TextUtils.isEmpty(subclassification.getDneInvalid())) {
-                    if (!suggestions.contains(subclassification.getDneInvalid())) {
-                        suggestions.add(subclassification.getDneInvalid());
-                    }
+                if (!TextUtils.isEmpty(subclassification.getDneInvalid())
+                        && !suggestions.contains(subclassification.getDneInvalid())) {
+                    suggestions.add(subclassification.getDneInvalid());
                 }
                 break;
         }
     }
 
     private static void addSuggestionAndCalculateWeight(SentegrityClassification classification, SentegritySubclassification subclassification, List<String> suggestions, SentegrityPolicy policy, SentegrityTrustFactorOutput output) {
-        double penaltyMod = 0;
-        switch (output.getStatusCode()){
+        double penaltyMod;
+        switch (output.getStatusCode()) {
             case ERROR:
                 penaltyMod = policy.getDneModifiers().getError();
                 break;
             case UNAUTHORIZED:
                 penaltyMod = policy.getDneModifiers().getUnauthorized();
-                if (!TextUtils.isEmpty(subclassification.getDneUnauthorized())) {
-                    if (!suggestions.contains(subclassification.getDneUnauthorized())) {
-                        suggestions.add(subclassification.getDneUnauthorized());
-                    }
+                if (!TextUtils.isEmpty(subclassification.getDneUnauthorized())
+                        && !suggestions.contains(subclassification.getDneUnauthorized())) {
+                    suggestions.add(subclassification.getDneUnauthorized());
                 }
                 break;
             case UNSUPPORTED:
                 penaltyMod = policy.getDneModifiers().getUnsupported();
-                if (!TextUtils.isEmpty(subclassification.getDneUnsupported())) {
-                    if (!suggestions.contains(subclassification.getDneUnsupported())) {
-                        suggestions.add(subclassification.getDneUnsupported());
-                    }
+                if (!TextUtils.isEmpty(subclassification.getDneUnsupported())
+                        && !suggestions.contains(subclassification.getDneUnsupported())) {
+                    suggestions.add(subclassification.getDneUnsupported());
                 }
                 break;
             case UNAVAILABLE:
                 penaltyMod = policy.getDneModifiers().getUnavailable();
-                if (!TextUtils.isEmpty(subclassification.getDneUnavailable())) {
-                    if (!suggestions.contains(subclassification.getDneUnavailable())) {
-                        suggestions.add(subclassification.getDneUnavailable());
-                    }
+                if (!TextUtils.isEmpty(subclassification.getDneUnavailable())
+                        && !suggestions.contains(subclassification.getDneUnavailable())) {
+                    suggestions.add(subclassification.getDneUnavailable());
                 }
                 break;
             case DISABLED:
                 penaltyMod = policy.getDneModifiers().getDisabled();
-                if (!TextUtils.isEmpty(subclassification.getDneDisabled())) {
-                    if (!suggestions.contains(subclassification.getDneDisabled())) {
-                        suggestions.add(subclassification.getDneDisabled());
-                    }
+                if (!TextUtils.isEmpty(subclassification.getDneDisabled())
+                        && !suggestions.contains(subclassification.getDneDisabled())) {
+                    suggestions.add(subclassification.getDneDisabled());
                 }
                 break;
             case EXPIRED:
                 penaltyMod = policy.getDneModifiers().getExpired();
-                if (!TextUtils.isEmpty(subclassification.getDneExpired())) {
-                    if (!suggestions.contains(subclassification.getDneExpired())) {
-                        suggestions.add(subclassification.getDneExpired());
-                    }
+                if (!TextUtils.isEmpty(subclassification.getDneExpired())
+                        && !suggestions.contains(subclassification.getDneExpired())) {
+                    suggestions.add(subclassification.getDneExpired());
                 }
                 break;
             case NO_DATA:
                 penaltyMod = policy.getDneModifiers().getNoData();
-                if (!TextUtils.isEmpty(subclassification.getDneNoData())) {
-                    if (!suggestions.contains(subclassification.getDneNoData())) {
-                        suggestions.add(subclassification.getDneNoData());
-                    }
+                if (!TextUtils.isEmpty(subclassification.getDneNoData())
+                        && !suggestions.contains(subclassification.getDneNoData())) {
+                    suggestions.add(subclassification.getDneNoData());
                 }
                 break;
             case INVALID:
                 penaltyMod = policy.getDneModifiers().getInvalid();
-                if (!TextUtils.isEmpty(subclassification.getDneInvalid())) {
-                    if (!suggestions.contains(subclassification.getDneInvalid())) {
-                        suggestions.add(subclassification.getDneInvalid());
-                    }
+                if (!TextUtils.isEmpty(subclassification.getDneInvalid())
+                        && !suggestions.contains(subclassification.getDneInvalid())) {
+                    suggestions.add(subclassification.getDneInvalid());
                 }
                 break;
             default:
