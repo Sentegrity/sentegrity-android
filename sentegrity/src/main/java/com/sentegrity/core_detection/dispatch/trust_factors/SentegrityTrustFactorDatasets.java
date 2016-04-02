@@ -3,8 +3,8 @@ package com.sentegrity.core_detection.dispatch.trust_factors;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.wifi.WifiConfiguration;
+import android.content.res.AssetManager;
+import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
@@ -12,8 +12,15 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
+import com.google.gson.JsonSyntaxException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -29,7 +36,9 @@ public class SentegrityTrustFactorDatasets {
     private String batteryState;
     private Boolean tethering = null;
     private String carrierConnectionName;
-    private Boolean airplaneMode;
+    private Boolean airplaneMode = null;
+    private Boolean wifiEnabled = null;
+    private WifiInfo wifiInfo;
 
     private static SentegrityTrustFactorDatasets sInstance;
     private final Context context;
@@ -90,17 +99,23 @@ public class SentegrityTrustFactorDatasets {
 
     public String getBatteryState() {
         if (TextUtils.isEmpty(batteryState)) {
+            //TODO: make it more bulletproof / what if device doesn't return plugged state
             IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
             Intent batteryStatus = context.registerReceiver(null, ifilter);
             if (batteryStatus == null)
                 return "unknown";
 
-            //TODO: check other states // implement real USB connection status
+            int plugged = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+            boolean isUSB = plugged == BatteryManager.BATTERY_PLUGGED_USB;
+
+            if(isUSB){
+                return batteryState = "usbPlugged";
+            }
+
             int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
             boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING;
             boolean isFull = status == BatteryManager.BATTERY_STATUS_FULL;
             boolean discharging = status == BatteryManager.BATTERY_STATUS_DISCHARGING;
-
             if (isCharging) {
                 return batteryState = "pluggedCharging";
             } else if (isFull) {
@@ -136,6 +151,7 @@ public class SentegrityTrustFactorDatasets {
                 return tethering = (Boolean) method.invoke(wifiManager);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
+                return null;
             }
         }
         return tethering;
@@ -162,6 +178,107 @@ public class SentegrityTrustFactorDatasets {
             }
         }
         return airplaneMode;
+    }
+
+    public Boolean isWifiEnabled() {
+        if (wifiEnabled == null) {
+            //TODO: recheck method, make it more bulletproof --> add to separate class / WifiInfo.java
+            WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            if(wifi == null){
+                return null;
+            }
+            return wifiEnabled = wifi.isWifiEnabled();
+        }
+        return wifiEnabled;
+    }
+
+    public WifiInfo getWifiInfo() {
+        if(wifiInfo == null){
+            //TODO: recheck method, make it more bulletproof --> add to separate class / WifiInfo.java
+            WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            if(wifi == null){
+                return null;
+            }
+            return wifiInfo = wifi.getConnectionInfo();
+        }
+        return wifiInfo;
+    }
+
+    public List<String> getSSIDList() {
+        AssetManager mg = context.getResources().getAssets();
+
+        List<String> list = new ArrayList<>();
+        String line;
+        try {
+            InputStream is = mg.open("default_ssids.list");
+            InputStreamReader inputReader = new InputStreamReader(is);
+            BufferedReader buffReader = new BufferedReader(inputReader);
+            /*int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            list = new String(buffer, "UTF-8");*/
+
+            while((line = buffReader.readLine()) != null){
+                list.add(line);
+            }
+            return list;
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        } catch (JsonSyntaxException ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<String> getOUIList() {
+        AssetManager mg = context.getResources().getAssets();
+
+        List<String> list = new ArrayList<>();
+        String line;
+        try {
+            InputStream is = mg.open("oui.list");
+            InputStreamReader inputReader = new InputStreamReader(is);
+            BufferedReader buffReader = new BufferedReader(inputReader);
+
+            while((line = buffReader.readLine()) != null){
+                list.add(line);
+            }
+            return list;
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        } catch (JsonSyntaxException ex){
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    public List<String> getHotspotList() {
+        AssetManager mg = context.getResources().getAssets();
+
+        List<String> list = new ArrayList<>();
+        String line;
+        try {
+            InputStream is = mg.open("hotspot_ssids.list");
+            InputStreamReader inputReader = new InputStreamReader(is);
+            BufferedReader buffReader = new BufferedReader(inputReader);
+
+            while((line = buffReader.readLine()) != null){
+                list.add(line);
+            }
+            return list;
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        } catch (JsonSyntaxException ex){
+            ex.printStackTrace();
+            return null;
+        }
     }
 
 

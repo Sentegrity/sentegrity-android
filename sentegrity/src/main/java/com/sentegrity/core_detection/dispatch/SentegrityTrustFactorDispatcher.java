@@ -59,6 +59,8 @@ public class SentegrityTrustFactorDispatcher {
         long execTimeEnd = System.nanoTime();
         Log.d("coreDetection", "TrustFactorAnalysis done in: " + String.format("%.5f", (execTimeEnd - execTimeStart) / 1000.0f / 1000.0f / 1000.0f) + "seconds");
 
+
+        //for testing purposes
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -99,10 +101,12 @@ public class SentegrityTrustFactorDispatcher {
             list.add("powerLevelTime"); list.add("shortUptime");
             list.add("accessTime");     list.add("pluggedIn");
             list.add("hotspotEnabled"); list.add("cellConnectionChange");
-            list.add("airplaneMode");
+            list.add("airplaneMode");   list.add("defaultSSID");
+            list.add("consumerAP");     list.add("SSIDBSSID");
+            list.add("hotspot");
 
             if(!list.contains(method))
-                output.setStatusCode(DNEStatusCode.getByID(new Random().nextInt(5)));
+                output.setStatusCode(DNEStatusCode.getByID(new Random().nextInt(9)));
             //create new instance of interface and call run()
             //TrustFactorDispatch dispatch = (TrustFactorDispatch) Class.forName(className).newInstance();
             //output = dispatch.run(method, data);

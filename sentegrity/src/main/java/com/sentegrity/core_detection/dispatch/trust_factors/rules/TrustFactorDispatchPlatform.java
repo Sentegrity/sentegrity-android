@@ -28,7 +28,7 @@ public class TrustFactorDispatchPlatform {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         if(!SentegrityTrustFactorDatasets.validatePayload(payload)){
-            output.setStatusCode(DNEStatusCode.NO_DATA);
+            output.setStatusCode(DNEStatusCode.ERROR);
             return output;
         }
 

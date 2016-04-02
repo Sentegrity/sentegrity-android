@@ -42,4 +42,12 @@ public class Helpers {
 
         return sb.toString();
     }
+
+    public static String intToIP(int ipInt){
+        return String.format("%d.%d.%d.%d",
+                (ipInt & 0xff),
+                (ipInt >> 8 & 0xff),
+                (ipInt >> 16 & 0xff),
+                (ipInt >> 24 & 0xff));
+    }
 }
