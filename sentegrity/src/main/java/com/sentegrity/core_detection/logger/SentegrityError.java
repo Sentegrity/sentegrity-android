@@ -25,11 +25,30 @@ public enum SentegrityError {
     // No TrustFactors set to analyze
     NO_TRUSTFACTORS_SET_TO_ANALYZE(3),
 
+    // Invalid Startup File
+    INVALID_STARTUP_FILE(322),
+
+    // Invalid Startup Instance
+    INVALID_STARTUP_INSTANCE(323),
+
+    // No TrustFactor output objects provided from dispatcher
+    NO_TRUSTFACTOR_OUTPUT_OBJECTS_FROM_DISPATCHER(4),
+
     // Unable to perform computation as no trustfactor objects provided
     NO_TRUSTFACTOR_OUTPUT_OBJECTS_FOR_COMPUTATION(5),
 
     // Unable to perform computation as no trustfactor objects provided
     ERROR_DURING_COMPUTATION(6),
+
+    // Unable to get the policy from the provided path
+    INVALID_POLICY_PATH(7),
+
+
+    // No security token provided
+    NO_APP_ID_PROVIDED(17),
+
+    // Unable to write the assertion store
+    UNABLE_TO_WRITE_STORE(42),
 
 
     // No classifications found

@@ -79,7 +79,6 @@ public class CoreDetection {
         return keyValueStorage;
     }
 
-    //TODO: handle possible errors / policy not available, failed parsing ...
     public SentegrityPolicy parsePolicy(String policyName){
         AssetManager mg = context.getResources().getAssets();
 
@@ -96,9 +95,11 @@ public class CoreDetection {
 
         } catch (IOException ex) {
             ex.printStackTrace();
+            Logger.INFO("Core Detection Parse policy error: Error occurred during policy file read.");
             return null;
         } catch (JsonSyntaxException ex){
             ex.printStackTrace();
+            Logger.INFO("Core Detection Parse policy error: Json syntax exception during policy parsing");
             return null;
         }
     }

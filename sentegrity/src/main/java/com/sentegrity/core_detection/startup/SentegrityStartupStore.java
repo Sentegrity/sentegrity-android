@@ -2,11 +2,15 @@ package com.sentegrity.core_detection.startup;
 
 import android.content.Context;
 import android.os.Build;
+import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.sentegrity.core_detection.CoreDetection;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
+import com.sentegrity.core_detection.logger.ErrorDetails;
+import com.sentegrity.core_detection.logger.ErrorDomain;
 import com.sentegrity.core_detection.logger.Logger;
+import com.sentegrity.core_detection.logger.SentegrityError;
 import com.sentegrity.core_detection.utilities.DeviceID;
 import com.sentegrity.core_detection.utilities.Helpers;
 
@@ -50,9 +54,9 @@ public class SentegrityStartupStore {
     }
 
     public void setCurrentState(String currentState) {
-
         SentegrityStartup startup = getStartupData();
         if (startup == null) {
+            Logger.INFO("Setting Startup file Current state Failed");
             return;
         }
         this.currentState = currentState;
@@ -64,7 +68,6 @@ public class SentegrityStartupStore {
     }
 
     public SentegrityStartup getStartupData() {
-        //TODO: handle errors
         File f = new File(storePath + "/" + SentegrityConstants.STARTUP_FILE_NAME);
 
         if (!f.exists()) {
@@ -89,26 +92,49 @@ public class SentegrityStartupStore {
             startup = new Gson().fromJson(startupJson, SentegrityStartup.class);
             return startup;
         } catch (IOException e) {
-            e.printStackTrace();
+            SentegrityError error = SentegrityError.INVALID_STARTUP_FILE;
+            error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
+            error.setDetails(new ErrorDetails().setDescription("Getting startup file unsuccessful").setFailureReason("Startup Class file is invalid").setRecoverySuggestion("Try removing the startup file and retry"));
+
+            Logger.INFO("Failed to Read Startup Store", error);
         }
 
         return null;
     }
 
     public boolean setStartupData(SentegrityStartup startup) {
-        //TODO: handle errors
+        if(startup == null) {
+            SentegrityError error = SentegrityError.INVALID_STARTUP_INSTANCE;
+            error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
+            error.setDetails(new ErrorDetails().setDescription("Setting startup file unsuccessful").setFailureReason("Startup class reference is invalid").setRecoverySuggestion("Try passing a valid startup object"));
+
+            Logger.INFO("Failed to Write Startup Store", error);
+        }
+
         String stringJson = new Gson().toJson(startup);
+
+        if(TextUtils.isEmpty(stringJson)){
+            SentegrityError error = SentegrityError.INVALID_STARTUP_INSTANCE;
+            error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
+            error.setDetails(new ErrorDetails().setDescription("Setting startup file unsuccessful").setFailureReason("Startup class reference doesn't parse to json").setRecoverySuggestion("Try passing a valid JSON startup object"));
+
+            Logger.INFO("Failed to Write Startup Store", error);
+        }
 
         File f = new File(storePath + "/" + SentegrityConstants.STARTUP_FILE_NAME);
 
         try {
             if (!f.exists()) {
-                boolean newFile = f.createNewFile();
+                f.createNewFile();
             }
             FileUtils.write(f, stringJson);
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            SentegrityError error = SentegrityError.UNABLE_TO_WRITE_STORE;
+            error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
+            error.setDetails(new ErrorDetails().setDescription("Failed to write startup file").setFailureReason("Unable to write startup file").setRecoverySuggestion("Try providing correct path"));
+
+            Logger.INFO("Failed to Write Startup Store", error);
         }
 
         return false;

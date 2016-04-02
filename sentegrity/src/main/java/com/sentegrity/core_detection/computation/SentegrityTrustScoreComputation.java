@@ -3,7 +3,6 @@ package com.sentegrity.core_detection.computation;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.gson.annotations.SerializedName;
 import com.sentegrity.core_detection.assertion_storage.SentegrityStoredAssertion;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
@@ -17,7 +16,6 @@ import com.sentegrity.core_detection.policy.SentegritySubclassification;
 import com.sentegrity.core_detection.policy.SentegrityTrustFactor;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,7 +23,6 @@ import java.util.List;
  */
 public class SentegrityTrustScoreComputation {
 
-    @SerializedName("policy")
     private SentegrityPolicy policy;
 
     private List<SentegrityTrustFactorOutput> userTrustFactorsNotLearned;
@@ -40,94 +37,40 @@ public class SentegrityTrustScoreComputation {
     private List<SentegrityTrustFactor> userAllTrustFactors;
     private List<SentegrityTrustFactor> systemAllTrustFactors;
 
-    @SerializedName("systemBreachScore")
     private int systemBreachScore;
-
-    @SerializedName("systemPolicyScore")
     private int systemPolicyScore;
-
-    @SerializedName("systemSecurityScore")
     private int systemSecurityScore;
-
-    @SerializedName("userPolicyScore")
     private int userPolicyScore;
-
-    @SerializedName("userAnomalyScore")
     private int userAnomalyScore;
 
-    @SerializedName("systemScore")
     private int systemScore;
-
-    @SerializedName("systemTrusted")
     private boolean systemTrusted;
-
-    @SerializedName("systemGUIIconID")
     private int systemGUIIconID;
-
-    @SerializedName("systemGUIIconText")
     private String systemGUIIconText;
-
-    @SerializedName("systemGUIIssues")
     private List<String> systemGUIIssues;
-
-    @SerializedName("systemGUISuggestions")
     private List<String> systemGUISuggestions;
-
-    @SerializedName("systemGUIAnalysis")
     private List<String> systemGUIAnalysis;
 
-    @SerializedName("userScore")
     private int userScore;
-
-    @SerializedName("userTrusted")
     private boolean userTrusted;
-
-    @SerializedName("userGUIIconID")
     private int userGUIIconID;
-
-    @SerializedName("userGUIIconText")
     private String userGUIIconText;
-
-    @SerializedName("userGUIIssues")
     private List<String> userGUIIssues;
-
-    @SerializedName("userGUISuggestions")
     private List<String> userGUISuggestions;
-
-    @SerializedName("userGUIAuthenticators")
     private List<String> userGUIAuthenticators;
-
-    @SerializedName("userGUIAnalysis")
     private List<String> userGUIAnalysis;
 
-    @SerializedName("deviceScore")
     private int deviceScore;
-
-    @SerializedName("deviceTrusted")
     private boolean deviceTrusted;
-
-    @SerializedName("protectModeClassID")
     private int protectModeClassID;
-
-    @SerializedName("protectModeAction")
     private int protectModeAction;
 
-    @SerializedName("protectModeMessage")
     private String protectModeMessage;
-
-    @SerializedName("protectModeWhitelist")
     private List<SentegrityTrustFactorOutput> protectModeWhitelist;
-
-    @SerializedName("protectModeUserWhitelist")
     private List<SentegrityTrustFactorOutput> protectModeUserWhitelist;
-
-    @SerializedName("protectModeSystemWhitelist")
     private List<SentegrityTrustFactorOutput> protectModeSystemWhitelist;
-
-    @SerializedName("transparentAuthenticationTrustFactors")
     private List<SentegrityTrustFactorOutput> transparentAuthenticationTrustFactors;
 
-    @SerializedName("attemptTransparentAuthentication")
     private boolean attemptTransparentAuthentication;
 
     public SentegrityPolicy getPolicy() {
@@ -525,7 +468,6 @@ public class SentegrityTrustScoreComputation {
 
                 List<DNEStatusCode> subClassDNECodes = new ArrayList();
 
-                subclassification.setBaseWeight(0);
                 subclassification.setTotalWeight(0);
 
                 boolean subClassContainsTrustFactor = false;
@@ -557,7 +499,7 @@ public class SentegrityTrustScoreComputation {
                                             double percent = weightPercentCalculate(trustFactorOutput);
 
                                             int partialWeight = (int) (percent * trustFactorOutput.getTrustFactor().getWeight());
-                                            subclassification.setBaseWeight(subclassification.getBaseWeight() + partialWeight);
+                                            subclassification.setTotalWeight(subclassification.getTotalWeight() + partialWeight);
 
                                             trustFactorOutput.setAppliedWeight(partialWeight);
                                             trustFactorOutput.setPercentAppliedWeight(percent);
@@ -580,7 +522,7 @@ public class SentegrityTrustScoreComputation {
 
 
                                         } else {
-                                            subclassification.setBaseWeight(subclassification.getBaseWeight() + trustFactorOutput.getTrustFactor().getWeight());
+                                            subclassification.setTotalWeight(subclassification.getTotalWeight() + trustFactorOutput.getTrustFactor().getWeight());
 
                                             trustFactorOutput.setAppliedWeight(trustFactorOutput.getTrustFactor().getWeight());
                                             trustFactorOutput.setPercentAppliedWeight(1);
@@ -603,14 +545,14 @@ public class SentegrityTrustScoreComputation {
 
                                             double percent = weightPercentCalculate(trustFactorOutput);
                                             int partialWeight = (int) (percent * trustFactorOutput.getTrustFactor().getWeight());
-                                            subclassification.setBaseWeight(subclassification.getBaseWeight() + partialWeight);
+                                            subclassification.setTotalWeight(subclassification.getTotalWeight() + partialWeight);
 
                                             trustFactorOutput.setAppliedWeight(partialWeight);
                                             trustFactorOutput.setPercentAppliedWeight(percent);
 
 
                                         } else {
-                                            subclassification.setBaseWeight(subclassification.getBaseWeight() + trustFactorOutput.getTrustFactor().getWeight());
+                                            subclassification.setTotalWeight(subclassification.getTotalWeight() + trustFactorOutput.getTrustFactor().getWeight());
 
                                             trustFactorOutput.setAppliedWeight(trustFactorOutput.getTrustFactor().getWeight());
                                             trustFactorOutput.setPercentAppliedWeight(1);
@@ -683,8 +625,6 @@ public class SentegrityTrustScoreComputation {
                             statusInClass.add(subclassification.getName() + " check error");
                         }
                     }
-
-                    subclassification.setTotalWeight((int) (subclassification.getBaseWeight() * (1 - (0.1 * subclassification.getWeight()))));
 
                     classification.setScore(classification.getScore() + subclassification.getTotalWeight());
 
@@ -918,7 +858,7 @@ public class SentegrityTrustScoreComputation {
 
         } else {
             setSystemGUIIconID(0);
-            setSystemGUIIconText("Device Trusted");
+            setSystemGUIIconText("Device\nTrusted");
         }
 
         if (!isUserTrusted()) {
@@ -965,7 +905,7 @@ public class SentegrityTrustScoreComputation {
 
         } else {
             setUserGUIIconID(0);
-            setUserGUIIconText("User Trusted");
+            setUserGUIIconText("User\nTrusted");
         }
 
 
@@ -1069,7 +1009,7 @@ public class SentegrityTrustScoreComputation {
 
         int weight = (int) (output.getTrustFactor().getWeight() * penaltyMod);
 
-        subclassification.setBaseWeight(subclassification.getBaseWeight() + weight);
+        subclassification.setTotalWeight(subclassification.getTotalWeight() + weight);
 
         output.setAppliedWeight(weight);
 

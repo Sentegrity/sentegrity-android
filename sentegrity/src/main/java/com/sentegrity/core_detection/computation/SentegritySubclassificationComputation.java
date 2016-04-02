@@ -13,18 +13,12 @@ public class SentegritySubclassificationComputation {
 
     private int totalWeight;
 
-    private int baseWeight;
-
     public List getTrustFactors() {
         return trustFactors;
     }
 
     public int getTotalWeight() {
         return totalWeight;
-    }
-
-    public int getBaseWeight() {
-        return baseWeight;
     }
 
     public void setTrustFactors(List<SentegrityTrustFactor> trustFactors) {
@@ -35,7 +29,4 @@ public class SentegritySubclassificationComputation {
         this.totalWeight = totalWeight;
     }
 
-    public void setBaseWeight(int baseWeight) {
-        this.baseWeight = baseWeight;
-    }
 }

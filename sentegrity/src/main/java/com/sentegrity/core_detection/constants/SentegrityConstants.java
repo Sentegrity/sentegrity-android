@@ -11,4 +11,5 @@ public class SentegrityConstants {
     public static final String USER_SALT_DEFAULT = "faklsjfads8sadjd8d";
 
 
+    public static final String STORE_FILETYPE = ".store";
 }

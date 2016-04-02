@@ -3,6 +3,11 @@ package com.sentegrity.core_detection.assertion_storage;
 import android.content.Context;
 
 import com.google.gson.Gson;
+import com.sentegrity.core_detection.constants.SentegrityConstants;
+import com.sentegrity.core_detection.logger.ErrorDetails;
+import com.sentegrity.core_detection.logger.ErrorDomain;
+import com.sentegrity.core_detection.logger.Logger;
+import com.sentegrity.core_detection.logger.SentegrityError;
 
 import org.apache.commons.io.FileUtils;
 
@@ -16,11 +21,9 @@ public class SentegrityTrustFactorStore {
 
     private static SentegrityTrustFactorStore sInstance;
 
-    final private Context context;
     final private String storePath;
 
     public SentegrityTrustFactorStore(Context context) {
-        this.context = context;
         this.storePath = context.getFilesDir().getAbsolutePath();
     }
 
@@ -41,26 +44,28 @@ public class SentegrityTrustFactorStore {
     }
 
     public SentegrityAssertionStore setAssertionStore(SentegrityAssertionStore store, String appId){
-        //TODO: handle errors
         String stringJson = new Gson().toJson(store);
 
-        File f = new File(storePath + "/" + appId + ".store");
+        File f = new File(storePath + "/" + appId + SentegrityConstants.STORE_FILETYPE);
 
         try {
             if (!f.exists()) {
-                boolean newFile = f.createNewFile();
+                f.createNewFile();
             }
             FileUtils.write(f, stringJson);
             return store;
         } catch (IOException e) {
-            e.printStackTrace();
+            SentegrityError error = SentegrityError.UNABLE_TO_WRITE_STORE;
+            error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
+            error.setDetails(new ErrorDetails().setDescription("Failed to write assertion file").setFailureReason("Unable to write assertion file").setRecoverySuggestion("Try providing correct store"));
+
+            Logger.INFO("Failed to Write Assertion Store", error);
         }
 
         return null;
     }
 
     public SentegrityAssertionStore getAssertionStore(String appId){
-        //TODO: handle errors
         File f = new File(storePath + "/" + appId + ".store");
 
         if (!f.exists()) {
@@ -75,7 +80,11 @@ public class SentegrityTrustFactorStore {
             if(assertionStore != null && appId.equals(assertionStore.getAppId()))
                 return assertionStore;
         } catch (IOException e) {
-            e.printStackTrace();
+            SentegrityError error = SentegrityError.INVALID_STARTUP_FILE;
+            error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
+            error.setDetails(new ErrorDetails().setDescription("Getting assertion file unsuccessful").setFailureReason("Assertion Store file is invalid"));
+
+            Logger.INFO("Failed to Read Assertion Store", error);
         }
 
         return null;

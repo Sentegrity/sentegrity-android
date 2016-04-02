@@ -14,6 +14,8 @@ import com.sentegrity.core_detection.startup.SentegrityStartup;
 import com.sentegrity.core_detection.startup.SentegrityStartupStore;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -302,7 +304,7 @@ public class SentegrityBaselineAnalysis {
             }
         }
 
-        //TODO: sort assertionsToKeep by decay metric
+        Collections.sort(assertionsToKeep, comparator);
 
         output.getStoredTrustFactor().setAssertions(assertionsToKeep);
 
@@ -312,5 +314,15 @@ public class SentegrityBaselineAnalysis {
     private static int getDaysBetweenDates(long date1, long date2) {
         double miliSecondsInDay = 86400 * 1000;
         return (int) (Math.abs(date1 - date2) / miliSecondsInDay);
+    }
+
+    private static DecayComparator comparator = new DecayComparator();
+
+    static class DecayComparator implements Comparator<SentegrityStoredAssertion> {
+        @Override
+        public int compare(SentegrityStoredAssertion o1, SentegrityStoredAssertion o2) {
+            if(o1.getDecayMetric() >= o2.getDecayMetric()) return -1;
+            return 1;
+        }
     }
 }

@@ -88,8 +88,6 @@ public class SentegrityAssertionStore {
 
         if(getStoredTrustFactor(existing.getFactorID()) != null){
             trustFactors.remove(existing);
-
-            //TODO: different object? removeFromStore by id?
         }else{
             return false;
         }
