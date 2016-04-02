@@ -25,6 +25,12 @@
         </activity>
         <activity android:name=".activities.DeviceInfoActivity" >
         </activity>
+        <activity android:name=".activities.ScoreDebugActivity" >
+        </activity>
+        <activity android:name=".activities.SystemDebugActivity" >
+        </activity>
+        <activity android:name=".activities.UserDebugActivity" >
+        </activity>
     </application>
 
 </manifest>

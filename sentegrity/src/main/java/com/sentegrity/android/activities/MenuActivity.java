@@ -2,6 +2,7 @@ package com.sentegrity.android.activities;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
@@ -53,10 +54,13 @@ public class MenuActivity extends Activity {
         public void onClick(View v) {
             switch (v.getId()){
                 case R.id.user_debug:
+                    startActivity(new Intent(MenuActivity.this, UserDebugActivity.class));
                     break;
                 case R.id.system_debug:
+                    startActivity(new Intent(MenuActivity.this, SystemDebugActivity.class));
                     break;
                 case R.id.score_debug:
+                    startActivity(new Intent(MenuActivity.this, ScoreDebugActivity.class));
                     break;
                 case R.id.wipe_profile:
                     showWipeAlert();
