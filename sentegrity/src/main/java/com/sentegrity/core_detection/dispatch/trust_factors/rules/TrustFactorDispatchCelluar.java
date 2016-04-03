@@ -40,13 +40,14 @@ public class TrustFactorDispatchCelluar {
 
         Boolean airplaneMode = SentegrityTrustFactorDatasets.getInstance().isAirplaneMode();
 
-        if (airplaneMode == null || !airplaneMode) {
+        if (airplaneMode == null) {
             output.setStatusCode(DNEStatusCode.ERROR);
             return output;
-        } else {
-            outputList.add("airplane");
         }
 
+        if (airplaneMode) {
+            outputList.add("airplane");
+        }
 
         output.setOutput(outputList);
 
