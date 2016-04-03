@@ -96,7 +96,7 @@ public class LoginActivity extends Activity {
                     break;
                 case 5:
                     SentegrityStartupStore.getInstance().setCurrentState("Waiting for user override password");
-                    showError("High risk device", "he conditions of this device require administrator approval to continue. \n\nEnter override PIN to continue.", new OnLoginListener() {
+                    showError("High risk device", "The conditions of this device require administrator approval to continue. \n\nEnter override PIN to continue.", new OnLoginListener() {
                         @Override
                         public boolean onLogin(String password) {
                             return protectMode.deactivateProtectMode(1, password);

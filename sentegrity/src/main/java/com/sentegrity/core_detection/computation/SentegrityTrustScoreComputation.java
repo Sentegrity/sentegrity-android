@@ -37,12 +37,6 @@ public class SentegrityTrustScoreComputation {
     private List<SentegrityTrustFactor> userAllTrustFactors;
     private List<SentegrityTrustFactor> systemAllTrustFactors;
 
-    private int systemBreachScore;
-    private int systemPolicyScore;
-    private int systemSecurityScore;
-    private int userPolicyScore;
-    private int userAnomalyScore;
-
     private int systemScore;
     private boolean systemTrusted;
     private int systemGUIIconID;
@@ -73,8 +67,60 @@ public class SentegrityTrustScoreComputation {
 
     private boolean attemptTransparentAuthentication;
 
+    private SentegrityClassification systemBreachClass;
+    private SentegrityClassification systemPolicyClass;
+    private SentegrityClassification systemSecurityClass;
+    private SentegrityClassification userAnomalyClass;
+    private SentegrityClassification userPolicyClass;
+
+    private int systemBreachScore;
+    private int systemPolicyScore;
+    private int systemSecurityScore;
+    private int userAnomalyScore;
+    private int userPolicyScore;
+
     public SentegrityPolicy getPolicy() {
         return policy;
+    }
+
+    public void setSystemBreachClass(SentegrityClassification systemBreachClass) {
+        this.systemBreachClass = systemBreachClass;
+    }
+
+    public void setSystemPolicyClass(SentegrityClassification systemPolicyClass) {
+        this.systemPolicyClass = systemPolicyClass;
+    }
+
+    public void setSystemSecurityClass(SentegrityClassification systemSecurityClass) {
+        this.systemSecurityClass = systemSecurityClass;
+    }
+
+    public void setUserAnomalyClass(SentegrityClassification userAnomalyClass) {
+        this.userAnomalyClass = userAnomalyClass;
+    }
+
+    public void setUserPolicyClass(SentegrityClassification userPolicyClass) {
+        this.userPolicyClass = userPolicyClass;
+    }
+
+    public SentegrityClassification getUserPolicyClass() {
+        return userPolicyClass;
+    }
+
+    public SentegrityClassification getUserAnomalyClass() {
+        return userAnomalyClass;
+    }
+
+    public SentegrityClassification getSystemSecurityClass() {
+        return systemSecurityClass;
+    }
+
+    public SentegrityClassification getSystemPolicyClass() {
+        return systemPolicyClass;
+    }
+
+    public SentegrityClassification getSystemBreachClass() {
+        return systemBreachClass;
     }
 
     public List<SentegrityTrustFactorOutput> getUserTrustFactorsNotLearned() {
@@ -214,7 +260,7 @@ public class SentegrityTrustScoreComputation {
     }
 
     public List<SentegrityTrustFactorOutput> getProtectModeWhitelist() {
-        return protectModeWhitelist;
+        return protectModeWhitelist != null ? protectModeWhitelist : (protectModeWhitelist = new ArrayList<>());
     }
 
     public List<SentegrityTrustFactorOutput> getProtectModeUserWhitelist() {
@@ -656,11 +702,6 @@ public class SentegrityTrustScoreComputation {
         SentegrityTrustScoreComputation computationResult = new SentegrityTrustScoreComputation();
         computationResult.setPolicy(policy);
 
-
-        return computationResult.analyzeResults();
-    }
-
-    private SentegrityTrustScoreComputation analyzeResults() {
         List<String> systemIssues = new ArrayList<>();
         List<String> systemSuggestions = new ArrayList<>();
         List<String> systemSubClassStatuses = new ArrayList<>();
@@ -684,12 +725,6 @@ public class SentegrityTrustScoreComputation {
 
         List<SentegrityTrustFactorOutput> userTrustFactorsForTransparentAuthentication = new ArrayList<>();
 
-        SentegrityClassification systemBreachClass = null;
-        SentegrityClassification systemPolicyClass = null;
-        SentegrityClassification systemSecurityClass = null;
-        SentegrityClassification userAnomalyClass = null;
-        SentegrityClassification userPolicyClass = null;
-
         int systemTrustScoreSum = 0;
         int userTrustScoreSum = 0;
 
@@ -710,19 +745,19 @@ public class SentegrityTrustScoreComputation {
 
                 switch (classification.getID()) {
                     case 1:
-                        systemBreachClass = classification;
-                        setSystemBreachScore(currentScore);
+                        computationResult.setSystemBreachClass(classification);
+                        computationResult.setSystemBreachScore(currentScore);
                         break;
                     case 2:
-                        systemPolicyClass = classification;
-                        setSystemPolicyScore(currentScore);
+                        computationResult.setSystemPolicyClass(classification);
+                        computationResult.setSystemPolicyScore(currentScore);
                         if (currentScore < 100) {
                             systemPolicyViolation = true;
                         }
                         break;
                     case 3:
-                        systemSecurityClass = classification;
-                        setSystemSecurityScore(currentScore);
+                        computationResult.setSystemSecurityClass(classification);
+                        computationResult.setSystemSecurityScore(currentScore);
                         break;
                     default:
                         break;
@@ -744,15 +779,15 @@ public class SentegrityTrustScoreComputation {
 
                 switch (classification.getID()) {
                     case 4:
-                        userPolicyClass = classification;
-                        setUserPolicyScore(currentScore);
+                        computationResult.setUserPolicyClass(classification);
+                        computationResult.setUserPolicyScore(currentScore);
                         if (currentScore < 100) {
                             userPolicyViolation = true;
                         }
                         break;
                     case 5:
-                        userAnomalyClass = classification;
-                        setUserAnomalyScore(currentScore);
+                        computationResult.setUserAnomalyClass(classification);
+                        computationResult.setUserAnomalyScore(currentScore);
                         break;
                     default:
                         break;
@@ -774,142 +809,51 @@ public class SentegrityTrustScoreComputation {
             }
         }
 
-        setSystemGUIIssues(systemIssues);
-        setSystemGUISuggestions(systemSuggestions);
-        setSystemGUIAnalysis(systemSubClassStatuses);
-        setUserGUIIssues(userIssues);
-        setUserGUISuggestions(userSuggestions);
-        setUserGUIAnalysis(userSubClassStatuses);
-        setUserGUIAuthenticators(userAuthenticators);
+        computationResult.setSystemGUIIssues(systemIssues);
+        computationResult.setSystemGUISuggestions(systemSuggestions);
+        computationResult.setSystemGUIAnalysis(systemSubClassStatuses);
 
-        setTransparentAuthenticationTrustFactors(userTrustFactorsForTransparentAuthentication);
+        computationResult.setUserGUIIssues(userIssues);
+        computationResult.setUserGUISuggestions(userSuggestions);
+        computationResult.setUserGUIAnalysis(userSubClassStatuses);
+        computationResult.setUserGUIAuthenticators(userAuthenticators);
 
-        setProtectModeUserWhitelist(userTrustFactorsToWhitelist);
-        setProtectModeSystemWhitelist(systemTrustFactorsToWhitelist);
+        computationResult.setTransparentAuthenticationTrustFactors(userTrustFactorsForTransparentAuthentication);
 
-        setUserAllTrustFactors(userAllTrustFactors);
-        setSystemAllTrustFactors(systemAllTrustFactors);
+        computationResult.setProtectModeUserWhitelist(userTrustFactorsToWhitelist);
+        computationResult.setProtectModeSystemWhitelist(systemTrustFactorsToWhitelist);
 
-        setUserTrustFactorsAttributingToScore(userTrustFactorsAttributingToScore);
-        setSystemTrustFactorsAttributingToScore(systemTrustFactorsAttributingToScore);
 
-        setUserTrustFactorsNotLearned(userTrustFactorsNotLearned);
-        setSystemTrustFactorsNotLearned(systemTrustFactorsNotLearned);
+        //Debug data
+        computationResult.setUserAllTrustFactors(userAllTrustFactors);
+        computationResult.setSystemAllTrustFactors(systemAllTrustFactors);
 
-        setUserTrustFactorsWithErrors(userTrustFactorsWithErrors);
-        setSystemTrustFactorsWithErrors(systemTrustFactorsWithErrors);
+        computationResult.setUserTrustFactorsAttributingToScore(userTrustFactorsAttributingToScore);
+        computationResult.setSystemTrustFactorsAttributingToScore(systemTrustFactorsAttributingToScore);
+
+        computationResult.setUserTrustFactorsNotLearned(userTrustFactorsNotLearned);
+        computationResult.setSystemTrustFactorsNotLearned(systemTrustFactorsNotLearned);
+
+        computationResult.setUserTrustFactorsWithErrors(userTrustFactorsWithErrors);
+        computationResult.setSystemTrustFactorsWithErrors(systemTrustFactorsWithErrors);
+        //
 
 
         if (systemPolicyViolation) {
-            setSystemScore(0);
+            computationResult.setSystemScore(0);
         } else {
-            setSystemScore(Math.min(100, Math.max(0, 100 - systemTrustScoreSum)));
+            computationResult.setSystemScore(Math.min(100, Math.max(0, 100 - systemTrustScoreSum)));
         }
 
         if (userPolicyViolation) {
-            setUserScore(0);
+            computationResult.setUserScore(0);
         } else {
-            setUserScore(Math.min(100, userTrustScoreSum));
+            computationResult.setUserScore(Math.min(100, userTrustScoreSum));
         }
 
-        setDeviceScore((getSystemScore() + getUserScore()) / 2);
+        computationResult.setDeviceScore((computationResult.getSystemScore() + computationResult.getUserScore()) / 2);
 
-        setDeviceTrusted(true);
-        setUserTrusted(true);
-        setSystemTrusted(true);
-        setAttemptTransparentAuthentication(true);
-
-        if (getSystemScore() < policy.getSystemThreshold()) {
-            setSystemTrusted(false);
-            setDeviceTrusted(false);
-            setAttemptTransparentAuthentication(false);
-        }
-        if (getUserScore() < policy.getUserThreshold()) {
-            setUserTrusted(false);
-            setDeviceTrusted(false);
-            setAttemptTransparentAuthentication(false);
-        }
-
-        if (!isSystemTrusted()) {
-            setProtectModeWhitelist(getProtectModeSystemWhitelist());
-
-            if (getSystemBreachScore() <= getSystemSecurityScore()) {
-                setProtectModeClassID(systemBreachClass.getID());
-                setProtectModeAction(systemBreachClass.getProtectModeAction());
-                setProtectModeMessage(systemBreachClass.getProtectModeMessage());
-
-                setSystemGUIIconID(systemBreachClass.getID());
-                setSystemGUIIconText(systemBreachClass.getDescription());
-            } else if (getSystemPolicyScore() <= getSystemSecurityScore()) {
-                setProtectModeClassID(systemPolicyClass.getID());
-                setProtectModeAction(systemPolicyClass.getProtectModeAction());
-                setProtectModeMessage(systemPolicyClass.getProtectModeMessage());
-
-                setSystemGUIIconID(systemPolicyClass.getID());
-                setSystemGUIIconText(systemPolicyClass.getDescription());
-            } else {
-                setProtectModeClassID(systemSecurityClass.getID());
-                setProtectModeAction(systemSecurityClass.getProtectModeAction());
-                setProtectModeMessage(systemSecurityClass.getProtectModeMessage());
-
-                setSystemGUIIconID(systemSecurityClass.getID());
-                setSystemGUIIconText(systemSecurityClass.getDescription());
-            }
-
-        } else {
-            setSystemGUIIconID(0);
-            setSystemGUIIconText("Device\nTrusted");
-        }
-
-        if (!isUserTrusted()) {
-
-            if (getUserPolicyScore() <= getUserAnomalyScore()) {
-
-                if (isSystemTrusted()) {
-                    setProtectModeClassID(userPolicyClass.getID());
-                    setProtectModeAction(userPolicyClass.getProtectModeAction());
-                    setProtectModeMessage(userPolicyClass.getProtectModeMessage());
-
-                    setProtectModeWhitelist(getProtectModeUserWhitelist());
-                } else {
-
-                    if (getProtectModeWhitelist() != null || getProtectModeWhitelist().size() < 1) {
-                        setProtectModeWhitelist(new ArrayList<SentegrityTrustFactorOutput>());
-                    }
-
-                    getProtectModeWhitelist().addAll(getProtectModeUserWhitelist());
-                }
-                setUserGUIIconID(userPolicyClass.getID());
-                setUserGUIIconText(userPolicyClass.getDescription());
-
-            } else {
-
-                if (isSystemTrusted()) {
-                    setProtectModeClassID(userAnomalyClass.getID());
-                    setProtectModeAction(userAnomalyClass.getProtectModeAction());
-                    setProtectModeMessage(userAnomalyClass.getProtectModeMessage());
-
-                    setProtectModeWhitelist(userAnomalyClass.getTrustFactorsToWhitelist());
-                } else {
-
-                    if (getProtectModeWhitelist() != null || getProtectModeWhitelist().size() < 1) {
-                        setProtectModeWhitelist(new ArrayList<SentegrityTrustFactorOutput>());
-                    }
-
-                    getProtectModeWhitelist().addAll(userAnomalyClass.getTrustFactorsToWhitelist());
-                }
-
-                setUserGUIIconID(userAnomalyClass.getID());
-                setUserGUIIconText(userAnomalyClass.getDescription());
-            }
-
-        } else {
-            setUserGUIIconID(0);
-            setUserGUIIconText("User\nTrusted");
-        }
-
-
-        return this;
+        return computationResult;
     }
 
     private static void addSuggestions(SentegrityClassification classification, SentegritySubclassification subclassification, List<String> suggestions, SentegrityTrustFactorOutput output) {

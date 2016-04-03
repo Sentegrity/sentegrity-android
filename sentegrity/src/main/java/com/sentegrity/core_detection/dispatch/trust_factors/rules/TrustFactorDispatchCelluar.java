@@ -21,7 +21,7 @@ public class TrustFactorDispatchCelluar {
 
         String carrierName = SentegrityTrustFactorDatasets.getInstance().getCarrierConnectionName();
 
-        if (TextUtils.isEmpty(carrierName) || true) {
+        if (TextUtils.isEmpty(carrierName)) {
             output.setStatusCode(DNEStatusCode.ERROR);
             return output;
         }

@@ -19,6 +19,7 @@ import com.sentegrity.core_detection.logger.ErrorDomain;
 import com.sentegrity.core_detection.logger.Logger;
 import com.sentegrity.core_detection.logger.SentegrityError;
 import com.sentegrity.core_detection.policy.SentegrityPolicy;
+import com.sentegrity.core_detection.result_analysis.SentegrityResultAnalysis;
 import com.sentegrity.core_detection.startup.SentegrityHistory;
 import com.sentegrity.core_detection.startup.SentegrityStartup;
 import com.sentegrity.core_detection.startup.SentegrityStartupStore;
@@ -195,6 +196,20 @@ public class CoreDetection {
                 }
 
                 SentegrityTrustScoreComputation computationResults = SentegrityTrustScoreComputation.performTrustFactorComputation(policy, updatedOutputs);
+                if(computationResults == null){
+                    SentegrityError error = SentegrityError.ERROR_DURING_COMPUTATION;
+                    error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
+                    error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No computation objects returned / Error during computation").setRecoverySuggestion("Check error logs for details"));
+
+                    Logger.INFO("Perform Core Detection Unsuccessful", error);
+                    this.success = false;
+                    this.computation = new SentegrityTrustScoreComputation();
+                    this.error = error;
+                    //processCoreDetectionResponse(new SentegrityTrustScoreComputation(), false, error);
+                    return null;
+                }
+
+                computationResults = SentegrityResultAnalysis.analyzeResults(computationResults, policy);
                 if(computationResults == null){
                     SentegrityError error = SentegrityError.ERROR_DURING_COMPUTATION;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);

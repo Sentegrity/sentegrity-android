@@ -60,17 +60,14 @@ public class ProtectMode {
             return false;
         }
 
-        List<SentegrityStoredAssertion> existingStoredAssertionObjects = new ArrayList();
-        List<SentegrityStoredAssertion> mergedStoredAssertionObjects = new ArrayList();
-
         for(SentegrityTrustFactorOutput trustFactorOutput : trustFactorsToWhiteList){
+            if(!trustFactorOutput.getTrustFactor().isWhitelistable())
+                continue;
+
             if(trustFactorOutput.getStoredTrustFactor().getAssertions() == null || trustFactorOutput.getStoredTrustFactor().getAssertions().size() < 1){
-                trustFactorOutput.getStoredTrustFactor().setAssertions(trustFactorOutput.getCandidateAssertionObjects());
+                trustFactorOutput.getStoredTrustFactor().setAssertions(trustFactorOutput.getCandidateAssertionObjectsForWhitelisting());
             }else{
-                existingStoredAssertionObjects = trustFactorOutput.getStoredTrustFactor().getAssertions();
-                mergedStoredAssertionObjects = existingStoredAssertionObjects;
-                mergedStoredAssertionObjects.addAll(trustFactorOutput.getCandidateAssertionObjectsForWhitelisting());
-                trustFactorOutput.getStoredTrustFactor().setAssertions(mergedStoredAssertionObjects);
+                trustFactorOutput.getStoredTrustFactor().getAssertions().addAll(trustFactorOutput.getCandidateAssertionObjectsForWhitelisting());;
             }
 
             SentegrityStoredTrustFactor storedTrustFactor = localStore.getStoredTrustFactor(trustFactorOutput.getTrustFactor().getID());
