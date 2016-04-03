@@ -96,24 +96,6 @@ public class SentegrityTrustFactorDispatcher {
             Method m = Class.forName(className).getDeclaredMethod(method, List.class);
             output = (SentegrityTrustFactorOutput) m.invoke(null, data);
 
-            //setting random error code for testing purposes (disable available rules)
-            ArrayList<String> list = new ArrayList<String>();
-            //POWER
-            list.add("powerLevelTime");     list.add("batteryState");        list.add("pluggedIn");
-            //TIME
-            list.add("accessTime");
-            //PLATFORM
-            list.add("shortUptime");
-            //CELLULAR
-            list.add("airplaneMode");       list.add("cellConnectionChange");
-            //WIFI
-            list.add("hotspotEnabled");     list.add("defaultSSID");        list.add("hotspot");
-            list.add("consumerAP");         list.add("SSIDBSSID");
-            //MOVEMENT
-            list.add("orientation");        list.add("movement");           list.add("grip");
-
-            if(!list.contains(method))
-                output.setStatusCode(DNEStatusCode.getByID(new Random().nextInt(9)));
             //create new instance of interface and call run()
             //TrustFactorDispatch dispatch = (TrustFactorDispatch) Class.forName(className).newInstance();
             //output = dispatch.run(method, data);

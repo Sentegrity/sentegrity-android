@@ -291,6 +291,36 @@ public class SentegrityTrustFactorDatasets {
         return DNEStatusCode.getByID(i);
     }
 
+    public DNEStatusCode getConnectedClassicDNEStatus() {
+        int i = new Random().nextInt(8);
+        return DNEStatusCode.getByID(i);
+    }
+
+    public DNEStatusCode getDiscoveredBLEDNEStatus() {
+        int i = new Random().nextInt(8);
+        return DNEStatusCode.getByID(i);
+    }
+
+    public List<String> getClassicBTInfo() {
+        Random r = new Random();
+        int rand = r.nextInt(4);
+        List<String> listOfDevices = new ArrayList<>();
+        for(int i = 0; i < rand; i++){
+            listOfDevices.add("device" + r.nextInt(20));
+        }
+        return listOfDevices;
+    }
+
+    public List<String> getDiscoveredBLEInfo() {
+        Random r = new Random();
+        int rand = r.nextInt(4);
+        List<String> listOfDevices = new ArrayList<>();
+        for(int i = 0; i < rand; i++){
+            listOfDevices.add("device" + r.nextInt(20));
+        }
+        return listOfDevices;
+    }
+
     public List<String> getSSIDList() {
         try {
             AssetManager mg = context.getResources().getAssets();
