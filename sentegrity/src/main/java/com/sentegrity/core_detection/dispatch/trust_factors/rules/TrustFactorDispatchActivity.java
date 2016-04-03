@@ -1,7 +1,10 @@
 package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
+import com.sentegrity.core_detection.constants.DNEStatusCode;
+import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -13,7 +16,7 @@ public class TrustFactorDispatchActivity {
         return new SentegrityTrustFactorOutput();
     }
 
-    public static SentegrityTrustFactorOutput state(List<Object> payload){
+    /*public static SentegrityTrustFactorOutput state(List<Object> payload){
         return new SentegrityTrustFactorOutput();
-    }
+    }*/
 }

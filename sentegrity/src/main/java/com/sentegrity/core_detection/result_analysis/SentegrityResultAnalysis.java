@@ -31,22 +31,19 @@ public class SentegrityResultAnalysis {
 
             if (computationResults.getSystemBreachScore() <= computationResults.getSystemSecurityScore()) {
                 computationResults.setProtectModeClassID(computationResults.getSystemBreachClass().getID());
-                computationResults.setProtectModeAction(computationResults.getSystemBreachClass().getProtectModeAction());
-                computationResults.setProtectModeMessage(computationResults.getSystemBreachClass().getProtectModeMessage());
+                computationResults.setProtectModeAction(computationResults.getSystemBreachClass().getPreAuthenticationAction());
 
                 computationResults.setSystemGUIIconID(computationResults.getSystemBreachClass().getID());
                 computationResults.setSystemGUIIconText(computationResults.getSystemBreachClass().getDescription());
             } else if (computationResults.getSystemPolicyScore() <= computationResults.getSystemSecurityScore()) {
                 computationResults.setProtectModeClassID(computationResults.getSystemPolicyClass().getID());
-                computationResults.setProtectModeAction(computationResults.getSystemPolicyClass().getProtectModeAction());
-                computationResults.setProtectModeMessage(computationResults.getSystemPolicyClass().getProtectModeMessage());
+                computationResults.setProtectModeAction(computationResults.getSystemPolicyClass().getPreAuthenticationAction());
 
                 computationResults.setSystemGUIIconID(computationResults.getSystemPolicyClass().getID());
                 computationResults.setSystemGUIIconText(computationResults.getSystemPolicyClass().getDescription());
             } else {
                 computationResults.setProtectModeClassID(computationResults.getSystemSecurityClass().getID());
-                computationResults.setProtectModeAction(computationResults.getSystemSecurityClass().getProtectModeAction());
-                computationResults.setProtectModeMessage(computationResults.getSystemSecurityClass().getProtectModeMessage());
+                computationResults.setProtectModeAction(computationResults.getSystemSecurityClass().getPreAuthenticationAction());
 
                 computationResults.setSystemGUIIconID(computationResults.getSystemSecurityClass().getID());
                 computationResults.setSystemGUIIconText(computationResults.getSystemSecurityClass().getDescription());
@@ -64,8 +61,7 @@ public class SentegrityResultAnalysis {
 
                 if (computationResults.isSystemTrusted()) {
                     computationResults.setProtectModeClassID(computationResults.getUserPolicyClass().getID());
-                    computationResults.setProtectModeAction(computationResults.getUserPolicyClass().getProtectModeAction());
-                    computationResults.setProtectModeMessage(computationResults.getUserPolicyClass().getProtectModeMessage());
+                    computationResults.setProtectModeAction(computationResults.getUserPolicyClass().getPreAuthenticationAction());
                 }
                 computationResults.setUserGUIIconID(computationResults.getUserPolicyClass().getID());
                 computationResults.setUserGUIIconText(computationResults.getUserPolicyClass().getDescription());
@@ -74,8 +70,7 @@ public class SentegrityResultAnalysis {
 
                 if (computationResults.isSystemTrusted()) {
                     computationResults.setProtectModeClassID(computationResults.getUserAnomalyClass().getID());
-                    computationResults.setProtectModeAction(computationResults.getUserAnomalyClass().getProtectModeAction());
-                    computationResults.setProtectModeMessage(computationResults.getUserAnomalyClass().getProtectModeMessage());
+                    computationResults.setProtectModeAction(computationResults.getUserAnomalyClass().getPreAuthenticationAction());
                 }
                 computationResults.setUserGUIIconID(computationResults.getUserAnomalyClass().getID());
                 computationResults.setUserGUIIconText(computationResults.getUserAnomalyClass().getDescription());

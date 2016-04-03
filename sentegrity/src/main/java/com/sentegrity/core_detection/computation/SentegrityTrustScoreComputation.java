@@ -59,7 +59,6 @@ public class SentegrityTrustScoreComputation {
     private int protectModeClassID;
     private int protectModeAction;
 
-    private String protectModeMessage;
     private List<SentegrityTrustFactorOutput> protectModeWhitelist;
     private List<SentegrityTrustFactorOutput> protectModeUserWhitelist;
     private List<SentegrityTrustFactorOutput> protectModeSystemWhitelist;
@@ -255,10 +254,6 @@ public class SentegrityTrustScoreComputation {
         return protectModeAction;
     }
 
-    public String getProtectModeMessage() {
-        return protectModeMessage;
-    }
-
     public List<SentegrityTrustFactorOutput> getProtectModeWhitelist() {
         return protectModeWhitelist != null ? protectModeWhitelist : (protectModeWhitelist = new ArrayList<>());
     }
@@ -409,10 +404,6 @@ public class SentegrityTrustScoreComputation {
 
     public void setProtectModeAction(int protectModeAction) {
         this.protectModeAction = protectModeAction;
-    }
-
-    public void setProtectModeMessage(String protectModeMessage) {
-        this.protectModeMessage = protectModeMessage;
     }
 
     public void setProtectModeWhitelist(List<SentegrityTrustFactorOutput> protectModeWhitelist) {

@@ -4,10 +4,13 @@
   "revision": 1,
   "userThreshold": 80,
   "systemThreshold": 50,
-  "timeout": 15,
+  "continueOnError": 1,
+  "timeout": 2,
   "contactPhone": "18005556666",
   "contactURL": "www.application.com",
   "contactEmail": "help@application.com",
+  "transparentAuthEnabled": 1,
+  "transparentAuthDecayMetric": 0.07,
   "DNEModifiers": {
     "unauthorized": 0.5,
     "unsupported": 0,
@@ -25,8 +28,8 @@
       "computationMethod": 0,
       "name": "SYSTEM_BREACH",
       "desc": "High Risk Device",
-      "protectModeAction": 3,
-      "protectModeMessage": "Enter administrator PIN to deactivate."
+      "preAuthenticationAction": 3,
+      "postAuthenticationAction": 3
     },
     {
       "id": 2,
@@ -34,8 +37,8 @@
       "computationMethod": 0,
       "name": "SYSTEM_POLICY",
       "desc": "Device Violation",
-      "protectModeAction": 2,
-      "protectModeMessage": "Enter administrator PIN to deactivate."
+      "preAuthenticationAction": 2,
+      "postAuthenticationAction": 2
     },
     {
       "id": 3,
@@ -43,8 +46,8 @@
       "computationMethod": 0,
       "name": "SYSTEM_SECURITY",
       "desc": "Device Anomaly",
-      "protectModeAction": 3,
-      "protectModeMessage": "Enter administrator PIN to deactivate."
+      "preAuthenticationAction": 2,
+      "postAuthenticationAction": 2
     },
     {
       "id": 4,
@@ -52,8 +55,8 @@
       "computationMethod": 0,
       "name": "USER_POLICY",
       "desc": "User Violation",
-      "protectModeAction": 2,
-      "protectModeMessage": "Enter administrator PIN to deactivate."
+      "preAuthenticationAction": 2,
+      "postAuthenticationAction": 1
     },
     {
       "id": 5,
@@ -61,8 +64,8 @@
       "computationMethod": 1,
       "name": "USER_ANOMALY",
       "desc": "User Anomaly",
-      "protectModeAction": 1,
-      "protectModeMessage": "Enter user PIN to deactivate."
+      "preAuthenticationAction": 1,
+      "postAuthenticationAction": 1
     }
   ],
   "subclassifications": [
@@ -693,31 +696,6 @@
       "implementation": "defaultSSID:",
       "whitelistable": 0,
       "privateAPI": 0,
-      "payload": []
-    },
-    {
-      "id": 17,
-      "notFoundIssueMessage": "State changed",
-      "notFoundSuggestionMessage": "",
-      "lowConfidenceIssueMessage": "",
-      "lowConfidenceSuggestionMessage": "",
-      "revision": 1,
-      "classID": 5,
-      "subClassID": 9,
-      "name": "State", 
-      "partialWeight": 1,
-      "weight": 10, 
-      "learnMode": 0,
-      "learnTime": 0,
-      "learnAssertionCount": 0,
-      "learnRunCount": 0,
-      "decayMode": 1,
-      "decayMetric": 0.28,
-      "wipeOnUpdate": 0,
-      "dispatch": "Activity",
-      "implementation": "state:", 
-      "whitelistable": 1,
-      "privateAPI": 1,
       "payload": []
     },
     {

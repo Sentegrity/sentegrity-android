@@ -25,11 +25,11 @@ public class SentegrityClassification extends SentegrityClassificationComputatio
     @SerializedName("desc")
     private String description;
 
-    @SerializedName("protectModeAction")
-    private int protectModeAction;
+    @SerializedName("preAuthenticationAction")
+    private int preAuthenticationAction;
 
-    @SerializedName("protectModeMessage")
-    private String protectModeMessage;
+    @SerializedName("postAuthenticationAction")
+    private int postAuthenticationAction;
 
     public int getID() {
         return ID;
@@ -51,12 +51,12 @@ public class SentegrityClassification extends SentegrityClassificationComputatio
         return description;
     }
 
-    public int getProtectModeAction() {
-        return protectModeAction;
+    public int getPreAuthenticationAction() {
+        return preAuthenticationAction;
     }
 
-    public String getProtectModeMessage() {
-        return protectModeMessage;
+    public int getPostAuthenticationAction() {
+        return postAuthenticationAction;
     }
 
     public void setID(int ID) {
@@ -79,11 +79,11 @@ public class SentegrityClassification extends SentegrityClassificationComputatio
         this.description = description;
     }
 
-    public void setProtectModeAction(int protectModeAction) {
-        this.protectModeAction = protectModeAction;
+    public void setPreAuthenticationAction(int preAuthenticationAction) {
+        this.preAuthenticationAction = preAuthenticationAction;
     }
 
-    public void setProtectModeMessage(String protectModeMessage) {
-        this.protectModeMessage = protectModeMessage;
+    public void setPostAuthenticationAction(int postAuthenticationAction) {
+        this.postAuthenticationAction = postAuthenticationAction;
     }
 }
