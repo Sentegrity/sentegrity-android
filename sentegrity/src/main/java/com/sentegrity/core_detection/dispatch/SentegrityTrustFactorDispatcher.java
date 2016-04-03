@@ -99,14 +99,16 @@ public class SentegrityTrustFactorDispatcher {
             //setting random error code for testing purposes (disable available rules)
             ArrayList<String> list = new ArrayList<String>();
             //POWER
-            list.add("powerLevelTime");     list.add("shortUptime");        list.add("pluggedIn");
+            list.add("powerLevelTime");     list.add("batteryState");        list.add("pluggedIn");
             //TIME
             list.add("accessTime");
+            //PLATFORM
+            list.add("shortUptime");
             //CELLULAR
-            list.add("cellConnectionChange");
+            list.add("airplaneMode");       list.add("cellConnectionChange");
             //WIFI
-            list.add("hotspotEnabled");     list.add("airplaneMode");       list.add("defaultSSID");
-            list.add("consumerAP");         list.add("SSIDBSSID");          list.add("hotspot");
+            list.add("hotspotEnabled");     list.add("defaultSSID");        list.add("hotspot");
+            list.add("consumerAP");         list.add("SSIDBSSID");
             //MOVEMENT
             list.add("orientation");        list.add("movement");           list.add("grip");
 

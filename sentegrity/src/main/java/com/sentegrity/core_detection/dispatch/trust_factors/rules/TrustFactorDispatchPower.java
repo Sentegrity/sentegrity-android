@@ -1,5 +1,7 @@
 package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
+import android.text.TextUtils;
+
 import com.google.gson.internal.LinkedTreeMap;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
@@ -70,6 +72,22 @@ public class TrustFactorDispatchPower {
     }
 
     public static SentegrityTrustFactorOutput batteryState(List<Object> payload) {
-        return new SentegrityTrustFactorOutput();
+        //TODO: recheck this for different devices
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        List<String> outputList = new ArrayList<>();
+
+        String state = SentegrityTrustFactorDatasets.getInstance().getBatteryState();
+
+        if (TextUtils.isEmpty(state) || "unknown".equals(state)) {
+            output.setStatusCode(DNEStatusCode.UNAVAILABLE);
+            return output;
+        }
+
+        outputList.add(state);
+
+        output.setOutput(outputList);
+
+        return output;
     }
 }

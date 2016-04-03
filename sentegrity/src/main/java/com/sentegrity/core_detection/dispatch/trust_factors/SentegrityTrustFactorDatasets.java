@@ -111,25 +111,24 @@ public class SentegrityTrustFactorDatasets {
             if (batteryStatus == null)
                 return "unknown";
 
-            int plugged = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
-            boolean isUSB = plugged == BatteryManager.BATTERY_PLUGGED_USB;
-
-            if (isUSB) {
-                return batteryState = "usbPlugged";
+            switch (batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)) {
+                case BatteryManager.BATTERY_STATUS_CHARGING:
+                    return batteryState = "usbPlugged";
+                case BatteryManager.BATTERY_STATUS_FULL:
+                    return batteryState = "wirelessPlugged";
+                case BatteryManager.BATTERY_STATUS_DISCHARGING:
+                    return batteryState = "ACPlugged";
             }
 
-            int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-            boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING;
-            boolean isFull = status == BatteryManager.BATTERY_STATUS_FULL;
-            boolean discharging = status == BatteryManager.BATTERY_STATUS_DISCHARGING;
-            if (isCharging) {
-                return batteryState = "pluggedCharging";
-            } else if (isFull) {
-                return batteryState = "pluggedFull";
-            } else if (discharging) {
-                return batteryState = "unplugged";
-            } else {
-                return batteryState = "unknown";
+            switch (batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1)) {
+                case BatteryManager.BATTERY_STATUS_CHARGING:
+                    return batteryState = "pluggedCharging";
+                case BatteryManager.BATTERY_STATUS_FULL:
+                    return batteryState = "pluggedFull";
+                case BatteryManager.BATTERY_STATUS_DISCHARGING:
+                    return batteryState = "unplugged";
+                default:
+                    return "unknown";
             }
         } else {
             return batteryState;
