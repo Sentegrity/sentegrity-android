@@ -257,13 +257,9 @@ public class SentegrityTrustFactorDatasets {
 
     public List<GyroRadsObject> getGyroRads() {
         GyroRadsObject rand1 = new GyroRadsObject();
-        rand1.x = 0.8f; rand1.y = 0.7f; rand1.z = 1.3f;
         GyroRadsObject rand2 = new GyroRadsObject();
-        rand2.x = 1.1f; rand2.y = 0.8f; rand2.z = 1.4f;
         GyroRadsObject rand3 = new GyroRadsObject();
-        rand3.x = 1.2f; rand3.y = 0.9f; rand3.z = 1.5f;
         GyroRadsObject rand4 = new GyroRadsObject();
-        rand4.x = 1.3f; rand4.y = 1.0f; rand4.z = 1.6f;
         List<GyroRadsObject> list = new ArrayList<>();
         list.add(rand1);
         list.add(rand2);
@@ -274,13 +270,9 @@ public class SentegrityTrustFactorDatasets {
 
     public List<PitchRollObject> getGyroPitch() {
         PitchRollObject rand1 = new PitchRollObject();
-        rand1.pitch = 0.8f; rand1.roll = 0.4f;
         PitchRollObject rand2 = new PitchRollObject();
-        rand2.pitch = 0.9f; rand2.roll = 0.5f;
         PitchRollObject rand3 = new PitchRollObject();
-        rand3.pitch = 1.0f; rand3.roll = 0.6f;
         PitchRollObject rand4 = new PitchRollObject();
-        rand4.pitch = 0.8f; rand4.roll = 0.7f;
         List<PitchRollObject> list = new ArrayList<>();
         list.add(rand1);
         list.add(rand2);
