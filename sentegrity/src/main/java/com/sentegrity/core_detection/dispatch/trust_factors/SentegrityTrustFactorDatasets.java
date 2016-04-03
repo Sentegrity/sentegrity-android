@@ -12,7 +12,10 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
+import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
+import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.GyroRadsObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.PitchRollObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -22,6 +25,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by dmestrov on 23/03/16.
@@ -204,6 +208,96 @@ public class SentegrityTrustFactorDatasets {
             return wifiInfo = wifiManager.getConnectionInfo();
         }
         return wifiInfo;
+    }
+
+    public String getDeviceOrientation() {
+        //TODO: return real orientation
+        // fake random orientation for testing purposes
+        int i = new Random().nextInt(8);
+        switch (i){
+            case 0:
+                return "Portrait";
+            case 1:
+                return "Landscape_Right";
+            case 2:
+                return "Landscape_Left";
+            case 3:
+                return "Portrait_Upside_Down";
+            case 4:
+                return "Face_Up";
+            case 5:
+                return "Face_Down";
+            case 6:
+                return "unknown";
+            default:
+                return "error";
+        }
+    }
+
+    public String getUserMovement() {
+        //TODO: return real movement
+        // fake random movement for testing purposes
+        int i = new Random().nextInt(5);
+        switch (i){
+            case 0:
+                return "StandingStill";
+            case 1:
+                return "Walking";
+            case 2:
+                return "Running";
+            case 3:
+                return "ChangingOrientation";
+            default:
+                return "RotatingOrShaking";
+        }
+    }
+
+    public float getGripMovement() {
+        return new Random().nextInt(10) / 10.0f;
+    }
+
+    public List<GyroRadsObject> getGyroRads() {
+        GyroRadsObject rand1 = new GyroRadsObject();
+        rand1.x = 0.8f; rand1.y = 0.7f; rand1.z = 1.3f;
+        GyroRadsObject rand2 = new GyroRadsObject();
+        rand2.x = 1.1f; rand2.y = 0.8f; rand2.z = 1.4f;
+        GyroRadsObject rand3 = new GyroRadsObject();
+        rand3.x = 1.2f; rand3.y = 0.9f; rand3.z = 1.5f;
+        GyroRadsObject rand4 = new GyroRadsObject();
+        rand4.x = 1.3f; rand4.y = 1.0f; rand4.z = 1.6f;
+        List<GyroRadsObject> list = new ArrayList<>();
+        list.add(rand1);
+        list.add(rand2);
+        list.add(rand3);
+        list.add(rand4);
+        return list;
+    }
+
+    public List<PitchRollObject> getGyroPitch() {
+        PitchRollObject rand1 = new PitchRollObject();
+        rand1.pitch = 0.8f; rand1.roll = 0.4f;
+        PitchRollObject rand2 = new PitchRollObject();
+        rand2.pitch = 0.9f; rand2.roll = 0.5f;
+        PitchRollObject rand3 = new PitchRollObject();
+        rand3.pitch = 1.0f; rand3.roll = 0.6f;
+        PitchRollObject rand4 = new PitchRollObject();
+        rand4.pitch = 0.8f; rand4.roll = 0.7f;
+        List<PitchRollObject> list = new ArrayList<>();
+        list.add(rand1);
+        list.add(rand2);
+        list.add(rand3);
+        list.add(rand4);
+        return list;
+    }
+
+    public DNEStatusCode getUserMovementDNEStatus() {
+        int i = new Random().nextInt(8);
+        return DNEStatusCode.getByID(i);
+    }
+
+    public DNEStatusCode getGyroMotionDNEStatus() {
+        int i = new Random().nextInt(8);
+        return DNEStatusCode.getByID(i);
     }
 
     public List<String> getSSIDList() {

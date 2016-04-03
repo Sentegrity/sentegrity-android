@@ -98,12 +98,17 @@ public class SentegrityTrustFactorDispatcher {
 
             //setting random error code for testing purposes (disable available rules)
             ArrayList<String> list = new ArrayList<String>();
-            list.add("powerLevelTime"); list.add("shortUptime");
-            list.add("accessTime");     list.add("pluggedIn");
-            list.add("hotspotEnabled"); list.add("cellConnectionChange");
-            list.add("airplaneMode");   list.add("defaultSSID");
-            list.add("consumerAP");     list.add("SSIDBSSID");
-            list.add("hotspot");
+            //POWER
+            list.add("powerLevelTime");     list.add("shortUptime");        list.add("pluggedIn");
+            //TIME
+            list.add("accessTime");
+            //CELLULAR
+            list.add("cellConnectionChange");
+            //WIFI
+            list.add("hotspotEnabled");     list.add("airplaneMode");       list.add("defaultSSID");
+            list.add("consumerAP");         list.add("SSIDBSSID");          list.add("hotspot");
+            //MOVEMENT
+            list.add("orientation");        list.add("movement");           list.add("grip");
 
             if(!list.contains(method))
                 output.setStatusCode(DNEStatusCode.getByID(new Random().nextInt(9)));

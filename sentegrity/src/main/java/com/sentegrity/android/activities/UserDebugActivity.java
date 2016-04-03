@@ -46,7 +46,7 @@ public class UserDebugActivity extends DebugActivity {
                         + "LastTime: " + currentAssertion.getLastTime() + "\n\n";
             }
 
-            userTrustFactorsTriggered += "--Name: " + output.getTrustFactor().getName() + "\n\n"
+            userTrustFactorsTriggered += "--Name: " + output.getTrustFactor().getName().toUpperCase() + "\n\n"
                     + "Weight Applied: " + output.getAppliedWeight() + "\n"
                     + "Weight Percent: " + output.getPercentAppliedWeight() + "\n"
                     + "Use Partial: " + output.getTrustFactor().getPartialWeight() + "\n"
@@ -77,7 +77,7 @@ public class UserDebugActivity extends DebugActivity {
                         + "LastTime: " + currentAssertion.getLastTime() + "\n\n";
             }
 
-            userTrustFactorsToWhitelist += "--Name: " + output.getTrustFactor().getName() + "\n\n"
+            userTrustFactorsToWhitelist += "--Name: " + output.getTrustFactor().getName().toUpperCase() + "\n\n"
                     + "Weight Applied: " + output.getAppliedWeight() + "\n"
                     + "Weight Percent: " + output.getPercentAppliedWeight() + "\n"
                     + "Use Partial: " + output.getTrustFactor().getPartialWeight() + "\n"
@@ -108,7 +108,7 @@ public class UserDebugActivity extends DebugActivity {
                         + "LastTime: " + currentAssertion.getLastTime() + "\n\n";
             }
 
-            userTrustFactorsNotLearned += "--Name: " + output.getTrustFactor().getName() + "\n\n"
+            userTrustFactorsNotLearned += "--Name: " + output.getTrustFactor().getName().toUpperCase() + "\n\n"
                     + "Current Assertions: " + "\n" + currentAssertions
                     + "Stored Assertions: " + "\n" + storedAssertions;
         }
@@ -119,7 +119,7 @@ public class UserDebugActivity extends DebugActivity {
 
         for(SentegrityTrustFactorOutput output : computationResult.getUserTrustFactorsWithErrors()){
 
-            userTrustFactorsWithError += "--Name: " + output.getTrustFactor().getName() + "\n"
+            userTrustFactorsWithError += "--Name: " + output.getTrustFactor().getName().toUpperCase() + "\n"
                     + "DNE: " + output.getStatusCode().getId() + " (" + output.getStatusCode() + ")" + "\n\n";
         }
 
@@ -137,7 +137,7 @@ public class UserDebugActivity extends DebugActivity {
                         + "LastTime: " + currentAssertion.getLastTime() + "\n\n";
             }
 
-            userTrustFactorsForTransparentAuth += "--Name: " + output.getTrustFactor().getName() + "\n\n"
+            userTrustFactorsForTransparentAuth += "--Name: " + output.getTrustFactor().getName().toUpperCase() + "\n\n"
                     + "Current Assertions: " + "\n" + currentAssertions;
         }
 

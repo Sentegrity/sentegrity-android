@@ -46,7 +46,7 @@ public class SystemDebugActivity extends DebugActivity {
                         + "LastTime: " + currentAssertion.getLastTime() + "\n\n";
             }
 
-            systemTrustFactorsTriggered += "--Name: " + output.getTrustFactor().getName() + "\n\n"
+            systemTrustFactorsTriggered += "--Name: " + output.getTrustFactor().getName().toUpperCase() + "\n\n"
                     + "Weight Applied: " + output.getAppliedWeight() + "\n"
                     + "Weight Percent: " + output.getPercentAppliedWeight() + "\n"
                     + "Use Partial: " + output.getTrustFactor().getPartialWeight() + "\n"
@@ -77,7 +77,7 @@ public class SystemDebugActivity extends DebugActivity {
                         + "LastTime: " + currentAssertion.getLastTime() + "\n\n";
             }
 
-            systemTrustFactorsToWhitelist += "--Name: " + output.getTrustFactor().getName() + "\n\n"
+            systemTrustFactorsToWhitelist += "--Name: " + output.getTrustFactor().getName().toUpperCase() + "\n\n"
                     + "Current Assertions: " + "\n" + currentAssertions
                     + "Stored Assertions: " + "\n" + storedAssertions;
         }
@@ -104,7 +104,7 @@ public class SystemDebugActivity extends DebugActivity {
                         + "LastTime: " + currentAssertion.getLastTime() + "\n\n";
             }
 
-            systemTrustFactorsNotLearned += "--Name: " + output.getTrustFactor().getName() + "\n\n"
+            systemTrustFactorsNotLearned += "--Name: " + output.getTrustFactor().getName().toUpperCase() + "\n\n"
                     + "Current Assertions: " + "\n" + currentAssertions
                     + "Stored Assertions: " + "\n" + storedAssertions;
         }
@@ -115,7 +115,7 @@ public class SystemDebugActivity extends DebugActivity {
 
         for(SentegrityTrustFactorOutput output : computationResult.getSystemTrustFactorsWithErrors()){
 
-            systemTrustFactorsWithError += "--Name: " + output.getTrustFactor().getName() + "\n"
+            systemTrustFactorsWithError += "--Name: " + output.getTrustFactor().getName().toUpperCase() + "\n"
                     + "DNE: " + output.getStatusCode().getId() + " (" + output.getStatusCode() + ")" + "\n\n";
         }
 

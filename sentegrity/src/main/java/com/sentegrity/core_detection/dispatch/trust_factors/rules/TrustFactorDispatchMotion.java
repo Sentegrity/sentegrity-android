@@ -1,8 +1,16 @@
 package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
+import com.google.gson.internal.LinkedTreeMap;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
+import com.sentegrity.core_detection.constants.DNEStatusCode;
+import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
+import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.GyroRadsObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.PitchRollObject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by dmestrov on 25/03/16.
@@ -10,15 +18,140 @@ import java.util.List;
 public class TrustFactorDispatchMotion /*implements TrustFactorDispatch*/ {
 
     public static SentegrityTrustFactorOutput orientation(List<Object> payload){
-        return new SentegrityTrustFactorOutput();
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        List<String> outputList = new ArrayList<>();
+
+        String orientation = SentegrityTrustFactorDatasets.getInstance().getDeviceOrientation();
+
+        if("Face_Down".equals(orientation) || "unknown".equals(orientation)){
+            output.setStatusCode(DNEStatusCode.INVALID);
+            return output;
+        }
+
+        outputList.add(orientation);
+
+        output.setOutput(outputList);
+
+        return output;
     }
 
     public static SentegrityTrustFactorOutput movement(List<Object> payload){
-        return new SentegrityTrustFactorOutput();
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        if(!SentegrityTrustFactorDatasets.validatePayload(payload)){
+            output.setStatusCode(DNEStatusCode.NO_DATA);
+            return output;
+        }
+
+        List<String> outputList = new ArrayList<>();
+
+        //TODO: check for previous movement callback status
+        /*if(SentegrityTrustFactorDatasets.getInstance().getUserMovementDNEStatus() != DNEStatusCode.OK &&
+                SentegrityTrustFactorDatasets.getInstance().getUserMovementDNEStatus() != DNEStatusCode.EXPIRED){
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getUserMovementDNEStatus());
+            return output;
+        }*/
+
+        float gripMovement = 0.0f;
+        gripMovement = SentegrityTrustFactorDatasets.getInstance().getGripMovement();
+
+        if(gripMovement == 0.0f){
+            output.setStatusCode(DNEStatusCode.UNAVAILABLE);
+            return output;
+        }
+
+        double movementBlockSize = (double) ((LinkedTreeMap)payload.get(0)).get("movementBlockSize");
+
+        int movementBlock = (int) Math.round(gripMovement / movementBlockSize);
+
+        String userMovement = SentegrityTrustFactorDatasets.getInstance().getUserMovement();
+
+        String motion = "grip_Movement_" + movementBlock + "_" + "device_Movement_" + userMovement;
+
+        outputList.add(motion);
+
+        output.setOutput(outputList);
+
+        return output;
     }
 
     public static SentegrityTrustFactorOutput grip(List<Object> payload){
-        return new SentegrityTrustFactorOutput();
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        if(!SentegrityTrustFactorDatasets.validatePayload(payload)){
+            output.setStatusCode(DNEStatusCode.NO_DATA);
+            return output;
+        }
+
+        List<String> outputList = new ArrayList<>();
+
+        //TODO: check for previous gyro callback status
+        /*if(SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus() != DNEStatusCode.OK &&
+                SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus() != DNEStatusCode.EXPIRED){
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus());
+            return output;
+        }*/
+
+        List<GyroRadsObject> gyroRads = SentegrityTrustFactorDatasets.getInstance().getGyroRads();
+
+        if(gyroRads == null){
+            output.setStatusCode(DNEStatusCode.UNAVAILABLE);
+            return output;
+        }
+
+        List<PitchRollObject> gyroPitch = SentegrityTrustFactorDatasets.getInstance().getGyroPitch();
+
+        if(gyroPitch == null){
+            output.setStatusCode(DNEStatusCode.UNAVAILABLE);
+            return output;
+        }
+
+        float gripMovement = 0.0f;
+        gripMovement = SentegrityTrustFactorDatasets.getInstance().getGripMovement();
+
+        if(gripMovement == 0.0f){
+            output.setStatusCode(DNEStatusCode.UNAVAILABLE);
+            return output;
+        }
+
+        float pitchTotal = 0.0f;
+        float rollTotal = 0.0f;
+
+        float pitchAvg = 0.0f;
+        float rollAvg = 0.0f;
+
+        int counter = 1;
+
+        for(PitchRollObject pr : gyroPitch){
+            pitchTotal += pr.pitch;
+            rollTotal += pr.roll;
+            counter ++;
+        }
+
+        pitchAvg = pitchTotal / counter;
+        rollAvg = rollTotal / counter;
+
+        double pitchBlockSize = (double) ((LinkedTreeMap)payload.get(0)).get("pitchBlockSize");
+        double rollBlockSize = (double) ((LinkedTreeMap)payload.get(0)).get("rollBlockSize");
+
+        int pitchBlock = (int) Math.round(pitchAvg / pitchBlockSize);
+        int rollBlock = (int) Math.round(rollAvg / rollBlockSize);
+
+        String motion = "pitch_" + pitchBlock + "_" + "roll_" + rollBlock;
+
+        int movementBlock = (int) Math.round(gripMovement / 0.1);
+
+        if(pitchBlock == 0 && movementBlock == 0){
+            output.setStatusCode(DNEStatusCode.INVALID);
+            return output;
+        }
+
+        outputList.add(motion);
+
+        output.setOutput(outputList);
+
+        return output;
     }
 
     /*
