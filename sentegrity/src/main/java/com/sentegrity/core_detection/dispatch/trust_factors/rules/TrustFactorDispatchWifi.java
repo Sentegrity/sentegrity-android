@@ -3,6 +3,7 @@ package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 import android.net.wifi.WifiInfo;
 import android.os.SystemClock;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.gson.internal.LinkedTreeMap;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
@@ -13,7 +14,10 @@ import com.sentegrity.core_detection.utilities.Helpers;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -21,7 +25,7 @@ import java.util.regex.Pattern;
  */
 public class TrustFactorDispatchWifi {
 
-    public static SentegrityTrustFactorOutput consumerAP(List<Object> payload){
+    public static SentegrityTrustFactorOutput consumerAP(List<Object> payload) {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         if (!SentegrityTrustFactorDatasets.validatePayload(payload)) {
@@ -59,8 +63,8 @@ public class TrustFactorDispatchWifi {
 
         boolean OUImatch = false;
         if (ouiList != null) {
-            for(String oui : ouiList){
-                if(bssidLowerCase.contains(oui.toLowerCase())){
+            for (String oui : ouiList) {
+                if (bssidLowerCase.contains(oui.toLowerCase())) {
                     OUImatch = true;
                     break;
                 }
@@ -71,15 +75,15 @@ public class TrustFactorDispatchWifi {
         String gatewayIP = Helpers.intToIP(wifiInfo.getIpAddress());
 
         boolean IPmatch = false;
-        for(int i = 0; i < payload.size(); i++){
+        for (int i = 0; i < payload.size(); i++) {
             String ip = (String) payload.get(i);
-            if(gatewayIP.contains(ip)){
+            if (gatewayIP.contains(ip)) {
                 IPmatch = true;
                 break;
             }
         }
 
-        if(OUImatch && IPmatch){
+        if (OUImatch && IPmatch) {
             String ssid = wifiInfo.getSSID();
             if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
                 ssid = ssid.substring(1, ssid.length() - 1);
@@ -151,10 +155,8 @@ public class TrustFactorDispatchWifi {
             }
         }
 
-        Pattern pattern;
-        for (String defaultSSID : ssidList) {
-            pattern = Pattern.compile(defaultSSID);
-            if (pattern.matcher(ssid).matches()) {
+        for (int i = 0; i < ssidList.size(); i++) {
+            if (ssid.matches(ssidList.get(i))) {
                 outputList.add(ssid);
                 break;
             }
@@ -165,7 +167,7 @@ public class TrustFactorDispatchWifi {
         return output;
     }
 
-    public static SentegrityTrustFactorOutput hotspot(List<Object> payload){
+    public static SentegrityTrustFactorOutput hotspot(List<Object> payload) {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         List<String> outputList = new ArrayList<>();
@@ -202,9 +204,9 @@ public class TrustFactorDispatchWifi {
 
         boolean hotspotListMatch = false;
 
-        if(hotspotList != null){
-            for(String hotspot : hotspotList){
-                if(ssidLowerCase.contains(hotspot.toLowerCase())){
+        if (hotspotList != null) {
+            for (String hotspot : hotspotList) {
+                if (ssidLowerCase.contains(hotspot.toLowerCase())) {
                     hotspotListMatch = true;
                     break;
                 }
@@ -213,27 +215,27 @@ public class TrustFactorDispatchWifi {
 
         boolean hotspotDynamicMatch = false;
 
-        if(!hotspotListMatch){
-            if(ssidLowerCase.contains("wifi") || ssid.contains("wi-fi")){
-                if(ssidLowerCase.contains("free"))
+        if (!hotspotListMatch) {
+            if (ssidLowerCase.contains("wifi") || ssid.contains("wi-fi")) {
+                if (ssidLowerCase.contains("free"))
                     hotspotDynamicMatch = true;
-                if(ssidLowerCase.contains("guest"))
+                if (ssidLowerCase.contains("guest"))
                     hotspotDynamicMatch = true;
-                if(ssidLowerCase.contains("public"))
+                if (ssidLowerCase.contains("public"))
                     hotspotDynamicMatch = true;
-            }else if(ssidLowerCase.contains("hotspot")){
+            } else if (ssidLowerCase.contains("hotspot")) {
                 hotspotDynamicMatch = true;
-            }else if(ssid.contains("guest")){
-                if(ssidLowerCase.contains("net"))
+            } else if (ssid.contains("guest")) {
+                if (ssidLowerCase.contains("net"))
                     hotspotDynamicMatch = true;
-                if(ssidLowerCase.contains("_"))
+                if (ssidLowerCase.contains("_"))
                     hotspotDynamicMatch = true;
-                if(ssidLowerCase.contains("-"))
+                if (ssidLowerCase.contains("-"))
                     hotspotDynamicMatch = true;
             }
         }
 
-        if(hotspotDynamicMatch || hotspotListMatch){
+        if (hotspotDynamicMatch || hotspotListMatch) {
             outputList.add(ssid);
         }
 
@@ -242,10 +244,10 @@ public class TrustFactorDispatchWifi {
         return output;
     }
 
-    public static SentegrityTrustFactorOutput SSIDBSSID(List<Object> payload){
+    public static SentegrityTrustFactorOutput SSIDBSSID(List<Object> payload) {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
-        if(!SentegrityTrustFactorDatasets.validatePayload(payload)){
+        if (!SentegrityTrustFactorDatasets.validatePayload(payload)) {
             output.setStatusCode(DNEStatusCode.ERROR);
             return output;
         }

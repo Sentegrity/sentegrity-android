@@ -79,7 +79,7 @@ public class SentegrityTrustFactorDispatcher {
                 trustFactor.getPayload());
 
         long endTime = System.nanoTime();
-        Log.d("coreDetection", trustFactor.getName() + "Execution time: " + (endTime - startTime) + "ns");
+        Log.d("coreDetection", trustFactor.getDispatch() + " " + trustFactor.getImplementation() + " Execution time: " + (endTime - startTime) + "ns");
 
         output.setTrustFactor(trustFactor);
         if(output.getOutput() != null && output.getOutput().size() > 0){

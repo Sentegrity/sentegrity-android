@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.AssetManager;
+import android.location.Location;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
@@ -24,6 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -301,6 +303,12 @@ public class SentegrityTrustFactorDatasets {
         return DNEStatusCode.getByID(i);
     }
 
+    public DNEStatusCode getLocationDNEStatus() {
+        int i = new Random().nextInt(8);
+        return DNEStatusCode.getByID(i);
+    }
+
+
     public List<String> getClassicBTInfo() {
         Random r = new Random();
         int rand = r.nextInt(4);
@@ -321,11 +329,19 @@ public class SentegrityTrustFactorDatasets {
         return listOfDevices;
     }
 
-    public List<String> getSSIDList() {
+    public Location getLocationInfo(){
+        Random r = new Random();
+        Location l = new Location("random_provider");
+        l.setLatitude((double)(r.nextInt(500) + 1000) / 1000.0f);
+        l.setLongitude((double)(r.nextInt(500) + 1000) / 1000.0f);
+        return l;
+    }
+
+    public ArrayList<String> getSSIDList() {
         try {
             AssetManager mg = context.getResources().getAssets();
 
-            List<String> list = new ArrayList<>();
+            ArrayList<String> list = new ArrayList<>();
             String line;
             InputStream is = mg.open(SentegrityConstants.DEFAULT_SSID_LIST_FILE_NAME);
             InputStreamReader inputReader = new InputStreamReader(is);
