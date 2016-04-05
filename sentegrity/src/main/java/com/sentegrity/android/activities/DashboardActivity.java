@@ -8,15 +8,11 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.sentegrity.android.App;
 import com.sentegrity.android.R;
 import com.sentegrity.android.widget.ScoreLayout;
 import com.sentegrity.core_detection.CoreDetection;
-import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorStore;
 import com.sentegrity.core_detection.computation.SentegrityTrustScoreComputation;
-import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
-
-import java.io.File;
-import java.util.Random;
 
 
 /**
@@ -87,6 +83,7 @@ public class DashboardActivity extends MenuActivity implements View.OnClickListe
         dialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                ((App)getApplication()).runDispatcher();
                 CoreDetection.getInstance().reset();
                 startActivity(new Intent(DashboardActivity.this, LoginActivity.class));
                 finishAffinity();

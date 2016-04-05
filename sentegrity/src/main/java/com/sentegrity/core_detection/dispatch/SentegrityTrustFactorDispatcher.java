@@ -59,14 +59,6 @@ public class SentegrityTrustFactorDispatcher {
         long execTimeEnd = System.nanoTime();
         Log.d("coreDetection", "TrustFactorAnalysis done in: " + String.format("%.5f", (execTimeEnd - execTimeStart) / 1000.0f / 1000.0f / 1000.0f) + "seconds");
 
-
-        //for testing purposes
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         return trustFactorOutputs;
     }
 

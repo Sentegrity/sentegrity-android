@@ -25,9 +25,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Created by dmestrov on 23/03/16.
@@ -45,15 +45,23 @@ public class SentegrityTrustFactorDatasets {
     private Boolean wifiEnabled = null;
     private WifiInfo wifiInfo;
 
+    private Set<String> connectedClassicBTDevices;
+    private Set<String> discoveredBLEDevices;
+
     private static SentegrityTrustFactorDatasets sInstance;
     private final Context context;
 
+    private DNEStatusCode connectedClassicDNEStatus;
+    private DNEStatusCode discoveredBLEDNEStatus;
+
     private WifiManager wifiManager;
+    private TelephonyManager telephonyManager;
 
     public SentegrityTrustFactorDatasets(Context context) {
         this.context = context;
-        this.wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        //reset runtime on initialization
+        //reset data
+        updateWifiManager();
+        updateTelefonyManager();
         this.runTime = -1;
     }
 
@@ -107,7 +115,6 @@ public class SentegrityTrustFactorDatasets {
 
     public String getBatteryState() {
         if (TextUtils.isEmpty(batteryState)) {
-            //TODO: make it more bulletproof / what if device doesn't return plugged state
             IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
             Intent batteryStatus = context.registerReceiver(null, ifilter);
             if (batteryStatus == null)
@@ -151,7 +158,6 @@ public class SentegrityTrustFactorDatasets {
 
     public Boolean isTethering() {
         if (tethering == null) {
-            //TODO: recheck method, make it more bulletproof --> add to separate class / WifiInfo.java
             if (!updateWifiManager()) {
                 return null;
             }
@@ -168,22 +174,22 @@ public class SentegrityTrustFactorDatasets {
 
     public String getCarrierConnectionName() {
         if (TextUtils.isEmpty(carrierConnectionName)) {
-            //TODO: recheck method, make it more bulletproof --> add to separate class / CellInfo.java
-            TelephonyManager manager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-            return carrierConnectionName = manager.getNetworkOperatorName();
+            if (!updateWifiManager()) {
+                return null;
+            }
+            return carrierConnectionName = telephonyManager.getNetworkOperatorName();
         }
         return carrierConnectionName;
     }
 
     public Boolean isAirplaneMode() {
         if (airplaneMode == null) {
-            //TODO: recheck method, make it more bulletproof --> add to separate class / CellInfo.java
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                return airplaneMode = Settings.System.getInt(context.getContentResolver(),
-                        Settings.System.AIRPLANE_MODE_ON, 0) != 0;
-            } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
                 return airplaneMode = Settings.Global.getInt(context.getContentResolver(),
                         Settings.Global.AIRPLANE_MODE_ON, 0) != 0;
+            } else {
+                return airplaneMode = Settings.System.getInt(context.getContentResolver(),
+                        Settings.System.AIRPLANE_MODE_ON, 0) != 0;
             }
         }
         return airplaneMode;
@@ -191,7 +197,6 @@ public class SentegrityTrustFactorDatasets {
 
     public Boolean isWifiEnabled() {
         if (wifiEnabled == null) {
-            //TODO: recheck method, make it more bulletproof --> add to separate class / WifiInfo.java
             if (!updateWifiManager()) {
                 return null;
             }
@@ -202,7 +207,6 @@ public class SentegrityTrustFactorDatasets {
 
     public WifiInfo getWifiInfo() {
         if (wifiInfo == null) {
-            //TODO: recheck method, make it more bulletproof --> add to separate class / WifiInfo.java
             if (!updateWifiManager()) {
                 return null;
             }
@@ -215,7 +219,7 @@ public class SentegrityTrustFactorDatasets {
         //TODO: return real orientation
         // fake random orientation for testing purposes
         int i = new Random().nextInt(8);
-        switch (i){
+        switch (i) {
             case 0:
                 return "Portrait";
             case 1:
@@ -239,7 +243,7 @@ public class SentegrityTrustFactorDatasets {
         //TODO: return real movement
         // fake random movement for testing purposes
         int i = new Random().nextInt(5);
-        switch (i){
+        switch (i) {
             case 0:
                 return "StandingStill";
             case 1:
@@ -293,47 +297,104 @@ public class SentegrityTrustFactorDatasets {
         return DNEStatusCode.getByID(i);
     }
 
-    public DNEStatusCode getConnectedClassicDNEStatus() {
-        int i = new Random().nextInt(8);
-        return DNEStatusCode.getByID(i);
-    }
-
-    public DNEStatusCode getDiscoveredBLEDNEStatus() {
-        int i = new Random().nextInt(8);
-        return DNEStatusCode.getByID(i);
-    }
-
     public DNEStatusCode getLocationDNEStatus() {
         int i = new Random().nextInt(8);
         return DNEStatusCode.getByID(i);
     }
 
-
-    public List<String> getClassicBTInfo() {
-        Random r = new Random();
-        int rand = r.nextInt(4);
-        List<String> listOfDevices = new ArrayList<>();
-        for(int i = 0; i < rand; i++){
-            listOfDevices.add("device" + r.nextInt(20));
-        }
-        return listOfDevices;
+    public DNEStatusCode getConnectedClassicDNEStatus() {
+        return connectedClassicDNEStatus;
     }
 
-    public List<String> getDiscoveredBLEInfo() {
-        Random r = new Random();
-        int rand = r.nextInt(4);
-        List<String> listOfDevices = new ArrayList<>();
-        for(int i = 0; i < rand; i++){
-            listOfDevices.add("device" + r.nextInt(20));
-        }
-        return listOfDevices;
+    public DNEStatusCode getDiscoveredBLEDNEStatus() {
+        return discoveredBLEDNEStatus;
     }
 
-    public Location getLocationInfo(){
+    public void setConnectedClassicDNEStatus(DNEStatusCode connectedClassicDNEStatus) {
+        this.connectedClassicDNEStatus = connectedClassicDNEStatus;
+    }
+
+    public void setDiscoveredBLEDNEStatus(DNEStatusCode discoveredBLEDNEStatus) {
+        this.discoveredBLEDNEStatus = discoveredBLEDNEStatus;
+    }
+
+    public void setDiscoveredBLEDevices(Set<String> discoveredBLEDevices) {
+        this.discoveredBLEDevices = discoveredBLEDevices;
+    }
+
+    public void setConnectedClassicBTDevices(Set<String> connectedClassicBTDevices) {
+        this.connectedClassicBTDevices = connectedClassicBTDevices;
+    }
+
+    public Set<String> getClassicBTInfo() {
+        if(connectedClassicBTDevices == null || connectedClassicBTDevices.size() == 0){
+            if(connectedClassicDNEStatus == DNEStatusCode.EXPIRED)
+                return connectedClassicBTDevices;
+
+            long startTime = System.currentTimeMillis();
+            long currentTime = startTime;
+            float waitTime = 50;
+
+            while((currentTime - startTime) < waitTime){
+                if(connectedClassicBTDevices != null && connectedClassicBTDevices.size() > 0)
+                    return connectedClassicBTDevices;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                }
+                currentTime = System.currentTimeMillis();
+            }
+
+            setConnectedClassicDNEStatus(DNEStatusCode.NO_DATA);
+            return connectedClassicBTDevices;
+        }
+        return connectedClassicBTDevices;
+//        Random r = new Random();
+//        int rand = r.nextInt(4);
+//        List<String> listOfDevices = new ArrayList<>();
+//        for (int i = 0; i < rand; i++) {
+//            listOfDevices.add("device" + r.nextInt(20));
+//        }
+//        return listOfDevices;
+    }
+
+    public Set<String> getDiscoveredBLEInfo() {
+        if(discoveredBLEDevices == null || discoveredBLEDevices.size() == 0){
+            if(discoveredBLEDNEStatus == DNEStatusCode.EXPIRED)
+                return discoveredBLEDevices;
+
+            long startTime = System.currentTimeMillis();
+            long currentTime = startTime;
+            float waitTime = 250;
+
+            while((currentTime - startTime) < waitTime){
+                if(discoveredBLEDevices != null && discoveredBLEDevices.size() > 0)
+                    return discoveredBLEDevices;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                }
+                currentTime = System.currentTimeMillis();
+            }
+
+            setDiscoveredBLEDNEStatus(DNEStatusCode.NO_DATA);
+            return discoveredBLEDevices;
+        }
+        return discoveredBLEDevices;
+//        Random r = new Random();
+//        int rand = r.nextInt(4);
+//        List<String> listOfDevices = new ArrayList<>();
+//        for (int i = 0; i < rand; i++) {
+//            listOfDevices.add("device" + r.nextInt(20));
+//        }
+//        return listOfDevices;
+    }
+
+    public Location getLocationInfo() {
         Random r = new Random();
         Location l = new Location("random_provider");
-        l.setLatitude((double)(r.nextInt(500) + 1000) / 1000.0f);
-        l.setLongitude((double)(r.nextInt(500) + 1000) / 1000.0f);
+        l.setLatitude((double) (r.nextInt(500) + 1000) / 1000.0f);
+        l.setLongitude((double) (r.nextInt(500) + 1000) / 1000.0f);
         return l;
     }
 
@@ -409,6 +470,12 @@ public class SentegrityTrustFactorDatasets {
         if (wifiManager != null) return true;
         wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         return wifiManager != null;
+    }
+
+    private boolean updateTelefonyManager() {
+        if (telephonyManager != null) return true;
+        telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        return telephonyManager != null;
     }
 
 

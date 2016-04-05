@@ -1,30 +1,39 @@
 package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
+import android.util.Log;
+
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by dmestrov on 25/03/16.
  */
 public class TrustFactorDispatchBluetooth {
 
-    public static SentegrityTrustFactorOutput discoveredBLEDevice(List<Object> payload){
+    public static SentegrityTrustFactorOutput connectedClassicDevice(List<Object> payload){
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         List<String> outputList = new ArrayList<>();
 
-        //TODO: check for previous bt callback status
-        /*if(SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus() != DNEStatusCode.OK &&
+        if(SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus() != null &&
+                SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus() != DNEStatusCode.OK &&
                 SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus() != DNEStatusCode.EXPIRED){
             output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus());
             return output;
-        }*/
+        }
 
-        List<String> bluetoothDevices = SentegrityTrustFactorDatasets.getInstance().getClassicBTInfo();
+        Set<String> bluetoothDevices = SentegrityTrustFactorDatasets.getInstance().getClassicBTInfo();
+
+        if(SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus() != null &&
+                SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus() != DNEStatusCode.OK){
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus());
+            return output;
+        }
 
         if (bluetoothDevices == null || bluetoothDevices.size() < 1) {
             output.setStatusCode(DNEStatusCode.NO_DATA);
@@ -32,6 +41,7 @@ public class TrustFactorDispatchBluetooth {
         }
 
         for(String device : bluetoothDevices){
+            Log.d("bluetoothDevices", "name: " + device);
             outputList.add(device);
         }
 
@@ -40,19 +50,25 @@ public class TrustFactorDispatchBluetooth {
         return output;
     }
 
-    public static SentegrityTrustFactorOutput connectedClassicDevice(List<Object> payload){
+    public static SentegrityTrustFactorOutput discoveredBLEDevice(List<Object> payload){
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         List<String> outputList = new ArrayList<>();
 
-        //TODO: check for previous bt callback status
-        /*if(SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEDNEStatus() != DNEStatusCode.OK &&
+        if(SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEDNEStatus() != null &&
+                SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEDNEStatus() != DNEStatusCode.OK &&
                 SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEDNEStatus() != DNEStatusCode.EXPIRED){
             output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEDNEStatus());
             return output;
-        }*/
+        }
 
-        List<String> bluetoothDevices = SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEInfo();
+        Set<String> bluetoothDevices = SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEInfo();
+
+        if(SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEDNEStatus() != null &&
+                SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEDNEStatus() != DNEStatusCode.OK){
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEDNEStatus());
+            return output;
+        }
 
         if (bluetoothDevices == null || bluetoothDevices.size() < 1) {
             output.setStatusCode(DNEStatusCode.NO_DATA);

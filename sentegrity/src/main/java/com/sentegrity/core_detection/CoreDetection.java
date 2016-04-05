@@ -119,6 +119,13 @@ public class CoreDetection {
 
             @Override
             protected Object doInBackground(Object[] params) {
+                //testing purposes
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
                 // set task to max priority
                 Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
