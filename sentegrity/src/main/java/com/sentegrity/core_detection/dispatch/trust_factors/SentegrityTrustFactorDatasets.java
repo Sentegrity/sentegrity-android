@@ -4,6 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.AssetManager;
+//import android.hardware.Sensor;
+//import android.hardware.SensorEvent;
+//import android.hardware.SensorEventListener;
+//import android.hardware.SensorManager;
 import android.location.Location;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -12,6 +16,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
@@ -45,6 +50,7 @@ public class SentegrityTrustFactorDatasets {
     private Boolean wifiEnabled = null;
     private WifiInfo wifiInfo;
     private Location location;
+    private float brightness = -1;
 
     private Set<String> connectedClassicBTDevices;
     private Set<String> discoveredBLEDevices;
@@ -496,6 +502,30 @@ public class SentegrityTrustFactorDatasets {
             ex.printStackTrace();
             return null;
         }
+    }
+
+    public float getSystemBrightness(){
+        if(brightness == -1) {
+//            SensorManager mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
+//            Sensor mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+//            mSensorManager.registerListener(new SensorEventListener() {
+//                @Override
+//                public void onSensorChanged(SensorEvent event) {
+//                    if( event.sensor.getType() == Sensor.TYPE_LIGHT) {
+//                    }
+//                }
+//
+//                @Override
+//                public void onAccuracyChanged(Sensor sensor, int accuracy) {
+//
+//                }
+//            }, mLight, 1000);
+            //TODO: this will return same old value if set to auto mode. cannot get real current if in auto!
+            float current = Settings.System.getInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, -1);
+            if (current == -1)
+                return brightness = current;
+            return brightness = current / 255.0f;
+        }return brightness;
     }
 
     private boolean updateWifiManager() {

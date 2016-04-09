@@ -1,5 +1,9 @@
 package com.sentegrity.core_detection.utilities;
 
+import android.net.wifi.WifiInfo;
+import android.text.TextUtils;
+import android.widget.TextView;
+
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -49,5 +53,17 @@ public class Helpers {
                 (ipInt >> 8 & 0xff),
                 (ipInt >> 16 & 0xff),
                 (ipInt >> 24 & 0xff));
+    }
+
+    public static String getSSIDfromWifiInfo(WifiInfo wifiInfo){
+        if(wifiInfo == null) return null;
+        String ssid = wifiInfo.getSSID();
+        if(TextUtils.isEmpty(ssid)) return null;
+
+        if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
+            ssid = ssid.substring(1, ssid.length() - 1);
+        }
+
+        return ssid;
     }
 }

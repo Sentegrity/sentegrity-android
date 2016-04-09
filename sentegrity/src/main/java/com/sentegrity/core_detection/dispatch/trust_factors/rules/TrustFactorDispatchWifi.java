@@ -84,10 +84,7 @@ public class TrustFactorDispatchWifi {
         }
 
         if (OUImatch && IPmatch) {
-            String ssid = wifiInfo.getSSID();
-            if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
-                ssid = ssid.substring(1, ssid.length() - 1);
-            }
+            String ssid = Helpers.getSSIDfromWifiInfo(wifiInfo);
             outputList.add(ssid);
         }
 
@@ -130,15 +127,11 @@ public class TrustFactorDispatchWifi {
             return output;
         }
 
-        String ssid = wifiInfo.getSSID();
+        String ssid = Helpers.getSSIDfromWifiInfo(wifiInfo);
 
         if (TextUtils.isEmpty(ssid)) {
             output.setStatusCode(DNEStatusCode.NO_DATA);
             return output;
-        }
-        // check ssid for extra quotation -> added in Android >= 17
-        if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
-            ssid = ssid.substring(1, ssid.length() - 1);
         }
 
         List<String> ssidList = SentegrityTrustFactorDatasets.getInstance().getSSIDList();
@@ -187,15 +180,11 @@ public class TrustFactorDispatchWifi {
             return output;
         }
 
-        String ssid = wifiInfo.getSSID();
+        String ssid = Helpers.getSSIDfromWifiInfo(wifiInfo);
 
         if (TextUtils.isEmpty(ssid)) {
             output.setStatusCode(DNEStatusCode.NO_DATA);
             return output;
-        }
-        // check ssid for extra quotation -> added in Android >= 17
-        if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
-            ssid = ssid.substring(1, ssid.length() - 1);
         }
 
         String ssidLowerCase = ssid.toLowerCase();
@@ -269,7 +258,7 @@ public class TrustFactorDispatchWifi {
             return output;
         }
 
-        String ssid = wifiInfo.getSSID();
+        String ssid = Helpers.getSSIDfromWifiInfo(wifiInfo);
 
         String bssid = wifiInfo.getBSSID();
 
@@ -278,11 +267,6 @@ public class TrustFactorDispatchWifi {
         if (TextUtils.isEmpty(ssid) || TextUtils.isEmpty(bssid)) {
             output.setStatusCode(DNEStatusCode.NO_DATA);
             return output;
-        }
-
-        // check ssid for extra quotation -> added in Android >= 17
-        if (ssid.startsWith("\"") && ssid.endsWith("\"")) {
-            ssid = ssid.substring(1, ssid.length() - 1);
         }
 
         String trimmedBSSID = bssid.substring(0, macLength);
