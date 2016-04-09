@@ -8,6 +8,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
+import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.MagneticObject;
 import com.sentegrity.core_detection.utilities.Helpers;
 
 import java.util.ArrayList;
@@ -29,8 +30,7 @@ public class TrustFactorDispatchLocation {
 
         List<String> outputList = new ArrayList<>();
 
-        if (SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != null &&
-                SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != DNEStatusCode.OK &&
+        if (SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != DNEStatusCode.OK &&
                 SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != DNEStatusCode.EXPIRED) {
             output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus());
             return output;
@@ -38,8 +38,7 @@ public class TrustFactorDispatchLocation {
 
         Location currentLocation = SentegrityTrustFactorDatasets.getInstance().getLocationInfo();
 
-        if (SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != null &&
-                SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != DNEStatusCode.OK) {
+        if (SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != DNEStatusCode.OK) {
             output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus());
             return output;
         }
@@ -75,11 +74,11 @@ public class TrustFactorDispatchLocation {
         Location currentLocation;
         boolean locationAvailable = true;
 
+
         /**
          * Location
          */
-        if (SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != null &&
-                SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != DNEStatusCode.OK &&
+        if (SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != DNEStatusCode.OK &&
                 SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != DNEStatusCode.EXPIRED) {
             locationAvailable = false;
         } else {
@@ -98,9 +97,11 @@ public class TrustFactorDispatchLocation {
             }
         }
 
+
         /**
          * Wifi signal strength
          */
+
         WifiInfo wifiInfo = SentegrityTrustFactorDatasets.getInstance().getWifiInfo();
 
         if (wifiInfo == null) {
@@ -133,10 +134,53 @@ public class TrustFactorDispatchLocation {
             }
         }
 
-        //TODO: magnetic field
+
         /**
          * Magnetic field
          */
+
+        if (!locationAvailable) {
+            int magneticBlockSize = (int) (double) ((LinkedTreeMap) payload.get(0)).get("magneticBlockSize");
+
+            if (SentegrityTrustFactorDatasets.getInstance().getMagneticHeadingDNEStatus() != DNEStatusCode.OK &&
+                    SentegrityTrustFactorDatasets.getInstance().getMagneticHeadingDNEStatus() != DNEStatusCode.EXPIRED) {
+                output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getMagneticHeadingDNEStatus());
+                return output;
+            }
+
+            List<MagneticObject> headings = SentegrityTrustFactorDatasets.getInstance().getMagneticHeading();
+
+            if (SentegrityTrustFactorDatasets.getInstance().getMagneticHeadingDNEStatus() == DNEStatusCode.OK) {
+                if (headings != null) {
+                    float magnitudeAverage;
+                    float magnitudeTotal = 0.0f;
+                    float magnitude;
+
+                    int counter = 0;
+
+                    for (MagneticObject heading : headings) {
+                        magnitude = (float) Math.sqrt(Math.pow(heading.x, 2) + Math.pow(heading.y, 2) + Math.pow(heading.z, 2));
+                        magnitudeTotal += magnitude;
+                        counter++;
+                    }
+
+                    magnitudeAverage = magnitudeTotal / counter;
+
+                    int blockOfMagnetic = (int) Math.ceil(Math.abs(magnitudeAverage) / magneticBlockSize);
+
+                    String magnitudeString = "_MAGNET:" + blockOfMagnetic;
+
+                    anomalyString += magnitudeString;
+
+                } else {
+                    output.setStatusCode(DNEStatusCode.UNAUTHORIZED);
+                    return output;
+                }
+            } else {
+                output.setStatusCode(DNEStatusCode.UNAUTHORIZED);
+                return output;
+            }
+        }
 
 
         /**
@@ -147,13 +191,13 @@ public class TrustFactorDispatchLocation {
         Float screenLevel = SentegrityTrustFactorDatasets.getInstance().getSystemBrightness();
         float brightnessBlockSize = 0;
 
-        if(!locationAvailable){
+        if (!locationAvailable) {
             brightnessBlockSize = (float) (double) ((LinkedTreeMap) payload.get(0)).get("brightnessBlocksizeNoLocation");
-        }else{
+        } else {
             brightnessBlockSize = (float) (double) ((LinkedTreeMap) payload.get(0)).get("brightnessBlocksizeWithLocation");
         }
 
-        if(screenLevel < 0){
+        if (screenLevel < 0) {
             screenLevel = 0.1f;
         }
 
@@ -170,13 +214,13 @@ public class TrustFactorDispatchLocation {
 
         String carrierName = SentegrityTrustFactorDatasets.getInstance().getCarrierConnectionName();
 
-        if(TextUtils.isEmpty(carrierName)){
+        if (TextUtils.isEmpty(carrierName)) {
             carrierName = "None";
         }
 
         String carrierConnectionSpeed = SentegrityTrustFactorDatasets.getInstance().getCarrierConnectionSpeed();
 
-        if(TextUtils.isEmpty(carrierConnectionSpeed)){
+        if (TextUtils.isEmpty(carrierConnectionSpeed)) {
             carrierConnectionSpeed = "None";
         }
 
@@ -184,24 +228,24 @@ public class TrustFactorDispatchLocation {
 
         int cellularBlockSize;
 
-        if(!locationAvailable){
+        if (!locationAvailable) {
             cellularBlockSize = (int) (double) ((LinkedTreeMap) payload.get(0)).get("cellSignalBlocksizeNoLocation");
-        }else{
+        } else {
             cellularBlockSize = (int) (double) ((LinkedTreeMap) payload.get(0)).get("cellSignalBlocksizeWithLocation");
         }
 
         Integer signal = SentegrityTrustFactorDatasets.getInstance().getCelluarSignalRaw();
         String celluar;
 
-        if(signal == null){
+        if (signal == null) {
             Boolean enabled = SentegrityTrustFactorDatasets.getInstance().isAirplaneMode();
-            if(enabled == null || !enabled){
+            if (enabled == null || !enabled) {
                 celluar = "_CELL:NOSIGNAL";
-            }else{
+            } else {
                 celluar = "_CELL:AIRPLANE";
             }
-        }else{
-            int blockOfSignal = Math.round(Math.abs(signal / (float)cellularBlockSize));
+        } else {
+            int blockOfSignal = Math.round(Math.abs(signal / (float) cellularBlockSize));
             celluar = "_CELL:" + carrierConnectionInfo + "_" + blockOfSignal;
         }
 

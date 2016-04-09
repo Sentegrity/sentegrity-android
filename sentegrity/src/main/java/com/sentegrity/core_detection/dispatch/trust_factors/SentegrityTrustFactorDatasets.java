@@ -65,13 +65,13 @@ public class SentegrityTrustFactorDatasets {
     private static SentegrityTrustFactorDatasets sInstance;
     private final Context context;
 
-    private DNEStatusCode locationDNEStatus;
-    private DNEStatusCode connectedClassicDNEStatus;
-    private DNEStatusCode discoveredBLEDNEStatus;
-    private DNEStatusCode gyroMotionDNEStatus;
-    private DNEStatusCode magneticHeadingDNEStatus;
-    private DNEStatusCode userMovementDNEStatus;
-    private DNEStatusCode accelMotionDNEStatus;
+    private DNEStatusCode locationDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode connectedClassicDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode discoveredBLEDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode gyroMotionDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode magneticHeadingDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode userMovementDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode accelMotionDNEStatus = DNEStatusCode.OK;
 
     private List<MagneticObject> magneticHeading;
     private List<GyroRadsObject> gyroRads;
@@ -524,8 +524,7 @@ public class SentegrityTrustFactorDatasets {
     }
 
     public DNEStatusCode getGyroMotionDNEStatus() {
-        int i = new Random().nextInt(8);
-        return DNEStatusCode.getByID(i);
+        return gyroMotionDNEStatus;
     }
 
     public DNEStatusCode getMagneticHeadingDNEStatus() {

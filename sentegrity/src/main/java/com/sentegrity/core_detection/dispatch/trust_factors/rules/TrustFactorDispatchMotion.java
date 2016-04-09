@@ -46,12 +46,11 @@ public class TrustFactorDispatchMotion /*implements TrustFactorDispatch*/ {
 
         List<String> outputList = new ArrayList<>();
 
-        //TODO: check for previous movement callback status
-        /*if(SentegrityTrustFactorDatasets.getInstance().getUserMovementDNEStatus() != DNEStatusCode.OK &&
+        if(SentegrityTrustFactorDatasets.getInstance().getUserMovementDNEStatus() != DNEStatusCode.OK &&
                 SentegrityTrustFactorDatasets.getInstance().getUserMovementDNEStatus() != DNEStatusCode.EXPIRED){
             output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getUserMovementDNEStatus());
             return output;
-        }*/
+        }
 
         float gripMovement = 0.0f;
         gripMovement = SentegrityTrustFactorDatasets.getInstance().getGripMovement();
@@ -86,12 +85,11 @@ public class TrustFactorDispatchMotion /*implements TrustFactorDispatch*/ {
 
         List<String> outputList = new ArrayList<>();
 
-        //TODO: check for previous gyro callback status
-        /*if(SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus() != DNEStatusCode.OK &&
+        if(SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus() != DNEStatusCode.OK &&
                 SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus() != DNEStatusCode.EXPIRED){
             output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus());
             return output;
-        }*/
+        }
 
         List<GyroRadsObject> gyroRads = SentegrityTrustFactorDatasets.getInstance().getGyroRads();
 
