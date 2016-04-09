@@ -7,11 +7,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.karumi.dexter.Dexter;
@@ -86,9 +88,11 @@ public class SentegrityActivityDispatcher {
         } else if (device.getType() == BluetoothDevice.DEVICE_TYPE_CLASSIC) {
             classicDevices.add(device.getAddress());
             SentegrityTrustFactorDatasets.getInstance().setConnectedClassicBTDevices(classicDevices);
+            SentegrityTrustFactorDatasets.getInstance().setConnectedClassicDNEStatus(DNEStatusCode.OK);
         } else {
             bleDevices.add(device.getAddress());
             SentegrityTrustFactorDatasets.getInstance().setDiscoveredBLEDevices(bleDevices);
+            SentegrityTrustFactorDatasets.getInstance().setDiscoveredBLEDNEStatus(DNEStatusCode.OK);
         }
     }
 
@@ -137,16 +141,24 @@ public class SentegrityActivityDispatcher {
         } else {
             if (BluetoothAdapter.getDefaultAdapter().isDiscovering())
                 BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+
             BluetoothAdapter.getDefaultAdapter().startDiscovery();
-            BluetoothAdapter.getDefaultAdapter().startDiscovery();
+
             unregisterBTReceivers(context, 5000);
-            for (BluetoothDevice device : BTAdapter.getBondedDevices()) {
-                updateBLDevice(device);
-            }
+            //TODO: different trustfactor?
+//            for (BluetoothDevice device : BTAdapter.getBondedDevices()) {
+//                updateBLDevice(device);
+//            }
         }
     }
 
     private void startLocation(final Context context) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            startLocationListener(context);
+            return;
+        }
+
         final String[] permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
         MultiplePermissionsListener listener = DialogOnAnyDeniedMultiplePermissionsListener.Builder
                 .withContext(context)
@@ -157,10 +169,10 @@ public class SentegrityActivityDispatcher {
         MultiplePermissionsListener listener2 = new MultiplePermissionsListener() {
             @Override
             public void onPermissionsChecked(MultiplePermissionsReport report) {
-                if(report.getGrantedPermissionResponses().size() == permissions.length){
+                if (report.getGrantedPermissionResponses().size() == permissions.length) {
                     // we have location permission
                     startLocationListener(context);
-                }else if(report.getDeniedPermissionResponses().size() == permissions.length){
+                } else if (report.getDeniedPermissionResponses().size() == permissions.length) {
                     // we don't have location permission
                     SentegrityTrustFactorDatasets.getInstance().setLocationDNEStatus(DNEStatusCode.UNAUTHORIZED);
                 }
@@ -170,14 +182,19 @@ public class SentegrityActivityDispatcher {
             public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
             }
         };
+        if(!Dexter.isRequestOngoing())
+            Dexter.continuePendingRequestsIfPossible(new CompositeMultiplePermissionsListener(listener, listener2));
         Dexter.checkPermissions(new CompositeMultiplePermissionsListener(listener, listener2), permissions);
     }
 
-    private void startLocationListener(Context context){
+    private void startLocationListener(Context context) {
         final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 Log.d("activityDispatcher", "location: " + location);
+                if (location == null)
+                    return;
+                SentegrityTrustFactorDatasets.getInstance().setLocationDNEStatus(DNEStatusCode.OK);
                 SentegrityTrustFactorDatasets.getInstance().setLocation(location);
                 locationManager.removeUpdates(this);
             }

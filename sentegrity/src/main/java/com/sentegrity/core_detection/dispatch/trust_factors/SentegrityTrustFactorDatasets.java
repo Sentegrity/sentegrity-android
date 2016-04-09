@@ -13,7 +13,11 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
+import android.telephony.PhoneStateListener;
+import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -50,7 +54,8 @@ public class SentegrityTrustFactorDatasets {
     private Boolean wifiEnabled = null;
     private WifiInfo wifiInfo;
     private Location location;
-    private float brightness = -1;
+    private Float brightness = null;
+    private Integer celluarSignalRaw = null;
 
     private Set<String> connectedClassicBTDevices;
     private Set<String> discoveredBLEDevices;
@@ -64,6 +69,8 @@ public class SentegrityTrustFactorDatasets {
 
     private WifiManager wifiManager;
     private TelephonyManager telephonyManager;
+    private String carrierConnectionSpeed;
+    private PhoneStateListener phoneStateListener;
 
     public SentegrityTrustFactorDatasets(Context context) {
         this.context = context;
@@ -269,6 +276,107 @@ public class SentegrityTrustFactorDatasets {
         return new Random().nextInt(10) / 10.0f;
     }
 
+    public String getCarrierConnectionSpeed() {
+        if(carrierConnectionSpeed == null) {
+            if(!updateTelefonyManager()) {
+                return carrierConnectionSpeed = null;
+            }
+
+            switch (telephonyManager.getNetworkType()) {
+                case TelephonyManager.NETWORK_TYPE_GPRS:
+                case TelephonyManager.NETWORK_TYPE_EDGE:
+                case TelephonyManager.NETWORK_TYPE_CDMA:
+                case TelephonyManager.NETWORK_TYPE_1xRTT:
+                case TelephonyManager.NETWORK_TYPE_IDEN:
+                    return carrierConnectionSpeed = "2G";
+
+                case TelephonyManager.NETWORK_TYPE_UMTS:
+                case TelephonyManager.NETWORK_TYPE_EVDO_0:
+                case TelephonyManager.NETWORK_TYPE_EVDO_A:
+                case TelephonyManager.NETWORK_TYPE_HSDPA:
+                case TelephonyManager.NETWORK_TYPE_HSUPA:
+                case TelephonyManager.NETWORK_TYPE_HSPA:
+                case TelephonyManager.NETWORK_TYPE_EVDO_B:
+                case TelephonyManager.NETWORK_TYPE_EHRPD:
+                case TelephonyManager.NETWORK_TYPE_HSPAP:
+                    return carrierConnectionSpeed = "3G";
+
+                case TelephonyManager.NETWORK_TYPE_LTE:
+                    return carrierConnectionSpeed = "4G";
+
+                default:
+                    return "Unknown";
+            }
+        }
+        return carrierConnectionSpeed;
+    }
+
+    public Integer getCelluarSignalRaw() {
+        //TODO: not really a good one! move data to some static place -> maybe implement same as location!
+        //takes about 10-15ms
+        //also looper stops working after 3, 4 runs. 
+        if (celluarSignalRaw == null) {
+            if (!updateTelefonyManager()) {
+                return celluarSignalRaw = null;
+            }
+
+            Looper.prepare();
+            phoneStateListener = new PhoneStateListener() {
+                @Override
+                public void onSignalStrengthsChanged(SignalStrength signalStrength) {
+                    super.onSignalStrengthsChanged(signalStrength);
+
+                    Log.d("strength", "strength start calc");
+                    int strength = 0;
+                    boolean gotValidValue = false;
+
+                    if (signalStrength.isGsm()) {
+                        strength = signalStrength.getGsmSignalStrength();
+
+                        //GSM values -> (0-31, 99) valid (TS 27.007)
+                        if (strength >= 0 && strength <= 31)
+                            gotValidValue = true;
+
+                        if (strength == 99) {
+                            try {
+                                Method method = SignalStrength.class.getMethod("getLteSignalStrength");
+                                strength = (int) method.invoke(signalStrength);
+
+                                //LTE values -> (0-63, 99) valid (TS 36.331)
+                                if (strength >= 0 && strength <= 63)
+                                    gotValidValue = true;
+
+                            } catch (SecurityException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    } else if (signalStrength.getCdmaDbm() > 0) {
+                        strength = signalStrength.getCdmaDbm();
+                    } else {
+                        strength = signalStrength.getEvdoDbm();
+                    }
+
+                    if (gotValidValue) {
+                        celluarSignalRaw = strength;
+                        Log.d("strength", "strength " + strength);
+                    } else {
+                        celluarSignalRaw = null;
+                    }
+                    telephonyManager.listen(this, LISTEN_NONE);
+                    if(Looper.myLooper() != null)
+                        Looper.myLooper().quit();
+                }
+            };
+            telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+            telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS | PhoneStateListener.LISTEN_SIGNAL_STRENGTH);
+            Looper.loop();
+
+            return celluarSignalRaw;
+
+        }
+        return celluarSignalRaw;
+    }
+
     public List<GyroRadsObject> getGyroRads() {
         GyroRadsObject rand1 = new GyroRadsObject();
         GyroRadsObject rand2 = new GyroRadsObject();
@@ -342,16 +450,16 @@ public class SentegrityTrustFactorDatasets {
     }
 
     public Set<String> getClassicBTInfo() {
-        if(connectedClassicBTDevices == null || connectedClassicBTDevices.size() == 0){
-            if(getConnectedClassicDNEStatus() == DNEStatusCode.EXPIRED)
+        if (connectedClassicBTDevices == null || connectedClassicBTDevices.size() == 0) {
+            if (getConnectedClassicDNEStatus() == DNEStatusCode.EXPIRED)
                 return connectedClassicBTDevices;
 
             long startTime = System.currentTimeMillis();
             long currentTime = startTime;
             float waitTime = 50;
 
-            while((currentTime - startTime) < waitTime){
-                if(connectedClassicBTDevices != null && connectedClassicBTDevices.size() > 0)
+            while ((currentTime - startTime) < waitTime) {
+                if (connectedClassicBTDevices != null && connectedClassicBTDevices.size() > 0)
                     return connectedClassicBTDevices;
                 try {
                     Thread.sleep(10);
@@ -374,16 +482,16 @@ public class SentegrityTrustFactorDatasets {
     }
 
     public Set<String> getDiscoveredBLEInfo() {
-        if(discoveredBLEDevices == null || discoveredBLEDevices.size() == 0){
-            if(getDiscoveredBLEDNEStatus() == DNEStatusCode.EXPIRED)
+        if (discoveredBLEDevices == null || discoveredBLEDevices.size() == 0) {
+            if (getDiscoveredBLEDNEStatus() == DNEStatusCode.EXPIRED)
                 return discoveredBLEDevices;
 
             long startTime = System.currentTimeMillis();
             long currentTime = startTime;
             float waitTime = 250;
 
-            while((currentTime - startTime) < waitTime){
-                if(discoveredBLEDevices != null && discoveredBLEDevices.size() > 0)
+            while ((currentTime - startTime) < waitTime) {
+                if (discoveredBLEDevices != null && discoveredBLEDevices.size() > 0)
                     return discoveredBLEDevices;
                 try {
                     Thread.sleep(10);
@@ -406,16 +514,16 @@ public class SentegrityTrustFactorDatasets {
     }
 
     public Location getLocationInfo() {
-        if(location == null){
-            if(getLocationDNEStatus() == DNEStatusCode.EXPIRED){
+        if (location == null) {
+            if (getLocationDNEStatus() == DNEStatusCode.EXPIRED) {
                 return location;
             }
             long startTime = System.currentTimeMillis();
             long currentTime = startTime;
             float waitTime = 250;
 
-            while((currentTime - startTime) < waitTime){
-                if(location != null )
+            while ((currentTime - startTime) < waitTime) {
+                if (location != null)
                     return location;
                 try {
                     Thread.sleep(10);
@@ -504,8 +612,8 @@ public class SentegrityTrustFactorDatasets {
         }
     }
 
-    public float getSystemBrightness(){
-        if(brightness == -1) {
+    public Float getSystemBrightness() {
+        if (brightness == null) {
 //            SensorManager mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
 //            Sensor mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
 //            mSensorManager.registerListener(new SensorEventListener() {
@@ -523,9 +631,10 @@ public class SentegrityTrustFactorDatasets {
             //TODO: this will return same old value if set to auto mode. cannot get real current if in auto!
             float current = Settings.System.getInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, -1);
             if (current == -1)
-                return brightness = current;
+                return brightness = null;
             return brightness = current / 255.0f;
-        }return brightness;
+        }
+        return brightness;
     }
 
     private boolean updateWifiManager() {

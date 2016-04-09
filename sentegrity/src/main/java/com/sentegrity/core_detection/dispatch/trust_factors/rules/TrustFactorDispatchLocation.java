@@ -2,6 +2,7 @@ package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
 import android.location.Location;
 import android.net.wifi.WifiInfo;
+import android.text.TextUtils;
 
 import com.google.gson.internal.LinkedTreeMap;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
@@ -142,8 +143,8 @@ public class TrustFactorDispatchLocation {
          * Screen brightness
          */
 
-        //TODO: if auto brightness
-        float screenLevel = SentegrityTrustFactorDatasets.getInstance().getSystemBrightness();
+        //TODO: check if auto brightness
+        Float screenLevel = SentegrityTrustFactorDatasets.getInstance().getSystemBrightness();
         float brightnessBlockSize = 0;
 
         if(!locationAvailable){
@@ -161,11 +162,50 @@ public class TrustFactorDispatchLocation {
         anomalyString += "_LIGHT:" + blockOfBrightness;
 
 
-        //TODO:
         /**
          * Cellular signal and carrier name/speed
          */
 
+        String carrierConnectionInfo = "";
+
+        String carrierName = SentegrityTrustFactorDatasets.getInstance().getCarrierConnectionName();
+
+        if(TextUtils.isEmpty(carrierName)){
+            carrierName = "None";
+        }
+
+        String carrierConnectionSpeed = SentegrityTrustFactorDatasets.getInstance().getCarrierConnectionSpeed();
+
+        if(TextUtils.isEmpty(carrierConnectionSpeed)){
+            carrierConnectionSpeed = "None";
+        }
+
+        carrierConnectionInfo = carrierName + carrierConnectionSpeed;
+
+        int cellularBlockSize;
+
+        if(!locationAvailable){
+            cellularBlockSize = (int) (double) ((LinkedTreeMap) payload.get(0)).get("cellSignalBlocksizeNoLocation");
+        }else{
+            cellularBlockSize = (int) (double) ((LinkedTreeMap) payload.get(0)).get("cellSignalBlocksizeWithLocation");
+        }
+
+        Integer signal = SentegrityTrustFactorDatasets.getInstance().getCelluarSignalRaw();
+        String celluar;
+
+        if(signal == null){
+            Boolean enabled = SentegrityTrustFactorDatasets.getInstance().isAirplaneMode();
+            if(enabled == null || !enabled){
+                celluar = "_CELL:NOSIGNAL";
+            }else{
+                celluar = "_CELL:AIRPLANE";
+            }
+        }else{
+            int blockOfSignal = Math.round(Math.abs(signal / (float)cellularBlockSize));
+            celluar = "_CELL:" + carrierConnectionInfo + "_" + blockOfSignal;
+        }
+
+        anomalyString += celluar;
 
         outputList.add(anomalyString);
 
