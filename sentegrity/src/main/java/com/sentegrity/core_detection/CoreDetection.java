@@ -7,12 +7,13 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.sentegrity.core_detection.assertion_storage.SentegrityAssertionStore;
+import com.karumi.dexter.Dexter;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorStore;
 import com.sentegrity.core_detection.baseline_analysis.SentegrityBaselineAnalysis;
 import com.sentegrity.core_detection.computation.SentegrityTrustScoreComputation;
 import com.sentegrity.core_detection.dispatch.SentegrityTrustFactorDispatcher;
+import com.sentegrity.core_detection.dispatch.activity_dispatcher.SentegrityActivityDispatcher;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
 import com.sentegrity.core_detection.logger.ErrorDetails;
 import com.sentegrity.core_detection.logger.ErrorDomain;
@@ -50,13 +51,15 @@ public class CoreDetection {
 
     private KeyValueStorage keyValueStorage;
 
-    private CoreDetection(Context context){
+    private SentegrityActivityDispatcher activityDispatcher;
+
+    private CoreDetection(Context context) {
         this.context = context;
         keyValueStorage = new KeyValueStorage(context.getSharedPreferences(STORAGE_NAME, STORAGE_MODE));
     }
 
-    public static CoreDetection getInstance(){
-        if(sInstance == null) {
+    public static CoreDetection getInstance() {
+        if (sInstance == null) {
             throw new IllegalStateException("Please call CoreDetection.initialize({context}) before requesting the instance.");
         } else {
             return sInstance;
@@ -66,21 +69,22 @@ public class CoreDetection {
     public static synchronized void initialize(Context context) {
         if (sInstance == null) {
             sInstance = new CoreDetection(context);
+            Dexter.initialize(context);
             SentegrityTrustFactorStore.initialize(context);
             SentegrityStartupStore.initialize(context);
             SentegrityTrustFactorDatasets.initialize(context);
 
-            startCoreDetectionActivities();
-        }else{
+            sInstance.startCoreDetectionActivities();
+        } else {
             Log.d("coreDetection", "Core Detection has already been initialized");
         }
     }
 
-    public KeyValueStorage getKeyValueStorage(){
+    public KeyValueStorage getKeyValueStorage() {
         return keyValueStorage;
     }
 
-    public SentegrityPolicy parsePolicy(String policyName){
+    public SentegrityPolicy parsePolicy(String policyName) {
         AssetManager mg = context.getResources().getAssets();
 
         String policyJson;
@@ -98,20 +102,22 @@ public class CoreDetection {
             ex.printStackTrace();
             Logger.INFO("Core Detection Parse policy error: Error occurred during policy file read.");
             return null;
-        } catch (JsonSyntaxException ex){
+        } catch (JsonSyntaxException ex) {
             ex.printStackTrace();
             Logger.INFO("Core Detection Parse policy error: Json syntax exception during policy parsing");
             return null;
         }
     }
 
-    private static void startCoreDetectionActivities(){
-        // TODO: start core activities --> location, bluetooth, motion, magnetometer, wifi // (depending on availability)
+    private void startCoreDetectionActivities() {
+        if (activityDispatcher == null)
+            activityDispatcher = new SentegrityActivityDispatcher();
+        activityDispatcher.runCoreDetectionActivities(context);
     }
 
-    public void performCoreDetection(final SentegrityPolicy policy, final CoreDetectionCallback callback){
+    public void performCoreDetection(final SentegrityPolicy policy, final CoreDetectionCallback callback) {
 
-        AsyncTask coreDetectionTask = new AsyncTask(){
+        AsyncTask coreDetectionTask = new AsyncTask() {
 
             private boolean success;
             private SentegrityTrustScoreComputation computation;
@@ -129,7 +135,7 @@ public class CoreDetection {
                 // set task to max priority
                 Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
-                if(callback == null){
+                if (callback == null) {
                     SentegrityError error = SentegrityError.NO_CALLBACK_BLOCK_PROVIDED;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
                     error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("An invalid callback was provided").setRecoverySuggestion("Try passing a valid callback block"));
@@ -142,7 +148,7 @@ public class CoreDetection {
                     return null;
                 }
                 coreDetectionCallback = callback;
-                if(policy == null){
+                if (policy == null) {
                     SentegrityError error = SentegrityError.CORE_DETECTION_NO_POLICY_PROVIDED;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
                     error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("An invalid policy was provided").setRecoverySuggestion("Try passing a valid policy"));
@@ -158,7 +164,7 @@ public class CoreDetection {
                 CoreDetection.this.currentPolicy = policy;
                 CoreDetection.this.coreDetectionCallback = callback;
 
-                if(policy.getTrustFactors() == null || policy.getTrustFactors().size() < 1){
+                if (policy.getTrustFactors() == null || policy.getTrustFactors().size() < 1) {
                     SentegrityError error = SentegrityError.NO_TRUSTFACTORS_SET_TO_ANALYZE;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
                     error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No trust factors found to analyze").setRecoverySuggestion("Please provide a policy with valid TrustFactors to analyze"));
@@ -175,7 +181,7 @@ public class CoreDetection {
                 SentegrityStartupStore.getInstance().setCurrentState("Starting Core Detection");
 
                 List<SentegrityTrustFactorOutput> outputs = SentegrityTrustFactorDispatcher.performTrustFactorAnalysis(policy.getTrustFactors(), policy.getTimeout());
-                if(outputs == null){
+                if (outputs == null) {
                     SentegrityError error = SentegrityError.NO_TRUSTFACTOR_OUTPUT_OBJECTS_FOR_COMPUTATION;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
                     error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No trust factors output objects available for computation").setRecoverySuggestion("Double check provided trust factors to analyze"));
@@ -189,7 +195,7 @@ public class CoreDetection {
                 }
 
                 List<SentegrityTrustFactorOutput> updatedOutputs = SentegrityBaselineAnalysis.performBaselineAnalysis(outputs, policy);
-                if(updatedOutputs == null){
+                if (updatedOutputs == null) {
                     SentegrityError error = SentegrityError.NO_TRUSTFACTOR_OUTPUT_OBJECTS_FOR_COMPUTATION;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
                     error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No trust factors output objects available for computation").setRecoverySuggestion("Double check provided trust factors to analyze"));
@@ -203,7 +209,7 @@ public class CoreDetection {
                 }
 
                 SentegrityTrustScoreComputation computationResults = SentegrityTrustScoreComputation.performTrustFactorComputation(policy, updatedOutputs);
-                if(computationResults == null){
+                if (computationResults == null) {
                     SentegrityError error = SentegrityError.ERROR_DURING_COMPUTATION;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
                     error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No computation objects returned / Error during computation").setRecoverySuggestion("Check error logs for details"));
@@ -217,7 +223,7 @@ public class CoreDetection {
                 }
 
                 computationResults = SentegrityResultAnalysis.analyzeResults(computationResults, policy);
-                if(computationResults == null){
+                if (computationResults == null) {
                     SentegrityError error = SentegrityError.ERROR_DURING_COMPUTATION;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
                     error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No computation objects returned / Error during computation").setRecoverySuggestion("Check error logs for details"));
@@ -251,7 +257,7 @@ public class CoreDetection {
 
     }
 
-    private void processCoreDetectionResponse(SentegrityTrustScoreComputation computationResult, boolean success, SentegrityError error){
+    private void processCoreDetectionResponse(SentegrityTrustScoreComputation computationResult, boolean success, SentegrityError error) {
         SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupData();
 
         SentegrityHistory history = new SentegrityHistory();
@@ -263,17 +269,17 @@ public class CoreDetection {
         history.setProtectModeAction(computationResult.getProtectModeAction());
         history.setUserIssues(computationResult.getUserGUIIssues());
 
-        if(startup.getRunHistory() == null || startup.getRunHistory().size() < 1){
+        if (startup.getRunHistory() == null || startup.getRunHistory().size() < 1) {
             List<SentegrityHistory> list = new ArrayList<>();
             list.add(history);
             startup.setRunHistory(list);
-        }else{
+        } else {
             startup.getRunHistory().add(history);
         }
 
         SentegrityStartupStore.getInstance().setStartupData(startup);
 
-        if(coreDetectionCallback != null){
+        if (coreDetectionCallback != null) {
             coreDetectionCallback.onFinish(computationResult, error, success);
         }
     }
@@ -287,12 +293,10 @@ public class CoreDetection {
     }
 
 
-
-
     /**
      * Call if you want to restart data
      */
-    public synchronized void reset(){
+    public synchronized void reset() {
         SentegrityTrustFactorStore.initialize(context);
         SentegrityStartupStore.initialize(context);
         SentegrityTrustFactorDatasets.initialize(context);

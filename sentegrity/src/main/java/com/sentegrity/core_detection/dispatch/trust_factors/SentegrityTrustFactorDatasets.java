@@ -44,6 +44,7 @@ public class SentegrityTrustFactorDatasets {
     private Boolean airplaneMode = null;
     private Boolean wifiEnabled = null;
     private WifiInfo wifiInfo;
+    private Location location;
 
     private Set<String> connectedClassicBTDevices;
     private Set<String> discoveredBLEDevices;
@@ -51,6 +52,7 @@ public class SentegrityTrustFactorDatasets {
     private static SentegrityTrustFactorDatasets sInstance;
     private final Context context;
 
+    private DNEStatusCode locationDNEStatus;
     private DNEStatusCode connectedClassicDNEStatus;
     private DNEStatusCode discoveredBLEDNEStatus;
 
@@ -298,8 +300,7 @@ public class SentegrityTrustFactorDatasets {
     }
 
     public DNEStatusCode getLocationDNEStatus() {
-        int i = new Random().nextInt(8);
-        return DNEStatusCode.getByID(i);
+        return locationDNEStatus;
     }
 
     public DNEStatusCode getConnectedClassicDNEStatus() {
@@ -318,6 +319,10 @@ public class SentegrityTrustFactorDatasets {
         this.discoveredBLEDNEStatus = discoveredBLEDNEStatus;
     }
 
+    public void setLocationDNEStatus(DNEStatusCode locationDNEStatus) {
+        this.locationDNEStatus = locationDNEStatus;
+    }
+
     public void setDiscoveredBLEDevices(Set<String> discoveredBLEDevices) {
         this.discoveredBLEDevices = discoveredBLEDevices;
     }
@@ -326,9 +331,13 @@ public class SentegrityTrustFactorDatasets {
         this.connectedClassicBTDevices = connectedClassicBTDevices;
     }
 
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
     public Set<String> getClassicBTInfo() {
         if(connectedClassicBTDevices == null || connectedClassicBTDevices.size() == 0){
-            if(connectedClassicDNEStatus == DNEStatusCode.EXPIRED)
+            if(getConnectedClassicDNEStatus() == DNEStatusCode.EXPIRED)
                 return connectedClassicBTDevices;
 
             long startTime = System.currentTimeMillis();
@@ -360,7 +369,7 @@ public class SentegrityTrustFactorDatasets {
 
     public Set<String> getDiscoveredBLEInfo() {
         if(discoveredBLEDevices == null || discoveredBLEDevices.size() == 0){
-            if(discoveredBLEDNEStatus == DNEStatusCode.EXPIRED)
+            if(getDiscoveredBLEDNEStatus() == DNEStatusCode.EXPIRED)
                 return discoveredBLEDevices;
 
             long startTime = System.currentTimeMillis();
@@ -391,11 +400,34 @@ public class SentegrityTrustFactorDatasets {
     }
 
     public Location getLocationInfo() {
-        Random r = new Random();
-        Location l = new Location("random_provider");
-        l.setLatitude((double) (r.nextInt(500) + 1000) / 1000.0f);
-        l.setLongitude((double) (r.nextInt(500) + 1000) / 1000.0f);
-        return l;
+        if(location == null){
+            if(getLocationDNEStatus() == DNEStatusCode.EXPIRED){
+                return location;
+            }
+            long startTime = System.currentTimeMillis();
+            long currentTime = startTime;
+            float waitTime = 250;
+
+            while((currentTime - startTime) < waitTime){
+                if(location != null )
+                    return location;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                }
+
+                currentTime = System.currentTimeMillis();
+            }
+
+            setLocationDNEStatus(DNEStatusCode.EXPIRED);
+            return location;
+        }
+        return location;
+//        Random r = new Random();
+//        Location l = new Location("random_provider");
+//        l.setLatitude((double) (r.nextInt(500) + 1000) / 1000.0f);
+//        l.setLongitude((double) (r.nextInt(500) + 1000) / 1000.0f);
+//        return l;
     }
 
     public ArrayList<String> getSSIDList() {

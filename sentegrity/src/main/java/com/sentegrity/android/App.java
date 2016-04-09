@@ -10,19 +10,10 @@ import com.sentegrity.core_detection.dispatch.activity_dispatcher.SentegrityActi
  */
 public class App extends Application {
 
-    SentegrityActivityDispatcher activityDispatcher;
-
     @Override
     public void onCreate() {
         super.onCreate();
 
         CoreDetection.initialize(this);
-        runDispatcher();
-    }
-
-    public void runDispatcher(){
-        if(activityDispatcher == null)
-            activityDispatcher = new SentegrityActivityDispatcher();
-        activityDispatcher.runCoreDetectionActivities(this);
     }
 }

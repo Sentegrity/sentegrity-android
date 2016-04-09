@@ -83,7 +83,6 @@ public class DashboardActivity extends MenuActivity implements View.OnClickListe
         dialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                ((App)getApplication()).runDispatcher();
                 CoreDetection.getInstance().reset();
                 startActivity(new Intent(DashboardActivity.this, LoginActivity.class));
                 finishAffinity();
