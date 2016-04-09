@@ -25,14 +25,18 @@ public class TrustFactorDispatchLocation {
 
         List<String> outputList = new ArrayList<>();
 
-        //TODO: check for previous location callback status
-        /*if(SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != DNEStatusCode.OK &&
+        if(SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != DNEStatusCode.OK &&
                 SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != DNEStatusCode.EXPIRED){
             output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus());
             return output;
-        }*/
+        }
 
         Location currentLocation = SentegrityTrustFactorDatasets.getInstance().getLocationInfo();
+
+        if(SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() != DNEStatusCode.OK){
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus());
+            return output;
+        }
 
         if(currentLocation == null){
             output.setStatusCode(DNEStatusCode.UNAVAILABLE);
