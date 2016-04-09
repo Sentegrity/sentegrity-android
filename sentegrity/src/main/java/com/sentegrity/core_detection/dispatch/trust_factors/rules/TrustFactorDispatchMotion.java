@@ -100,7 +100,7 @@ public class TrustFactorDispatchMotion /*implements TrustFactorDispatch*/ {
             return output;
         }
 
-        List<PitchRollObject> gyroPitch = SentegrityTrustFactorDatasets.getInstance().getGyroPitch();
+        List<PitchRollObject> gyroPitch = SentegrityTrustFactorDatasets.getInstance().getGyroPitchRoll();
 
         if(gyroPitch == null){
             output.setStatusCode(DNEStatusCode.UNAVAILABLE);

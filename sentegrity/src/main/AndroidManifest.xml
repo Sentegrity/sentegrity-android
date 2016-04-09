@@ -18,23 +18,23 @@
         android:theme="@style/AppTheme"
         android:name=".App"
         android:screenOrientation="portrait">
-        <activity android:name=".activities.LoginActivity" >
+        <activity android:name=".activities.LoginActivity" android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.DashboardActivity" >
+        <activity android:name=".activities.DashboardActivity" android:configChanges="orientation|screenSize">
         </activity>
-        <activity android:name=".activities.UserInfoActivity" >
+        <activity android:name=".activities.UserInfoActivity" android:configChanges="orientation|screenSize">
         </activity>
-        <activity android:name=".activities.DeviceInfoActivity" >
+        <activity android:name=".activities.DeviceInfoActivity" android:configChanges="orientation|screenSize">
         </activity>
-        <activity android:name=".activities.ScoreDebugActivity" >
+        <activity android:name=".activities.ScoreDebugActivity" android:configChanges="orientation|screenSize">
         </activity>
-        <activity android:name=".activities.SystemDebugActivity" >
+        <activity android:name=".activities.SystemDebugActivity" android:configChanges="orientation|screenSize">
         </activity>
-        <activity android:name=".activities.UserDebugActivity" >
+        <activity android:name=".activities.UserDebugActivity" android:configChanges="orientation|screenSize">
         </activity>
     </application>
 

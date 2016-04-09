@@ -5,26 +5,26 @@ import android.util.Log;
 import java.util.Random;
 
 /**
- * Created by dmestrov on 03/04/16.
+ * Created by dmestrov on 09/04/16.
  */
-public class GyroRadsObject {
+public class AccelRadsObject {
     public float x;
     public float y;
     public float z;
 
-    public GyroRadsObject(){
+    public AccelRadsObject(){
         Random r = new Random();
         x = r.nextInt(3) / 10.0f;
         y = r.nextInt(3) / 10.0f;
         z = r.nextInt(3) / 10.0f;
     }
 
-    public GyroRadsObject(float[] values){
+    public AccelRadsObject(float[] values){
         if(values == null || values.length < 3) return;
         x = values[0];
         y = values[1];
         z = values[2];
 
-        Log.d("gyro", x + ", " + y + ", " + z);
+        Log.d("accel", x + ", " + y + ", " + z);
     }
 }

@@ -24,7 +24,9 @@ import android.util.Log;
 
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
+import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.AccelRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.GyroRadsObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.MagneticObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.PitchRollObject;
 
 import java.io.BufferedReader;
@@ -66,6 +68,15 @@ public class SentegrityTrustFactorDatasets {
     private DNEStatusCode locationDNEStatus;
     private DNEStatusCode connectedClassicDNEStatus;
     private DNEStatusCode discoveredBLEDNEStatus;
+    private DNEStatusCode gyroMotionDNEStatus;
+    private DNEStatusCode magneticHeadingDNEStatus;
+    private DNEStatusCode userMovementDNEStatus;
+    private DNEStatusCode accelMotionDNEStatus;
+
+    private List<MagneticObject> magneticHeading;
+    private List<GyroRadsObject> gyroRads;
+    private List<PitchRollObject> pitchRoll;
+    private List<AccelRadsObject> accelRads;
 
     private WifiManager wifiManager;
     private TelephonyManager telephonyManager;
@@ -277,8 +288,8 @@ public class SentegrityTrustFactorDatasets {
     }
 
     public String getCarrierConnectionSpeed() {
-        if(carrierConnectionSpeed == null) {
-            if(!updateTelefonyManager()) {
+        if (carrierConnectionSpeed == null) {
+            if (!updateTelefonyManager()) {
                 return carrierConnectionSpeed = null;
             }
 
@@ -314,7 +325,7 @@ public class SentegrityTrustFactorDatasets {
     public Integer getCelluarSignalRaw() {
         //TODO: not really a good one! move data to some static place -> maybe implement same as location!
         //takes about 10-15ms
-        //also looper stops working after 3, 4 runs. 
+        //also looper stops working after 3, 4 runs.
         if (celluarSignalRaw == null) {
             if (!updateTelefonyManager()) {
                 return celluarSignalRaw = null;
@@ -363,7 +374,7 @@ public class SentegrityTrustFactorDatasets {
                         celluarSignalRaw = null;
                     }
                     telephonyManager.listen(this, LISTEN_NONE);
-                    if(Looper.myLooper() != null)
+                    if (Looper.myLooper() != null)
                         Looper.myLooper().quit();
                 }
             };
@@ -377,41 +388,123 @@ public class SentegrityTrustFactorDatasets {
         return celluarSignalRaw;
     }
 
+    public void setMagneticHeading(List<MagneticObject> magneticHeading) {
+        this.magneticHeading = magneticHeading;
+    }
+
+    public void setGyroRads(List<GyroRadsObject> gyroRads) {
+        this.gyroRads = gyroRads;
+    }
+
+    public void setPitchRoll(List<PitchRollObject> pitchRoll) {
+        this.pitchRoll = pitchRoll;
+    }
+
+    public void setAccelRads(List<AccelRadsObject> accelRads) {
+        this.accelRads = accelRads;
+    }
+
     public List<GyroRadsObject> getGyroRads() {
-        GyroRadsObject rand1 = new GyroRadsObject();
-        GyroRadsObject rand2 = new GyroRadsObject();
-        GyroRadsObject rand3 = new GyroRadsObject();
-        GyroRadsObject rand4 = new GyroRadsObject();
-        List<GyroRadsObject> list = new ArrayList<>();
-        list.add(rand1);
-        list.add(rand2);
-        list.add(rand3);
-        list.add(rand4);
-        return list;
+        //TODO: what? doesn't make sense, we're using accelerometer and magnetometer for pitch and roll. check again
+        if (gyroRads == null || gyroRads.size() == 0) {
+            if (getGyroMotionDNEStatus() == DNEStatusCode.EXPIRED)
+                return gyroRads;
+
+            long startTime = System.currentTimeMillis();
+            long currentTime = startTime;
+            float waitTime = 200;
+
+            while ((currentTime - startTime) < waitTime) {
+                if (gyroRads != null && gyroRads.size() > 0)
+                    return gyroRads;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                }
+                currentTime = System.currentTimeMillis();
+            }
+
+            setGyroMotionDNEStatus(DNEStatusCode.NO_DATA);
+            return gyroRads;
+        }
+        return gyroRads;
     }
 
-    public List<PitchRollObject> getGyroPitch() {
-        PitchRollObject rand1 = new PitchRollObject();
-        PitchRollObject rand2 = new PitchRollObject();
-        PitchRollObject rand3 = new PitchRollObject();
-        PitchRollObject rand4 = new PitchRollObject();
-        List<PitchRollObject> list = new ArrayList<>();
-        list.add(rand1);
-        list.add(rand2);
-        list.add(rand3);
-        list.add(rand4);
-        return list;
+    public List<PitchRollObject> getGyroPitchRoll() {
+        if (pitchRoll == null || pitchRoll.size() == 0) {
+            if (getGyroMotionDNEStatus() == DNEStatusCode.EXPIRED)
+                return pitchRoll;
+
+            long startTime = System.currentTimeMillis();
+            long currentTime = startTime;
+            float waitTime = 250;
+
+            while ((currentTime - startTime) < waitTime) {
+                if (pitchRoll != null && pitchRoll.size() > 0)
+                    return pitchRoll;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                }
+                currentTime = System.currentTimeMillis();
+            }
+
+            setGyroMotionDNEStatus(DNEStatusCode.NO_DATA);
+            return pitchRoll;
+        }
+        return pitchRoll;
     }
 
-    public DNEStatusCode getUserMovementDNEStatus() {
-        int i = new Random().nextInt(8);
-        return DNEStatusCode.getByID(i);
+    public List<AccelRadsObject> getAccelRads(){
+        if (accelRads == null || accelRads.size() == 0) {
+            if (getAccelMotionDNEStatus() == DNEStatusCode.EXPIRED)
+                return accelRads;
+
+            long startTime = System.currentTimeMillis();
+            long currentTime = startTime;
+            float waitTime = 100;
+
+            while ((currentTime - startTime) < waitTime) {
+                if (accelRads != null && accelRads.size() > 0)
+                    return accelRads;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                }
+                currentTime = System.currentTimeMillis();
+            }
+
+            setAccelMotionDNEStatus(DNEStatusCode.NO_DATA);
+            return accelRads;
+        }
+        return accelRads;
     }
 
-    public DNEStatusCode getGyroMotionDNEStatus() {
-        int i = new Random().nextInt(8);
-        return DNEStatusCode.getByID(i);
+    public List<MagneticObject> getMagneticHeading(){
+        if (magneticHeading == null || magneticHeading.size() == 0) {
+            if (getAccelMotionDNEStatus() == DNEStatusCode.EXPIRED)
+                return magneticHeading;
+
+            long startTime = System.currentTimeMillis();
+            long currentTime = startTime;
+            float waitTime = 500;
+
+            while ((currentTime - startTime) < waitTime) {
+                if (magneticHeading != null && magneticHeading.size() > 0)
+                    return magneticHeading;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                }
+                currentTime = System.currentTimeMillis();
+            }
+
+            setAccelMotionDNEStatus(DNEStatusCode.NO_DATA);
+            return magneticHeading;
+        }
+        return magneticHeading;
     }
+
 
     public DNEStatusCode getLocationDNEStatus() {
         return locationDNEStatus;
@@ -425,6 +518,24 @@ public class SentegrityTrustFactorDatasets {
         return discoveredBLEDNEStatus;
     }
 
+    public DNEStatusCode getUserMovementDNEStatus() {
+        int i = new Random().nextInt(8);
+        return DNEStatusCode.getByID(i);
+    }
+
+    public DNEStatusCode getGyroMotionDNEStatus() {
+        int i = new Random().nextInt(8);
+        return DNEStatusCode.getByID(i);
+    }
+
+    public DNEStatusCode getMagneticHeadingDNEStatus() {
+        return magneticHeadingDNEStatus;
+    }
+
+    public DNEStatusCode getAccelMotionDNEStatus() {
+        return accelMotionDNEStatus;
+    }
+
     public void setConnectedClassicDNEStatus(DNEStatusCode connectedClassicDNEStatus) {
         this.connectedClassicDNEStatus = connectedClassicDNEStatus;
     }
@@ -436,6 +547,23 @@ public class SentegrityTrustFactorDatasets {
     public void setLocationDNEStatus(DNEStatusCode locationDNEStatus) {
         this.locationDNEStatus = locationDNEStatus;
     }
+
+    public void setGyroMotionDNEStatus(DNEStatusCode gyroMotionDNEStatus) {
+        this.gyroMotionDNEStatus = gyroMotionDNEStatus;
+    }
+
+    public void setMagneticHeadingDNEStatus(DNEStatusCode magneticHeadingDNEStatus) {
+        this.magneticHeadingDNEStatus = magneticHeadingDNEStatus;
+    }
+
+    public void setUserMovementDNEStatus(DNEStatusCode userMovementDNEStatus) {
+        this.userMovementDNEStatus = userMovementDNEStatus;
+    }
+
+    public void setAccelMotionDNEStatus(DNEStatusCode accelMotionDNEStatus) {
+        this.accelMotionDNEStatus = accelMotionDNEStatus;
+    }
+
 
     public void setDiscoveredBLEDevices(Set<String> discoveredBLEDevices) {
         this.discoveredBLEDevices = discoveredBLEDevices;
