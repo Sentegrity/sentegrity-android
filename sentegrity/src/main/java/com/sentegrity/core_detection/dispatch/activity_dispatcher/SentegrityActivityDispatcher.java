@@ -176,54 +176,10 @@ public class SentegrityActivityDispatcher {
 
         //Gyro Data (grip)
         Sensor gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        Sensor orientationSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
         if(gyroSensor == null){
             SentegrityTrustFactorDatasets.getInstance().setGyroMotionDNEStatus(DNEStatusCode.UNSUPPORTED);
-//            SentegrityTrustFactorDatasets.getInstance().setMagneticHeadingDNEStatus(DNEStatusCode.UNSUPPORTED);
             SentegrityTrustFactorDatasets.getInstance().setUserMovementDNEStatus(DNEStatusCode.UNSUPPORTED);
         }else{
-
-            //DEVICE MOTION!?
-            //probably orientation -> this requires accel and mag
-
-            Sensor acc = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            Sensor mag = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-            SensorEventListener listener = new SensorEventListener() {
-                float[] mGravity;
-                float[] mGeomagnetic;
-                @Override
-                public void onSensorChanged(SensorEvent event) {
-                    if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-                        mGravity = event.values;
-                    if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
-                        mGeomagnetic = event.values;
-                    if (mGravity != null && mGeomagnetic != null) {
-                        float R[] = new float[9];
-                        float I[] = new float[9];
-                        boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
-                        if (success) {
-                            float orientationData[] = new float[3];
-                            SensorManager.getOrientation(R, orientationData);
-                            PitchRollObject object = new PitchRollObject(SensorManager.getOrientation(R, orientationData));
-
-                            pitchRollArray.add(object);
-                            SentegrityTrustFactorDatasets.getInstance().setPitchRoll(pitchRollArray);
-
-                            if(pitchRollArray.size() > 3)
-                                sensorManager.unregisterListener(this);
-                        }
-                    }
-                }
-
-                @Override
-                public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-                }
-            };
-            sensorManager.registerListener(listener, acc, 1000);
-            sensorManager.registerListener(listener, mag, 1000);
-
-
             //USER MOVEMENT!?
 
 
@@ -245,7 +201,63 @@ public class SentegrityActivityDispatcher {
 
                 }
             }, gyroSensor, 1000);
+        }
 
+
+
+        //DEVICE MOTION
+        //probably orientation -> this requires accel and mag
+        //maybe even use gyro if available?
+        Sensor acc = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        Sensor mag = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        if(acc == null || mag == null){
+            //we don't have pitch/roll data ?
+        }else {
+            SensorEventListener listener = new SensorEventListener() {
+                float rotation[] = null; //for gravity rotational data
+                float accels[] = new float[3];
+                float mags[] = new float[3];
+                float[] values = new float[3];
+
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    switch (event.sensor.getType()) {
+                        case Sensor.TYPE_MAGNETIC_FIELD:
+                            mags = event.values.clone();
+                            break;
+                        case Sensor.TYPE_ACCELEROMETER:
+                            accels = event.values.clone();
+                            break;
+                    }
+
+                    if (mags != null && accels != null) {
+                        rotation = new float[9];
+                        SensorManager.getRotationMatrix(rotation, null, accels, mags);
+
+                        float[] outR = new float[9];
+                        SensorManager.remapCoordinateSystem(rotation, SensorManager.AXIS_X, SensorManager.AXIS_Y, outR);
+                        SensorManager.getOrientation(outR, values);
+
+                        mags = null;
+                        accels = null;
+
+                        PitchRollObject object = new PitchRollObject(values);
+
+                        pitchRollArray.add(object);
+                        SentegrityTrustFactorDatasets.getInstance().setPitchRoll(pitchRollArray);
+
+                        if (pitchRollArray.size() > 3)
+                            sensorManager.unregisterListener(this);
+                    }
+                }
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+                }
+            };
+            sensorManager.registerListener(listener, acc, 1000);
+            sensorManager.registerListener(listener, mag, 1000);
         }
 
         //MAGNETOMETER DATA
@@ -273,7 +285,7 @@ public class SentegrityActivityDispatcher {
         }
 
         //ACCELEROMETER DATA
-        Sensor accelerometerData = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        Sensor accelerometerData = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
         if(accelerometerData == null){
             SentegrityTrustFactorDatasets.getInstance().setAccelMotionDNEStatus(DNEStatusCode.UNSUPPORTED);
         }else{

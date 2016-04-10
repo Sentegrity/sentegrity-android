@@ -151,11 +151,11 @@ public class SentegrityTrustFactorDatasets {
                 return "unknown";
 
             switch (batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)) {
-                case BatteryManager.BATTERY_STATUS_CHARGING:
+                case BatteryManager.BATTERY_PLUGGED_USB:
                     return batteryState = "usbPlugged";
-                case BatteryManager.BATTERY_STATUS_FULL:
+                case BatteryManager.BATTERY_PLUGGED_WIRELESS:
                     return batteryState = "wirelessPlugged";
-                case BatteryManager.BATTERY_STATUS_DISCHARGING:
+                case BatteryManager.BATTERY_PLUGGED_AC:
                     return batteryState = "ACPlugged";
             }
 

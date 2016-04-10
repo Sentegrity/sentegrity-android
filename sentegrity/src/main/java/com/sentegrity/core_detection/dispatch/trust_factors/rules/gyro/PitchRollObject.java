@@ -20,10 +20,17 @@ public class PitchRollObject {
 
     public PitchRollObject(float[] values){
         if(values == null || values.length < 3) return;
-        azimuth = values[0];
-        pitch = values[1];
-        roll = values[2];
+        azimuth = remap(values[0]);
+        pitch = remap(values[1]);
+        roll = remap(values[2]);
 
         Log.d("pitch", azimuth + ", " + pitch + ", " + roll);
+    }
+
+    private float remap(float value) {
+        // -1 to 1
+        return (float) (-1 + (value + Math.PI) / Math.PI);
+//        // 0 to 1
+//        return (float) ((value + Math.PI) / 2 * Math.PI);
     }
 }

@@ -145,6 +145,9 @@ public class TrustFactorDispatchMotion /*implements TrustFactorDispatch*/ {
         pitchAvg = pitchTotal / counter;
         rollAvg = rollTotal / counter;
 
+
+        Log.d("pitch", "pitch " + pitchAvg + ", roll " + rollAvg);
+
         double pitchBlockSize = (double) ((LinkedTreeMap)payload.get(0)).get("pitchBlockSize");
         double rollBlockSize = (double) ((LinkedTreeMap)payload.get(0)).get("rollBlockSize");
 
