@@ -1,5 +1,7 @@
 package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
+import android.util.Log;
+
 import com.google.gson.internal.LinkedTreeMap;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
@@ -55,6 +57,11 @@ public class TrustFactorDispatchMotion /*implements TrustFactorDispatch*/ {
         float gripMovement = 0.0f;
         gripMovement = SentegrityTrustFactorDatasets.getInstance().getGripMovement();
 
+        if(SentegrityTrustFactorDatasets.getInstance().getUserMovementDNEStatus() != DNEStatusCode.OK){
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getUserMovementDNEStatus());
+            return output;
+        }
+
         if(gripMovement == 0.0f){
             output.setStatusCode(DNEStatusCode.UNAVAILABLE);
             return output;
@@ -67,6 +74,7 @@ public class TrustFactorDispatchMotion /*implements TrustFactorDispatch*/ {
         String userMovement = SentegrityTrustFactorDatasets.getInstance().getUserMovement();
 
         String motion = "grip_Movement_" + movementBlock + "_" + "device_Movement_" + userMovement;
+        Log.d("grip", motion);
 
         outputList.add(motion);
 
@@ -85,17 +93,24 @@ public class TrustFactorDispatchMotion /*implements TrustFactorDispatch*/ {
 
         List<String> outputList = new ArrayList<>();
 
+        List<GyroRadsObject> gyroRads;
+
         if(SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus() != DNEStatusCode.OK &&
                 SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus() != DNEStatusCode.EXPIRED){
             output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus());
             return output;
-        }
+        }else{
+            gyroRads = SentegrityTrustFactorDatasets.getInstance().getGyroRads();
 
-        List<GyroRadsObject> gyroRads = SentegrityTrustFactorDatasets.getInstance().getGyroRads();
+            if(SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus() != DNEStatusCode.OK){
+                output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus());
+                return output;
+            }
 
-        if(gyroRads == null){
-            output.setStatusCode(DNEStatusCode.UNAVAILABLE);
-            return output;
+            if(gyroRads == null){
+                output.setStatusCode(DNEStatusCode.UNAVAILABLE);
+                return output;
+            }
         }
 
         List<PitchRollObject> gyroPitch = SentegrityTrustFactorDatasets.getInstance().getGyroPitchRoll();
@@ -139,6 +154,7 @@ public class TrustFactorDispatchMotion /*implements TrustFactorDispatch*/ {
         String motion = "pitch_" + pitchBlock + "_" + "roll_" + rollBlock;
 
         int movementBlock = (int) Math.round(gripMovement / 0.1);
+        Log.d("pitch", motion + ", " + movementBlock);
 
         if(pitchBlock == 0 && movementBlock == 0){
             output.setStatusCode(DNEStatusCode.INVALID);

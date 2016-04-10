@@ -2,7 +2,7 @@
   "policyID": 1,
   "appID": "default",
   "revision": 1,
-  "userThreshold": 80,
+  "userThreshold": 75,
   "systemThreshold": 50,
   "continueOnError": 1,
   "timeout": 2,
@@ -11,6 +11,8 @@
   "contactEmail": "help@application.com",
   "transparentAuthEnabled": 1,
   "transparentAuthDecayMetric": 0.07,
+  "statusUploadRunFrequency": 5,
+  "statusUploadTimeFrequency": 7,
   "DNEModifiers": {
     "unauthorized": 0.5,
     "unsupported": 0,
@@ -79,7 +81,7 @@
       "dneNoData": "No network data",
       "dneExpired": "",
       "dneInvalid": "",
-      "weight": 0
+      "weight": 1
     },
     {
       "id": 2,
@@ -91,7 +93,7 @@
       "dneNoData": "",
       "dneExpired": "",
       "dneInvalid": "",
-      "weight": 0
+      "weight": 1
     },
     {
       "id": 3,
@@ -103,7 +105,7 @@
       "dneNoData": "",
       "dneExpired": "",
       "dneInvalid": "",
-      "weight": 0
+      "weight": 1
     },
     {
       "id": 4,
@@ -115,7 +117,7 @@
       "dneNoData": "",
       "dneExpired": "",
       "dneInvalid": "",
-      "weight": 0
+      "weight": 1
     },
     {
       "id": 5,
@@ -127,7 +129,7 @@
       "dneNoData": "",
       "dneExpired": "",
       "dneInvalid": "",
-      "weight": 0
+      "weight": 1
     },
     {
       "id": 6,
@@ -139,7 +141,7 @@
       "dneNoData": "",
       "dneExpired": "",
       "dneInvalid": "",
-      "weight": 0
+      "weight": 1
     },
     {
       "id": 7,
@@ -151,7 +153,7 @@
       "dneNoData": "",
       "dneExpired": "",
       "dneInvalid": "Device position invalid",
-      "weight": 0
+      "weight": 1
     },
     {
       "id": 8,
@@ -163,7 +165,7 @@
       "dneNoData": "",
       "dneExpired": "",
       "dneInvalid": "",
-      "weight": 0
+      "weight": 1
     },
     {
       "id": 9,
@@ -175,7 +177,7 @@
       "dneNoData": "",
       "dneExpired": "",
       "dneInvalid": "",
-      "weight": 0
+      "weight": 1
     },
     {
       "id": 10,
@@ -187,7 +189,7 @@
       "dneNoData": "No activity data found",
       "dneExpired": "",
       "dneInvalid": "",
-      "weight": 0
+      "weight": 1
     },
     {
       "id": 11,
@@ -199,7 +201,7 @@
       "dneNoData": "",
       "dneExpired": "",
       "dneInvalid": "",
-      "weight": 0
+      "weight": 1
     },
     {
       "id": 12,
@@ -211,7 +213,7 @@
       "dneNoData": "",
       "dneExpired": "",
       "dneInvalid": "",
-      "weight": 0
+      "weight": 1
     }
   ],
   "trustFactors": [
@@ -225,6 +227,7 @@
       "classID": 1,
       "subClassID": 4,
       "name": "Bad filesystem artifacts",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 100,
       "learnMode": 0,
@@ -293,6 +296,7 @@
       "classID": 1,
       "subClassID": 1,
       "name": "Bad network destination",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 100,
       "ruleType": 1,
@@ -326,6 +330,7 @@
       "classID":1,
       "subClassID": 1,
       "name": "Privileged network services",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 100,
       "learnMode": 0,
@@ -337,7 +342,7 @@
       "wipeOnUpdate": 0,
       "dispatch": "Netstat",
       "implementation": "priviledgedPort:",
-      "whitelistable": 1,
+      "whitelistable": 0,
       "privateAPI": 0,
       "payload": [
         22,
@@ -355,6 +360,7 @@
       "classID": 1,
       "subClassID": 1,
       "name": "Sandbox integrity compromise",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 100,
       "learnMode": 0,
@@ -380,6 +386,7 @@
       "classID": 1,
       "subClassID": 3,
       "name": "Application tamper detection",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 100,
       "learnMode": 0,
@@ -407,6 +414,7 @@
       "classID": 3,
       "subClassID": 4,
       "name": "Policy (version)",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 15,
       "learnMode": 0,
@@ -421,7 +429,7 @@
       "whitelistable": 0,
       "privateAPI": 0,
       "payload": [
-        "9.2"
+        "9.3"
       ]
     },
     {
@@ -434,6 +442,7 @@
       "classID": 3,
       "subClassID": 4,
       "name": "Critical file size anomaly",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 30,
       "learnMode": 1,
@@ -445,7 +454,7 @@
       "wipeOnUpdate": 0,
       "dispatch": "File",
       "implementation": "sizeChange:",
-      "whitelistable": 1,
+      "whitelistable": 0,
       "privateAPI": 0,
       "payload": [
         "/etc/passwd",
@@ -463,6 +472,7 @@
       "classID": 3,
       "subClassID": 1,
       "name": "Unknown network service",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 30,
       "learnMode": 2,
@@ -474,7 +484,7 @@
       "wipeOnUpdate": 0,
       "dispatch": "Netstat",
       "implementation": "newService:",
-      "whitelistable": 1,
+      "whitelistable": 0,
       "privateAPI": 0,
       "payload": []
     },
@@ -488,6 +498,7 @@
       "classID": 3,
       "subClassID": 1,
       "name": "Data exfiltration",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 10,
       "learnMode": 0,
@@ -518,6 +529,7 @@
       "classID": 3,
       "subClassID": 1,
       "name": "Unencrypted traffic",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 10,
       "learnMode": 0,
@@ -546,6 +558,7 @@
       "classID": 3,
       "subClassID": 9,
       "name": "Network connectivity",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 20,
       "learnMode": 0,
@@ -571,6 +584,7 @@
       "classID": 5,
       "subClassID": 9,
       "name": "Airplane mode",
+      "transparentEligible": 0,
       "partialWeight": 1,
       "weight": 10,
       "learnMode": 0,
@@ -596,6 +610,7 @@
       "classID": 3,
       "subClassID": 1,
       "name": "VPN connection",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 30,
       "learnMode": 0,
@@ -624,6 +639,7 @@
       "classID": 3,
       "subClassID": 2,
       "name": "wifi hotspot",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 5,
       "learnMode": 0,
@@ -649,6 +665,7 @@
       "classID": 3,
       "subClassID": 2,
       "name": "wifi soho oui",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 10,
       "learnMode": 0,
@@ -683,6 +700,7 @@
       "classID": 3,
       "subClassID": 2,
       "name": "WiFi default SSID",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 10,
       "learnMode": 0,
@@ -707,7 +725,8 @@
       "revision": 1,
       "classID": 5,
       "subClassID": 2,
-      "name": "user familiar wifi ssid",
+      "name": "unknown wifi ssid",
+      "transparentEligible": 0,
       "partialWeight": 1,
       "weight": 10,
       "learnMode": 0,
@@ -736,7 +755,8 @@
       "revision": 1,
       "classID": 5,
       "subClassID": 2,
-      "name": "user wifi bssid authenticator",
+      "name": "unknown wifi bssid",
+      "transparentEligible": 1,
       "partialWeight": 0,
       "weight": 20,
       "learnMode": 0,
@@ -767,6 +787,7 @@
       "subClassID": 9,
       "priority": 1,
       "name": "hotspot enabled",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 10,
       "learnMode": 0,
@@ -792,6 +813,7 @@
       "classID": 3,
       "subClassID": 12,
       "name": "cell connection change",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 10,
       "learnMode": 2,
@@ -817,6 +839,7 @@
       "classID": 3,
       "subClassID": 3,
       "name": "high risk installed apps",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 35,
       "learnMode": 0,
@@ -828,7 +851,7 @@
       "wipeOnUpdate": 0,
       "dispatch": "Application",
       "implementation": "installedApp:",
-      "whitelistable": 1,
+      "whitelistable": 0,
       "privateAPI": 1,
       "payload": [
         "com.dunkinbrands.DunkinMobile",
@@ -846,6 +869,7 @@
       "subClassID": 4,
       "priority": 1,
       "name": "vulnerable platform",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 30,
       "learnMode": 0,
@@ -888,6 +912,7 @@
       "classID": 3,
       "subClassID": 4,
       "name": "device uptime",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 8,
       "learnMode": 0,
@@ -917,6 +942,7 @@
       "classID": 3,
       "subClassID": 11,
       "name": "device backup",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 20,
       "learnMode": 0,
@@ -944,6 +970,7 @@
       "classID": 3,
       "subClassID": 11,
       "name": "device passcode",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 20,
       "learnMode": 0,
@@ -969,6 +996,7 @@
       "classID": 5,
       "subClassID": 5,
       "name": "access time hour day",
+      "transparentEligible": 1,
       "partialWeight": 1,
       "weight": 10,
       "learnMode": 0,
@@ -998,6 +1026,7 @@
       "classID": 3,
       "subClassID": 9,
       "name": "plugged in",
+      "transparentEligible": 0,
       "partialWeight": 0,
       "weight": 5,
       "learnMode": 0,
@@ -1023,6 +1052,7 @@
       "classID": 5,
       "subClassID": 9,
       "name": "power level",
+      "transparentEligible": 1,
       "partialWeight": 1,
       "weight": 15,
       "learnMode": 0,
@@ -1053,6 +1083,7 @@
       "classID": 5,
       "subClassID": 9,
       "name": "battery state",
+      "transparentEligible": 1,
       "partialWeight": 1,
       "weight": 5,
       "learnMode": 0,
@@ -1078,6 +1109,7 @@
       "classID": 5,
       "subClassID": 7,
       "name": "device orientation",
+      "transparentEligible": 1,
       "partialWeight": 1,
       "weight": 8,
       "learnMode": 0,
@@ -1101,8 +1133,9 @@
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
       "classID": 5,
-      "subClassID": 10,
-      "name": "unfamiliar user activity",
+      "subClassID": 5,
+      "name": "stored user activity",
+      "transparentEligible": 1,
       "partialWeight": 1,
       "weight": 5,
       "learnMode": 0,
@@ -1132,8 +1165,9 @@
       "classID": 5,
       "subClassID": 7,
       "name": "device grip",
+      "transparentEligible": 0,
       "partialWeight": 1,
-      "weight": 10,
+      "weight": 8,
       "learnMode": 0,
       "learnTime": 0,
       "learnAssertionCount": 0,
@@ -1147,8 +1181,8 @@
       "privateAPI": 0,
       "payload": [
         {
-          "pitchBlockSize": 0.1,
-          "rollBlockSize": 0.04
+          "pitchBlockSize": 0.2,
+          "rollBlockSize": 0.05
         }
       ]
     },
@@ -1160,8 +1194,9 @@
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
       "classID": 5,
-      "subClassID": 10,
+      "subClassID": 5,
       "name": "device movement",
+      "transparentEligible": 1,
       "partialWeight": 1,
       "weight": 8,
       "learnMode": 0,
@@ -1177,7 +1212,7 @@
       "privateAPI": 0,
       "payload": [
         {
-          "movementBlockSize": 0.1
+          "movementBlockSize": 0.2
         }
       ]
     },
@@ -1191,6 +1226,7 @@
       "classID": 5,
       "subClassID": 6,
       "name": "approximate location anomaly",
+      "transparentEligible": 0,
       "partialWeight": 1,
       "weight": 15,
       "learnMode": 0,
@@ -1227,8 +1263,9 @@
       "classID": 5,
       "subClassID": 6,
       "name": "device location",
+      "transparentEligible": 1,
       "partialWeight": 1,
-      "weight": 20,
+      "weight": 15,
       "learnMode": 0,
       "learnTime": 0,
       "learnAssertionCount": 0,
@@ -1256,8 +1293,9 @@
       "classID": 5,
       "subClassID": 8,
       "name": "bluetooth low-energy scanning",
+      "transparentEligible": 1,
       "partialWeight": 1,
-      "weight": 30,
+      "weight": 20,
       "learnMode": 0,
       "learnTime": 0,
       "learnAssertionCount": 0,
@@ -1281,8 +1319,9 @@
       "classID": 5,
       "subClassID": 8,
       "name": "bluetooth classic paired",
+      "transparentEligible": 1,
       "partialWeight": 0,
-      "weight": 40,
+      "weight": 30,
       "learnMode": 0,
       "learnTime": 0,
       "learnAssertionCount": 0,

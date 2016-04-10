@@ -49,6 +49,12 @@ public class SentegrityActivityDispatcher {
     public void runCoreDetectionActivities(Context context) {
         bleDevices = new HashSet<>();
         classicDevices = new HashSet<>();
+
+        accelRadsArray = new ArrayList<>();
+        pitchRollArray = new ArrayList<>();
+        headingsArray = new ArrayList<>();
+        gyroRadsArray = new ArrayList<>();
+
         startBluetooth(context);
         startLocation(context);
         startMotion(context);

@@ -24,6 +24,7 @@ import android.util.Log;
 
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetMotion;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.AccelRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.GyroRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.MagneticObject;
@@ -58,6 +59,9 @@ public class SentegrityTrustFactorDatasets {
     private Location location;
     private Float brightness = null;
     private Integer celluarSignalRaw = null;
+    private Float gripMovement = null;
+    private String userMovement = null;
+    private String deviceOrientation = null;
 
     private Set<String> connectedClassicBTDevices;
     private Set<String> discoveredBLEDevices;
@@ -242,49 +246,24 @@ public class SentegrityTrustFactorDatasets {
     }
 
     public String getDeviceOrientation() {
-        //TODO: return real orientation
-        // fake random orientation for testing purposes
-        int i = new Random().nextInt(8);
-        switch (i) {
-            case 0:
-                return "Portrait";
-            case 1:
-                return "Landscape_Right";
-            case 2:
-                return "Landscape_Left";
-            case 3:
-                return "Portrait_Upside_Down";
-            case 4:
-                return "Face_Up";
-            case 5:
-                return "Face_Down";
-            case 6:
-                return "unknown";
-            default:
-                return "error";
+        if (deviceOrientation == null) {
+            return deviceOrientation = SentegrityTrustFactorDatasetMotion.getOrientation(context);
         }
+        return deviceOrientation;
     }
 
     public String getUserMovement() {
-        //TODO: return real movement
-        // fake random movement for testing purposes
-        int i = new Random().nextInt(5);
-        switch (i) {
-            case 0:
-                return "StandingStill";
-            case 1:
-                return "Walking";
-            case 2:
-                return "Running";
-            case 3:
-                return "ChangingOrientation";
-            default:
-                return "RotatingOrShaking";
+        if (userMovement == null) {
+            return userMovement = SentegrityTrustFactorDatasetMotion.getUserMovement();
         }
+        return userMovement;
     }
 
     public float getGripMovement() {
-        return new Random().nextInt(10) / 10.0f;
+        if (gripMovement == null) {
+            return gripMovement = SentegrityTrustFactorDatasetMotion.getGripMovement();
+        }
+        return gripMovement;
     }
 
     public String getCarrierConnectionSpeed() {
@@ -519,8 +498,7 @@ public class SentegrityTrustFactorDatasets {
     }
 
     public DNEStatusCode getUserMovementDNEStatus() {
-        int i = new Random().nextInt(8);
-        return DNEStatusCode.getByID(i);
+        return userMovementDNEStatus;
     }
 
     public DNEStatusCode getGyroMotionDNEStatus() {
