@@ -1,5 +1,7 @@
 package com.sentegrity.core_detection.dispatch.trust_factors;
 
+import android.app.KeyguardManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -62,6 +64,7 @@ public class SentegrityTrustFactorDatasets {
     private Float gripMovement = null;
     private String userMovement = null;
     private String deviceOrientation = null;
+    private Boolean passcodeSet = null;
 
     private Set<String> connectedClassicBTDevices;
     private Set<String> discoveredBLEDevices;
@@ -647,6 +650,45 @@ public class SentegrityTrustFactorDatasets {
 //        l.setLatitude((double) (r.nextInt(500) + 1000) / 1000.0f);
 //        l.setLongitude((double) (r.nextInt(500) + 1000) / 1000.0f);
 //        return l;
+    }
+
+    public Boolean isPasscodeSet() {
+        if(passcodeSet == null) {
+            //version 23+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                KeyguardManager keyguardMgr = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+                return passcodeSet = keyguardMgr.isDeviceSecure();
+            }
+
+            int exceptions = 0;
+            //should work on all previous versions
+            try {
+                Class<?> lockUtilsClass = Class.forName("com.android.internal.widget.LockPatternUtils");
+                Object utils = lockUtilsClass.getConstructor(Context.class).newInstance(context);
+                //on 6.0+ this method requires user id parameter
+                Method method = lockUtilsClass.getMethod("isSecure");
+                Boolean isSecure = (Boolean) method.invoke(utils);
+                if (isSecure != null && isSecure)
+                    return passcodeSet = true;
+            } catch (Exception e) {
+                exceptions++;
+            }
+
+            //just to be sure? maybe returns something
+            try {
+                ContentResolver cr = context.getContentResolver();
+                int lockPatternEnable = Settings.Secure.getInt(cr, Settings.Secure.LOCK_PATTERN_ENABLED);
+                if (lockPatternEnable == 1)
+                    return passcodeSet = true;
+            } catch (Exception e) {
+                exceptions++;
+            }
+
+            if (exceptions >= 2)
+                return passcodeSet = null;
+            return passcodeSet = false;
+        }
+        return passcodeSet;
     }
 
     public ArrayList<String> getSSIDList() {
