@@ -1,5 +1,6 @@
 package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
+import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -165,7 +166,69 @@ public class TrustFactorDispatchNetstat {
     }
 
     public static SentegrityTrustFactorOutput dataExfiltration(List<Object> payload) {
-        return new SentegrityTrustFactorOutput();
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        if (!SentegrityTrustFactorDatasets.validatePayload(payload)) {
+            output.setStatusCode(DNEStatusCode.ERROR);
+            return output;
+        }
+
+        List<String> outputList = new ArrayList<>();
+
+        Long dataXfer = SentegrityTrustFactorDatasets.getInstance().getDataXferInfo();
+
+        if(dataXfer == null){
+            output.setStatusCode(DNEStatusCode.ERROR);
+            return output;
+        }
+
+        long uptime = 0;
+        uptime = SystemClock.uptimeMillis();
+
+        if(uptime <= 0) {
+            output.setStatusCode(DNEStatusCode.UNAVAILABLE);
+            return output;
+        }
+        //to seconds
+        uptime /= 1000;
+
+        int timeInterval = 0;
+        timeInterval = (int) (double) ((LinkedTreeMap)payload.get(0)).get("secondsInterval");
+
+        if(timeInterval == 0){
+            output.setStatusCode(DNEStatusCode.ERROR);
+            return output;
+        }
+
+        int dataMax = 0;
+        dataMax = (int) (double) ((LinkedTreeMap)payload.get(0)).get("maxSentMB");
+
+        if(dataMax == 0){
+            output.setStatusCode(DNEStatusCode.ERROR);
+            return output;
+        }
+
+        int timeSlots = 0;
+        timeSlots = Math.round(uptime / timeInterval);
+
+        if(timeSlots < 1){
+            return output;
+        }
+
+        int dataSentPerTimeSlot = (int) Math.ceil(dataXfer / (float) timeSlots);
+
+        if(dataSentPerTimeSlot < 1){
+            return output;
+        }
+
+        //we need it in bytes
+        if(dataSentPerTimeSlot > dataMax * 1000000){
+            outputList.add("exfil");
+        }
+
+        output.setOutput(outputList);
+
+        return output;
     }
 
     public static SentegrityTrustFactorOutput unencryptedTraffic(List<Object> payload) {

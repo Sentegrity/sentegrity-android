@@ -11,6 +11,7 @@ import android.content.res.AssetManager;
 //import android.hardware.SensorEventListener;
 //import android.hardware.SensorManager;
 import android.location.Location;
+import android.net.TrafficStats;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
@@ -669,6 +670,14 @@ public class SentegrityTrustFactorDatasets {
             setNetstatDataDNEStatus(DNEStatusCode.NO_DATA);
         }
         return netstatData;
+    }
+
+    public Long getDataXferInfo(){
+        long trafficBytesSent = TrafficStats.getTotalTxBytes();
+        if(trafficBytesSent == TrafficStats.UNSUPPORTED){
+            return null;
+        }
+        return trafficBytesSent;
     }
 
     public Location getLocationInfo() {
