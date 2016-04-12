@@ -96,6 +96,16 @@ public class SentegrityTrustFactorDatasets {
 
     public SentegrityTrustFactorDatasets(Context context) {
         this.context = context;
+
+        locationDNEStatus = DNEStatusCode.OK;
+        connectedClassicDNEStatus = DNEStatusCode.OK;
+        discoveredBLEDNEStatus = DNEStatusCode.OK;
+        gyroMotionDNEStatus = DNEStatusCode.OK;
+        magneticHeadingDNEStatus = DNEStatusCode.OK;
+        userMovementDNEStatus = DNEStatusCode.OK;
+        accelMotionDNEStatus = DNEStatusCode.OK;
+        netstatDataDNEStatus = DNEStatusCode.OK;
+
         //reset data
         updateWifiManager();
         updateTelefonyManager();
@@ -638,6 +648,26 @@ public class SentegrityTrustFactorDatasets {
     }
 
     public List<ActiveConnection> getNetstatData() {
+        if (netstatData == null || netstatData.size() == 0) {
+            if (getNetstatDataDNEStatus() == DNEStatusCode.EXPIRED)
+                return netstatData;
+
+            long startTime = System.currentTimeMillis();
+            long currentTime = startTime;
+            float waitTime = 250;
+
+            while ((currentTime - startTime) < waitTime) {
+                if (netstatData != null && netstatData.size() > 0)
+                    return netstatData;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                }
+                currentTime = System.currentTimeMillis();
+            }
+
+            setNetstatDataDNEStatus(DNEStatusCode.NO_DATA);
+        }
         return netstatData;
     }
 

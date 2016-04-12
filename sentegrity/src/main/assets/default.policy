@@ -5,7 +5,7 @@
   "userThreshold": 75,
   "systemThreshold": 50,
   "continueOnError": 1,
-  "timeout": 2,
+  "timeout": 105,
   "contactPhone": "18005556666",
   "contactURL": "www.application.com",
   "contactEmail": "help@application.com",

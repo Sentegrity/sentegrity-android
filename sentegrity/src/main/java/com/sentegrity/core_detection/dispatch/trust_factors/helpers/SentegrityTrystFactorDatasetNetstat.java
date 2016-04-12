@@ -28,7 +28,7 @@ public class SentegrityTrystFactorDatasetNetstat {
     private static final String COMMAND_UDP4 = "/proc/net/udp";
     private static final String COMMAND_UDP6 = "/proc/net/udp6";
 
-    private static List<ActiveConnection> get(int ipversion, int sockettype, String s) throws IOException {
+    private static List<ActiveConnection> get(IpVersion ipversion, SocketType sockettype, String s) throws IOException {
         BufferedReader bufferedreader;
         String line;
         List<ActiveConnection> connections = new ArrayList<>();
@@ -72,7 +72,7 @@ public class SentegrityTrystFactorDatasetNetstat {
             connection.localPort = getPort(list[1]);
             connection.isLoopBack = localInetAddress.isLoopbackAddress();
 
-            if(TCPState.hasRemote(connection.state)){
+            if(!connection.isListening()){
                 InetAddress remoteInetAddress = getInetAddress(ipversion, list[2]);
                 if(remoteInetAddress != null){
 
@@ -120,7 +120,7 @@ public class SentegrityTrystFactorDatasetNetstat {
         return "" + Integer.valueOf(s[1], 16);
     }
 
-    private static InetAddress getInetAddress(int ipVersion, String ipWithPort){
+    private static InetAddress getInetAddress(IpVersion ipVersion, String ipWithPort){
         if (TextUtils.isEmpty(ipWithPort))
             return null;
         String[] s = ipWithPort.split(":");

@@ -64,27 +64,35 @@ public class SentegrityActivityDispatcher {
     }
 
     private void startNetstat() {
-        List<ActiveConnection> tcpNetstatData = new ArrayList<>();
+        new Thread(){
+            @Override
+            public void run() {
+                Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 
-        boolean failedV4 = false, failedV6 = false;
-        try {
-            tcpNetstatData.addAll(SentegrityTrystFactorDatasetNetstat.getTcp4());
-        } catch (IOException e) {
-            failedV4 = true;
-        }
-        try {
-            tcpNetstatData.addAll(SentegrityTrystFactorDatasetNetstat.getTcp6());
-        } catch (IOException e) {
-            failedV6 = true;
-        }
+                List<ActiveConnection> tcpNetstatData = new ArrayList<>();
 
-        if(failedV6 && failedV4){
-            SentegrityTrustFactorDatasets.getInstance().setNetstatData(null);
-            SentegrityTrustFactorDatasets.getInstance().setNetstatDataDNEStatus(DNEStatusCode.ERROR);
-            return;
-        }
+                boolean failedV4 = false, failedV6 = false;
+                try {
+                    tcpNetstatData.addAll(SentegrityTrystFactorDatasetNetstat.getTcp4());
+                } catch (IOException e) {
+                    failedV4 = true;
+                }
+                try {
+                    tcpNetstatData.addAll(SentegrityTrystFactorDatasetNetstat.getTcp6());
+                } catch (IOException e) {
+                    failedV6 = true;
+                }
 
-        SentegrityTrustFactorDatasets.getInstance().setNetstatData(tcpNetstatData);
+                if(failedV6 && failedV4){
+                    SentegrityTrustFactorDatasets.getInstance().setNetstatData(null);
+                    SentegrityTrustFactorDatasets.getInstance().setNetstatDataDNEStatus(DNEStatusCode.ERROR);
+                    return;
+                }
+
+                SentegrityTrustFactorDatasets.getInstance().setNetstatDataDNEStatus(DNEStatusCode.OK);
+                SentegrityTrustFactorDatasets.getInstance().setNetstatData(tcpNetstatData);
+            }
+        }.start();
     }
 
 

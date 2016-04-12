@@ -38,8 +38,4 @@ public enum TCPState {
         }
         return "?";
     }
-
-    public static boolean hasRemote(String state) {
-        return !TextUtils.isEmpty(state) && !"listen".equals(state.toLowerCase());
-    }
 }
