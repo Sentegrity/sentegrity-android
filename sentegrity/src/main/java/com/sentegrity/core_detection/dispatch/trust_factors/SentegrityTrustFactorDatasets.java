@@ -27,6 +27,7 @@ import android.util.Log;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetMotion;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.AccelRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.GyroRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.MagneticObject;
@@ -79,14 +80,17 @@ public class SentegrityTrustFactorDatasets {
     private DNEStatusCode magneticHeadingDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode userMovementDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode accelMotionDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode netstatDataDNEStatus = DNEStatusCode.OK;
 
     private List<MagneticObject> magneticHeading;
     private List<GyroRadsObject> gyroRads;
     private List<PitchRollObject> pitchRoll;
     private List<AccelRadsObject> accelRads;
+    private List<ActiveConnection> netstatData;
 
     private WifiManager wifiManager;
     private TelephonyManager telephonyManager;
+    private KeyguardManager keyguardManager;
     private String carrierConnectionSpeed;
     private PhoneStateListener phoneStateListener;
 
@@ -95,6 +99,7 @@ public class SentegrityTrustFactorDatasets {
         //reset data
         updateWifiManager();
         updateTelefonyManager();
+        updateKeyguardManager();
         this.runTime = -1;
     }
 
@@ -516,6 +521,10 @@ public class SentegrityTrustFactorDatasets {
         return accelMotionDNEStatus;
     }
 
+    public DNEStatusCode getNetstatDataDNEStatus() {
+        return netstatDataDNEStatus;
+    }
+
     public void setConnectedClassicDNEStatus(DNEStatusCode connectedClassicDNEStatus) {
         this.connectedClassicDNEStatus = connectedClassicDNEStatus;
     }
@@ -544,6 +553,9 @@ public class SentegrityTrustFactorDatasets {
         this.accelMotionDNEStatus = accelMotionDNEStatus;
     }
 
+    public void setNetstatDataDNEStatus(DNEStatusCode netstatDataDNEStatus) {
+        this.netstatDataDNEStatus = netstatDataDNEStatus;
+    }
 
     public void setDiscoveredBLEDevices(Set<String> discoveredBLEDevices) {
         this.discoveredBLEDevices = discoveredBLEDevices;
@@ -551,6 +563,10 @@ public class SentegrityTrustFactorDatasets {
 
     public void setConnectedClassicBTDevices(Set<String> connectedClassicBTDevices) {
         this.connectedClassicBTDevices = connectedClassicBTDevices;
+    }
+
+    public void setNetstatData(List<ActiveConnection> netstatData) {
+        this.netstatData = netstatData;
     }
 
     public void setLocation(Location location) {
@@ -621,6 +637,10 @@ public class SentegrityTrustFactorDatasets {
 //        return listOfDevices;
     }
 
+    public List<ActiveConnection> getNetstatData() {
+        return netstatData;
+    }
+
     public Location getLocationInfo() {
         if (location == null) {
             if (getLocationDNEStatus() == DNEStatusCode.EXPIRED) {
@@ -656,8 +676,9 @@ public class SentegrityTrustFactorDatasets {
         if(passcodeSet == null) {
             //version 23+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                KeyguardManager keyguardMgr = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-                return passcodeSet = keyguardMgr.isDeviceSecure();
+                if(!updateKeyguardManager())
+                    return null;
+                return keyguardManager.isDeviceSecure();
             }
 
             int exceptions = 0;
@@ -796,6 +817,11 @@ public class SentegrityTrustFactorDatasets {
         return telephonyManager != null;
     }
 
+    private boolean updateKeyguardManager() {
+        if (keyguardManager != null) return true;
+        keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+        return keyguardManager != null;
+    }
 
     /**
      * Call on reloading login

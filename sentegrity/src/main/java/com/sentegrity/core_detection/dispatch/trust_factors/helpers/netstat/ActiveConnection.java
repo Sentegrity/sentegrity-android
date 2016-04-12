@@ -9,8 +9,10 @@ public class ActiveConnection {
     public String localIp;
     public String localPort;
     public String remoteIp;
+    public String remoteHost;
     public String remotePort;
     public String state;
+    public boolean isLoopBack;
     public int socketType;
     public int uid;
     public int totalTX;

@@ -29,11 +29,14 @@ import com.karumi.dexter.listener.multi.DialogOnAnyDeniedMultiplePermissionsList
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrystFactorDatasetNetstat;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.AccelRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.GyroRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.MagneticObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.PitchRollObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -54,10 +57,36 @@ public class SentegrityActivityDispatcher {
         headingsArray = new ArrayList<>();
         gyroRadsArray = new ArrayList<>();
 
+        startNetstat();
         startBluetooth(context);
         startLocation(context);
         startMotion(context);
     }
+
+    private void startNetstat() {
+        List<ActiveConnection> tcpNetstatData = new ArrayList<>();
+
+        boolean failedV4 = false, failedV6 = false;
+        try {
+            tcpNetstatData.addAll(SentegrityTrystFactorDatasetNetstat.getTcp4());
+        } catch (IOException e) {
+            failedV4 = true;
+        }
+        try {
+            tcpNetstatData.addAll(SentegrityTrystFactorDatasetNetstat.getTcp6());
+        } catch (IOException e) {
+            failedV6 = true;
+        }
+
+        if(failedV6 && failedV4){
+            SentegrityTrustFactorDatasets.getInstance().setNetstatData(null);
+            SentegrityTrustFactorDatasets.getInstance().setNetstatDataDNEStatus(DNEStatusCode.ERROR);
+            return;
+        }
+
+        SentegrityTrustFactorDatasets.getInstance().setNetstatData(tcpNetstatData);
+    }
+
 
     /**
      * Get BLE and classic devices nearby (uses broadcast receiver)

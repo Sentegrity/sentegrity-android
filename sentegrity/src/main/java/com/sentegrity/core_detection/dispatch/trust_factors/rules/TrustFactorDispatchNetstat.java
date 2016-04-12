@@ -21,13 +21,6 @@ import java.util.List;
 public class TrustFactorDispatchNetstat {
 
     public static SentegrityTrustFactorOutput badDst(List<Object> payload){
-        List list;
-        try {
-            list = SentegrityTrystFactorDatasetNetstat.getTcp4();
-            Log.d("test", "test");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         return new SentegrityTrustFactorOutput();
     }
 

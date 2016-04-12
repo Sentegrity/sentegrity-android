@@ -1,5 +1,7 @@
 package com.sentegrity.core_detection.dispatch.trust_factors.helpers;
 
+import android.text.TextUtils;
+
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.IpVersion;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.SocketType;
@@ -12,6 +14,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,13 +28,10 @@ public class SentegrityTrystFactorDatasetNetstat {
     private static final String COMMAND_UDP4 = "/proc/net/udp";
     private static final String COMMAND_UDP6 = "/proc/net/udp6";
 
-    private static List get(int ipversion, int sockettype, String s) throws IOException {
+    private static List<ActiveConnection> get(int ipversion, int sockettype, String s) throws IOException {
         BufferedReader bufferedreader;
         String line;
-        ArrayList arraylist;
-        arraylist = new ArrayList();
-        bufferedreader = null;
-        line = null;
+        List<ActiveConnection> connections = new ArrayList<>();
         FileReader reader = new FileReader(new File(s));
         bufferedreader = new BufferedReader(reader, 8192);
         String[] list;
@@ -41,7 +41,7 @@ public class SentegrityTrystFactorDatasetNetstat {
             if (line == null) {
                 IOUtils.closeQuietly(bufferedreader);
                 IOUtils.closeQuietly(reader);
-                return arraylist;
+                return connections;
             }
 
             line = line.trim();
@@ -63,87 +63,84 @@ public class SentegrityTrystFactorDatasetNetstat {
             if (sockettype == SocketType.UDP)
                 connection.state = "UDP";
 
-            connection.localIp = getIP(list[1]);
-            connection.localPort = getPort(list[1]);
 
-            if (TCPState.hasRemote(connection.state)) {
-                connection.remoteIp = getIP(list[2]);
-                connection.remotePort = getPort(list[2]);
+            InetAddress localInetAddress = getInetAddress(ipversion, list[1]);
+            if(localInetAddress == null)
+                continue;
+
+            connection.localIp = localInetAddress.getHostAddress();
+            connection.localPort = getPort(list[1]);
+            connection.isLoopBack = localInetAddress.isLoopbackAddress();
+
+            if(TCPState.hasRemote(connection.state)){
+                InetAddress remoteInetAddress = getInetAddress(ipversion, list[2]);
+                if(remoteInetAddress != null){
+
+                    connection.remoteIp = remoteInetAddress.getHostAddress();
+                    connection.remoteHost = remoteInetAddress.getHostName();
+                    connection.remotePort = getPort(list[2]);
+                }
             }
 
-            arraylist.add(connection);
+            connections.add(connection);
         }
 
         IOUtils.closeQuietly(bufferedreader);
         IOUtils.closeQuietly(reader);
 
-        return arraylist;
+        return connections;
     }
 
-    public static List getTcp4()
+    public static List<ActiveConnection> getTcp4()
             throws IOException {
         return get(IpVersion.IPv4, SocketType.TCP, COMMAND_TCP4);
     }
 
-    public static List getTcp6()
+    public static List<ActiveConnection> getTcp6()
             throws IOException {
         return get(IpVersion.IPv6, SocketType.TCP, COMMAND_TCP6);
     }
 
-    public static List getUdp4()
+    public static List<ActiveConnection> getUdp4()
             throws IOException {
         return get(IpVersion.IPv4, SocketType.UDP, COMMAND_UDP4);
     }
 
-    public static List getUdp6()
+    public static List<ActiveConnection> getUdp6()
             throws IOException {
         return get(IpVersion.IPv6, SocketType.UDP, COMMAND_UDP6);
     }
 
-    //TODO: whaaat? =)
-//    private static IpEndPoint parseIpAddress(String s) {
-//        s = s.split(":");
-//        if (s.length == 2)goto _L2;else goto _L1
-//        _L1:
-//        return null;
-//        _L2:
-//        String s1;
-//        String s2 = s[0];
-//        s1 = s[1];
-//        byte abyte0[] = parseIpv4AddressHexString(s2);
-//        s = abyte0;
-//        if (abyte0 != null) {
-//            break; /* Loop/switch isn't completed */
-//        }
-//        s = parseIpv6AddressHexString(s2);
-//        if (s == null)goto _L1;else goto _L3
-//        _L3:
-//        s = IpAddressBytes.wrapBytes(s);
-//        int i;
-//        try {
-//            i = Integer.parseInt(s1, 16);
-//        }
-//        // Misplaced declaration of an exception variable
-//        catch (String s) {
-//            return null;
-//        }
-//        return new IpEndPoint(s, i);
-//    }
-
-    private static String getIP(String ipWithPort) {
-        String hexValue = ipWithPort.split(":")[0];
-        String ip = "";
-
-        for (int i = hexValue.length(); i > 0; i = i - 2) {
-            ip = ip + Integer.valueOf(hexValue.substring(i - 2, i), 16) + ".";
-        }
-        ip = ip.substring(0, ip.length() - 1);
-
-        return ip;
+    private static String getPort(String ipWithPort) {
+        if (TextUtils.isEmpty(ipWithPort))
+            return null;
+        String[] s = ipWithPort.split(":");
+        if (s.length != 2)
+            return null;
+        return "" + Integer.valueOf(s[1], 16);
     }
 
-    private static String getPort(String ipWithPort) {
-        return "" + Integer.valueOf(ipWithPort.split(":")[1], 16);
+    private static InetAddress getInetAddress(int ipVersion, String ipWithPort){
+        if (TextUtils.isEmpty(ipWithPort))
+            return null;
+        String[] s = ipWithPort.split(":");
+        if (s.length != 2)
+            return null;
+
+        byte[] address = null;
+        if(ipVersion == IpVersion.IPv4)
+            address = parseIpv4AddressHexString(s[0]);
+        else if(ipVersion == IpVersion.IPv6)
+            address = parseIpv6AddressHexString(s[0]);
+
+        if(address == null)
+            return null;
+
+        try {
+            return InetAddress.getByAddress(address);
+        } catch (UnknownHostException e) {
+            return null;
+        }
     }
 
     private static byte[] parseIpv4AddressHexString(String s) {
