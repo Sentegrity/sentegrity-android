@@ -17,7 +17,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
+import android.telephony.PhoneStateListener;
+import android.telephony.SignalStrength;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.karumi.dexter.Dexter;
@@ -37,6 +41,8 @@ import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.MagneticO
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.PitchRollObject;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -61,6 +67,7 @@ public class SentegrityActivityDispatcher {
         startBluetooth(context);
         startLocation(context);
         startMotion(context);
+        startCelluarSignal(context);
     }
 
     private void startNetstat() {
@@ -344,6 +351,62 @@ public class SentegrityActivityDispatcher {
             }, accelerometerData, 1000);
         }
     }
+
+    /**
+     * Get signal strength
+     */
+    //TODO: maybe extend this for 10-20seconds?
+    private void startCelluarSignal(Context context) {
+        final TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        PhoneStateListener phoneStateListener = new PhoneStateListener() {
+            @Override
+            public void onSignalStrengthsChanged(SignalStrength signalStrength) {
+                super.onSignalStrengthsChanged(signalStrength);
+
+                Log.d("strength", "strength start calc");
+                int strength = 0;
+                boolean gotValidValue = false;
+
+                //TODO: try another way of getting info --> signalStrength.toString() --> split
+                if (signalStrength.isGsm()) {
+                    strength = signalStrength.getGsmSignalStrength();
+
+                    //GSM values -> (0-31, 99) valid (TS 27.007)
+                    if (strength >= 0 && strength <= 31)
+                        gotValidValue = true;
+
+                    if (strength == 99) {
+                        try {
+                            Method method = SignalStrength.class.getMethod("getLteSignalStrength");
+                            strength = (int) method.invoke(signalStrength);
+
+                            //LTE values -> (0-63, 99) valid (TS 36.331)
+                            if (strength >= 0 && strength <= 63)
+                                gotValidValue = true;
+
+                        } catch (SecurityException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else if (signalStrength.getCdmaDbm() > 0) {
+                    strength = signalStrength.getCdmaDbm();
+                } else {
+                    strength = signalStrength.getEvdoDbm();
+                }
+
+                if (gotValidValue) {
+                    SentegrityTrustFactorDatasets.getInstance().setCelluarSignalRaw(strength);
+                    Log.d("strength", "strength " + strength);
+                } else {
+                    SentegrityTrustFactorDatasets.getInstance().setCelluarSignalDNEStatus(DNEStatusCode.UNAVAILABLE);
+                }
+                telephonyManager.listen(this, LISTEN_NONE);
+            }
+        };
+        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
+        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+    }
+
 
 
 

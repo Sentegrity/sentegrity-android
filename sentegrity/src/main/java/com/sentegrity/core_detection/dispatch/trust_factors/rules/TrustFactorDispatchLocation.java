@@ -234,6 +234,7 @@ public class TrustFactorDispatchLocation {
             cellularBlockSize = (int) (double) ((LinkedTreeMap) payload.get(0)).get("cellSignalBlocksizeWithLocation");
         }
 
+        //TODO: check if we have it at all?
         Integer signal = SentegrityTrustFactorDatasets.getInstance().getCelluarSignalRaw();
         String celluar;
 
