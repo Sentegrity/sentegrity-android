@@ -2,22 +2,13 @@ package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
 import android.os.SystemClock;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.gson.internal.LinkedTreeMap;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
-import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrystFactorDatasetNetstat;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

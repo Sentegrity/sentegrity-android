@@ -15,12 +15,13 @@ import java.util.List;
  */
 public class TrustFactorDispatchPlatform {
 
+    //TODO: maybe disable this one for android?
     public static SentegrityTrustFactorOutput vulnerableVersion(List<Object> payload){
         return new SentegrityTrustFactorOutput();
     }
 
+    //TODO: maybe disable this one for android?
     public static SentegrityTrustFactorOutput versionAllowed(List<Object> payload){
-        //TODO: maybe disable this one for android?
         return new SentegrityTrustFactorOutput();
     }
 

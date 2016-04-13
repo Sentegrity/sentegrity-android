@@ -21,12 +21,20 @@ import java.util.List;
 /**
  * Created by dmestrov on 10/04/16.
  */
-public class SentegrityTrystFactorDatasetNetstat {
+public class SentegrityTrustFactorDatasetNetstat {
 
     private static final String COMMAND_TCP4 = "/proc/net/tcp";
     private static final String COMMAND_TCP6 = "/proc/net/tcp6";
     private static final String COMMAND_UDP4 = "/proc/net/udp";
     private static final String COMMAND_UDP6 = "/proc/net/udp6";
+
+//    Other way to do it??
+//    Process process = Runtime.getRuntime().exec(new String[]{"netstat"});
+//    BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
+//    List<String> lines = new ArrayList<>();
+//    String line;
+//    while((line = in.readLine()) != null)
+//        lines.add(line);
 
     private static List<ActiveConnection> get(IpVersion ipversion, SocketType sockettype, String s) throws IOException {
         BufferedReader bufferedreader;
@@ -77,6 +85,7 @@ public class SentegrityTrystFactorDatasetNetstat {
                 if(remoteInetAddress != null){
 
                     connection.remoteIp = remoteInetAddress.getHostAddress();
+                    //TODO: should we be getting this? it takes time, maybe put ip address directly in policy
                     connection.remoteHost = remoteInetAddress.getHostName();
                     connection.remotePort = getPort(list[2]);
                 }
@@ -153,9 +162,7 @@ public class SentegrityTrystFactorDatasetNetstat {
             int j = i * 2;
             try {
                 abyte0[i] = (byte) Integer.parseInt(s.substring(j, j + 2), 16);
-            }
-            // Misplaced declaration of an exception variable
-            catch (Exception e) {
+            } catch (Exception e) {
                 return null;
             }
             i++;

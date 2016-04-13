@@ -234,7 +234,7 @@ public class TrustFactorDispatchLocation {
             cellularBlockSize = (int) (double) ((LinkedTreeMap) payload.get(0)).get("cellSignalBlocksizeWithLocation");
         }
 
-        //TODO: check if we have it at all?
+        //TODO: check if we have it at all? no data or simply nosignal?
         Integer signal = SentegrityTrustFactorDatasets.getInstance().getCelluarSignalRaw();
         String celluar;
 

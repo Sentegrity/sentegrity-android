@@ -17,7 +17,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.ActivityCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
@@ -33,7 +32,7 @@ import com.karumi.dexter.listener.multi.DialogOnAnyDeniedMultiplePermissionsList
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
-import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrystFactorDatasetNetstat;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetNetstat;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.AccelRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.GyroRadsObject;
@@ -80,12 +79,12 @@ public class SentegrityActivityDispatcher {
 
                 boolean failedV4 = false, failedV6 = false;
                 try {
-                    tcpNetstatData.addAll(SentegrityTrystFactorDatasetNetstat.getTcp4());
+                    tcpNetstatData.addAll(SentegrityTrustFactorDatasetNetstat.getTcp4());
                 } catch (IOException e) {
                     failedV4 = true;
                 }
                 try {
-                    tcpNetstatData.addAll(SentegrityTrystFactorDatasetNetstat.getTcp6());
+                    tcpNetstatData.addAll(SentegrityTrustFactorDatasetNetstat.getTcp6());
                 } catch (IOException e) {
                     failedV6 = true;
                 }

@@ -28,13 +28,16 @@ import android.util.Log;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetMotion;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetRoute;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.route.ActiveRoute;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.AccelRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.GyroRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.MagneticObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.PitchRollObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
@@ -89,6 +92,7 @@ public class SentegrityTrustFactorDatasets {
     private List<PitchRollObject> pitchRoll;
     private List<AccelRadsObject> accelRads;
     private List<ActiveConnection> netstatData;
+    private List<ActiveRoute> routeData;
 
     private WifiManager wifiManager;
     private TelephonyManager telephonyManager;
@@ -99,6 +103,7 @@ public class SentegrityTrustFactorDatasets {
     public SentegrityTrustFactorDatasets(Context context) {
         this.context = context;
 
+        //reset data
         locationDNEStatus = DNEStatusCode.OK;
         connectedClassicDNEStatus = DNEStatusCode.OK;
         discoveredBLEDNEStatus = DNEStatusCode.OK;
@@ -109,11 +114,18 @@ public class SentegrityTrustFactorDatasets {
         netstatDataDNEStatus = DNEStatusCode.OK;
         celluarSignalDNEStatus = DNEStatusCode.OK;
 
-        //reset data
         updateWifiManager();
         updateTelefonyManager();
         updateKeyguardManager();
         this.runTime = -1;
+
+        magneticHeading = null;
+        gyroRads = null;
+        pitchRoll = null;
+        accelRads = null;
+        netstatData = null;
+        routeData = null;
+
     }
 
     public static synchronized void initialize(Context context) {
@@ -718,6 +730,18 @@ public class SentegrityTrustFactorDatasets {
             return null;
         }
         return trafficBytesSent;
+    }
+
+    public List<ActiveRoute> getRouteInfo(){
+        if(routeData == null){
+            try {
+                return routeData = SentegrityTrustFactorDatasetRoute.getRoutes();
+            } catch (IOException e) {
+                return null;
+            }
+        }else {
+            return routeData;
+        }
     }
 
     public Location getLocationInfo() {
