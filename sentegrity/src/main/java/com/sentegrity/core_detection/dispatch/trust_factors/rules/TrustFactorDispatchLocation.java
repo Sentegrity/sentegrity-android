@@ -235,22 +235,22 @@ public class TrustFactorDispatchLocation {
         }
 
         //TODO: check if we have it at all? no data or simply nosignal?
-        Integer signal = SentegrityTrustFactorDatasets.getInstance().getCelluarSignalRaw();
-        String celluar;
+        Integer signal = SentegrityTrustFactorDatasets.getInstance().getCellularSignalRaw();
+        String cellular;
 
         if (signal == null) {
             Boolean enabled = SentegrityTrustFactorDatasets.getInstance().isAirplaneMode();
             if (enabled == null || !enabled) {
-                celluar = "_CELL:NOSIGNAL";
+                cellular = "_CELL:NOSIGNAL";
             } else {
-                celluar = "_CELL:AIRPLANE";
+                cellular = "_CELL:AIRPLANE";
             }
         } else {
             int blockOfSignal = Math.round(Math.abs(signal / (float) cellularBlockSize));
-            celluar = "_CELL:" + carrierConnectionInfo + "_" + blockOfSignal;
+            cellular = "_CELL:" + carrierConnectionInfo + "_" + blockOfSignal;
         }
 
-        anomalyString += celluar;
+        anomalyString += cellular;
 
         outputList.add(anomalyString);
 

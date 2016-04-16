@@ -66,7 +66,7 @@ public class SentegrityActivityDispatcher {
         startBluetooth(context);
         startLocation(context);
         startMotion(context);
-        startCelluarSignal(context);
+        startCellularSignal(context);
     }
 
     private void startNetstat() {
@@ -355,7 +355,7 @@ public class SentegrityActivityDispatcher {
      * Get signal strength
      */
     //TODO: maybe extend this for 10-20seconds?
-    private void startCelluarSignal(Context context) {
+    private void startCellularSignal(Context context) {
         final TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         PhoneStateListener phoneStateListener = new PhoneStateListener() {
             @Override
@@ -394,10 +394,10 @@ public class SentegrityActivityDispatcher {
                 }
 
                 if (gotValidValue) {
-                    SentegrityTrustFactorDatasets.getInstance().setCelluarSignalRaw(strength);
+                    SentegrityTrustFactorDatasets.getInstance().setCellularSignalRaw(strength);
                     Log.d("strength", "strength " + strength);
                 } else {
-                    SentegrityTrustFactorDatasets.getInstance().setCelluarSignalDNEStatus(DNEStatusCode.UNAVAILABLE);
+                    SentegrityTrustFactorDatasets.getInstance().setCellularSignalDNEStatus(DNEStatusCode.UNAVAILABLE);
                 }
                 telephonyManager.listen(this, LISTEN_NONE);
             }

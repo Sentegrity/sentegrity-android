@@ -65,7 +65,7 @@ public class SentegrityTrustFactorDatasets {
     private WifiInfo wifiInfo;
     private Location location;
     private Float brightness = null;
-    private Integer celluarSignalRaw = null;
+    private Integer cellularSignalRaw = null;
     private Float gripMovement = null;
     private String userMovement = null;
     private String deviceOrientation = null;
@@ -85,7 +85,7 @@ public class SentegrityTrustFactorDatasets {
     private DNEStatusCode userMovementDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode accelMotionDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode netstatDataDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode celluarSignalDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode cellularSignalDNEStatus = DNEStatusCode.OK;
 
     private List<MagneticObject> magneticHeading;
     private List<GyroRadsObject> gyroRads;
@@ -112,7 +112,7 @@ public class SentegrityTrustFactorDatasets {
         userMovementDNEStatus = DNEStatusCode.OK;
         accelMotionDNEStatus = DNEStatusCode.OK;
         netstatDataDNEStatus = DNEStatusCode.OK;
-        celluarSignalDNEStatus = DNEStatusCode.OK;
+        cellularSignalDNEStatus = DNEStatusCode.OK;
 
         updateWifiManager();
         updateTelefonyManager();
@@ -334,9 +334,9 @@ public class SentegrityTrustFactorDatasets {
         return carrierConnectionSpeed;
     }
 
-    public Integer getCelluarSignalRaw() {
-        if (celluarSignalRaw == null) {
-            if (getCelluarSignalDNEStatus() == DNEStatusCode.EXPIRED) {
+    public Integer getCellularSignalRaw() {
+        if (cellularSignalRaw == null) {
+            if (getCellularSignalDNEStatus() == DNEStatusCode.EXPIRED) {
                 return null;
             }
             long startTime = System.currentTimeMillis();
@@ -344,8 +344,8 @@ public class SentegrityTrustFactorDatasets {
             float waitTime = 100;
 
             while ((currentTime - startTime) < waitTime) {
-                if (celluarSignalRaw != null)
-                    return celluarSignalRaw;
+                if (cellularSignalRaw != null)
+                    return cellularSignalRaw;
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
@@ -354,19 +354,19 @@ public class SentegrityTrustFactorDatasets {
                 currentTime = System.currentTimeMillis();
             }
 
-            setCelluarSignalDNEStatus(DNEStatusCode.EXPIRED);
-            return celluarSignalRaw;
+            setCellularSignalDNEStatus(DNEStatusCode.EXPIRED);
+            return cellularSignalRaw;
         }
-        return celluarSignalRaw;
+        return cellularSignalRaw;
     }
 
-    /*public Integer getCelluarSignalRaw() {
+    /*public Integer getCellularSignalRaw() {
         //not really a good one! move data to some static place -> maybe implement same as location!
         //takes about 10-15ms
         //also looper stops working after 3, 4 runs.
-        if (celluarSignalRaw == null) {
+        if (cellularSignalRaw == null) {
             if (!updateTelefonyManager()) {
-                return celluarSignalRaw = null;
+                return cellularSignalRaw = null;
             }
 
             Looper.prepare();
@@ -406,10 +406,10 @@ public class SentegrityTrustFactorDatasets {
                     }
 
                     if (gotValidValue) {
-                        celluarSignalRaw = strength;
+                        cellularSignalRaw = strength;
                         Log.d("strength", "strength " + strength);
                     } else {
-                        celluarSignalRaw = null;
+                        cellularSignalRaw = null;
                     }
                     telephonyManager.listen(this, LISTEN_NONE);
                     if (Looper.myLooper() != null)
@@ -420,10 +420,10 @@ public class SentegrityTrustFactorDatasets {
             telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS | PhoneStateListener.LISTEN_SIGNAL_STRENGTH);
             Looper.loop();
 
-            return celluarSignalRaw;
+            return cellularSignalRaw;
 
         }
-        return celluarSignalRaw;
+        return cellularSignalRaw;
     }*/
 
     public void setMagneticHeading(List<MagneticObject> magneticHeading) {
@@ -548,8 +548,8 @@ public class SentegrityTrustFactorDatasets {
         return locationDNEStatus;
     }
 
-    public DNEStatusCode getCelluarSignalDNEStatus() {
-        return celluarSignalDNEStatus;
+    public DNEStatusCode getCellularSignalDNEStatus() {
+        return cellularSignalDNEStatus;
     }
 
     public DNEStatusCode getConnectedClassicDNEStatus() {
@@ -612,8 +612,8 @@ public class SentegrityTrustFactorDatasets {
         this.netstatDataDNEStatus = netstatDataDNEStatus;
     }
 
-    public void setCelluarSignalDNEStatus(DNEStatusCode celluarSignalDNEStatus) {
-        this.celluarSignalDNEStatus = celluarSignalDNEStatus;
+    public void setCellularSignalDNEStatus(DNEStatusCode cellularSignalDNEStatus) {
+        this.cellularSignalDNEStatus = cellularSignalDNEStatus;
     }
 
     public void setDiscoveredBLEDevices(Set<String> discoveredBLEDevices) {
@@ -632,8 +632,8 @@ public class SentegrityTrustFactorDatasets {
         this.location = location;
     }
 
-    public void setCelluarSignalRaw(Integer celluarSignalRaw){
-        this.celluarSignalRaw = celluarSignalRaw;
+    public void setCellularSignalRaw(Integer cellularSignalRaw){
+        this.cellularSignalRaw = cellularSignalRaw;
     }
 
     public Set<String> getClassicBTInfo() {
