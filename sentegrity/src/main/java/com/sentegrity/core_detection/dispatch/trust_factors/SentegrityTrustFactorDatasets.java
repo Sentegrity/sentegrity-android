@@ -735,7 +735,7 @@ public class SentegrityTrustFactorDatasets {
     public List<ActiveRoute> getRouteInfo(){
         if(routeData == null){
             try {
-                return routeData = SentegrityTrustFactorDatasetRoute.getRoutes();
+                return routeData = SentegrityTrustFactorDatasetRoute.getAllRoutes();
             } catch (IOException e) {
                 return null;
             }
