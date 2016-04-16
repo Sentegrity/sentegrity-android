@@ -35,8 +35,8 @@ public class TrustFactorDispatchNetstat {
 
         List<ActiveConnection> connections = SentegrityTrustFactorDatasets.getInstance().getNetstatData();
 
-        if (SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus() != DNEStatusCode.OK) {
-            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus());
+        if (SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus() != DNEStatusCode.OK) {
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus());
             return output;
         }
 
@@ -81,8 +81,8 @@ public class TrustFactorDispatchNetstat {
 
         List<ActiveConnection> connections = SentegrityTrustFactorDatasets.getInstance().getNetstatData();
 
-        if (SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus() != DNEStatusCode.OK) {
-            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus());
+        if (SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus() != DNEStatusCode.OK) {
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus());
             return output;
         }
 
@@ -132,8 +132,8 @@ public class TrustFactorDispatchNetstat {
 
         List<ActiveConnection> connections = SentegrityTrustFactorDatasets.getInstance().getNetstatData();
 
-        if (SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus() != DNEStatusCode.OK) {
-            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus());
+        if (SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus() != DNEStatusCode.OK) {
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus());
             return output;
         }
 
@@ -240,8 +240,8 @@ public class TrustFactorDispatchNetstat {
 
         List<ActiveConnection> connections = SentegrityTrustFactorDatasets.getInstance().getNetstatData();
 
-        if (SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus() != DNEStatusCode.OK) {
-            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus());
+        if (SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus() != DNEStatusCode.OK) {
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus());
             return output;
         }
 

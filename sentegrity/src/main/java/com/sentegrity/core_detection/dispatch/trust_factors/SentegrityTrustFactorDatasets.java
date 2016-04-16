@@ -16,14 +16,10 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.Settings;
 import android.telephony.PhoneStateListener;
-import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
@@ -45,7 +41,6 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 /**
@@ -71,15 +66,15 @@ public class SentegrityTrustFactorDatasets {
     private String deviceOrientation = null;
     private Boolean passcodeSet = null;
 
-    private Set<String> connectedClassicBTDevices;
-    private Set<String> discoveredBLEDevices;
+    private Set<String> pairedBTDevices;
+    private Set<String> scannedBTDevices;
 
     private static SentegrityTrustFactorDatasets sInstance;
     private final Context context;
 
     private DNEStatusCode locationDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode connectedClassicDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode discoveredBLEDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode pairedBTDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode scannedBTDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode gyroMotionDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode magneticHeadingDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode userMovementDNEStatus = DNEStatusCode.OK;
@@ -105,8 +100,8 @@ public class SentegrityTrustFactorDatasets {
 
         //reset data
         locationDNEStatus = DNEStatusCode.OK;
-        connectedClassicDNEStatus = DNEStatusCode.OK;
-        discoveredBLEDNEStatus = DNEStatusCode.OK;
+        pairedBTDNEStatus = DNEStatusCode.OK;
+        scannedBTDNEStatus = DNEStatusCode.OK;
         gyroMotionDNEStatus = DNEStatusCode.OK;
         magneticHeadingDNEStatus = DNEStatusCode.OK;
         userMovementDNEStatus = DNEStatusCode.OK;
@@ -125,6 +120,9 @@ public class SentegrityTrustFactorDatasets {
         accelRads = null;
         netstatData = null;
         routeData = null;
+
+        pairedBTDevices = null;
+        scannedBTDevices = null;
 
     }
 
@@ -552,12 +550,12 @@ public class SentegrityTrustFactorDatasets {
         return cellularSignalDNEStatus;
     }
 
-    public DNEStatusCode getConnectedClassicDNEStatus() {
-        return connectedClassicDNEStatus;
+    public DNEStatusCode getPairedBTDNEStatus() {
+        return pairedBTDNEStatus;
     }
 
-    public DNEStatusCode getDiscoveredBLEDNEStatus() {
-        return discoveredBLEDNEStatus;
+    public DNEStatusCode getScannedBTDNEStatus() {
+        return scannedBTDNEStatus;
     }
 
     public DNEStatusCode getUserMovementDNEStatus() {
@@ -580,12 +578,12 @@ public class SentegrityTrustFactorDatasets {
         return netstatDataDNEStatus;
     }
 
-    public void setConnectedClassicDNEStatus(DNEStatusCode connectedClassicDNEStatus) {
-        this.connectedClassicDNEStatus = connectedClassicDNEStatus;
+    public void setPairedBTDNEStatus(DNEStatusCode pairedBTDNEStatus) {
+        this.pairedBTDNEStatus = pairedBTDNEStatus;
     }
 
-    public void setDiscoveredBLEDNEStatus(DNEStatusCode discoveredBLEDNEStatus) {
-        this.discoveredBLEDNEStatus = discoveredBLEDNEStatus;
+    public void setScannedBTDNEStatus(DNEStatusCode scannedBTDNEStatus) {
+        this.scannedBTDNEStatus = scannedBTDNEStatus;
     }
 
     public void setLocationDNEStatus(DNEStatusCode locationDNEStatus) {
@@ -616,12 +614,12 @@ public class SentegrityTrustFactorDatasets {
         this.cellularSignalDNEStatus = cellularSignalDNEStatus;
     }
 
-    public void setDiscoveredBLEDevices(Set<String> discoveredBLEDevices) {
-        this.discoveredBLEDevices = discoveredBLEDevices;
+    public void setScannedBTDevices(Set<String> scannedBTDevices) {
+        this.scannedBTDevices = scannedBTDevices;
     }
 
-    public void setConnectedClassicBTDevices(Set<String> connectedClassicBTDevices) {
-        this.connectedClassicBTDevices = connectedClassicBTDevices;
+    public void setPairedBTDevices(Set<String> pairedBTDevices) {
+        this.pairedBTDevices = pairedBTDevices;
     }
 
     public void setNetstatData(List<ActiveConnection> netstatData) {
@@ -636,18 +634,18 @@ public class SentegrityTrustFactorDatasets {
         this.cellularSignalRaw = cellularSignalRaw;
     }
 
-    public Set<String> getClassicBTInfo() {
-        if (connectedClassicBTDevices == null || connectedClassicBTDevices.size() == 0) {
-            if (getConnectedClassicDNEStatus() == DNEStatusCode.EXPIRED)
-                return connectedClassicBTDevices;
+    public Set<String> getPairedBTDevices() {
+        if (pairedBTDevices == null || pairedBTDevices.size() == 0) {
+            if (getPairedBTDNEStatus() == DNEStatusCode.EXPIRED)
+                return pairedBTDevices;
 
             long startTime = System.currentTimeMillis();
             long currentTime = startTime;
             float waitTime = 50;
 
             while ((currentTime - startTime) < waitTime) {
-                if (connectedClassicBTDevices != null && connectedClassicBTDevices.size() > 0)
-                    return connectedClassicBTDevices;
+                if (pairedBTDevices != null && pairedBTDevices.size() > 0)
+                    return pairedBTDevices;
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
@@ -655,10 +653,10 @@ public class SentegrityTrustFactorDatasets {
                 currentTime = System.currentTimeMillis();
             }
 
-            setConnectedClassicDNEStatus(DNEStatusCode.NO_DATA);
-            return connectedClassicBTDevices;
+            setPairedBTDNEStatus(DNEStatusCode.NO_DATA);
+            return pairedBTDevices;
         }
-        return connectedClassicBTDevices;
+        return pairedBTDevices;
 //        Random r = new Random();
 //        int rand = r.nextInt(4);
 //        List<String> listOfDevices = new ArrayList<>();
@@ -668,18 +666,18 @@ public class SentegrityTrustFactorDatasets {
 //        return listOfDevices;
     }
 
-    public Set<String> getDiscoveredBLEInfo() {
-        if (discoveredBLEDevices == null || discoveredBLEDevices.size() == 0) {
-            if (getDiscoveredBLEDNEStatus() == DNEStatusCode.EXPIRED)
-                return discoveredBLEDevices;
+    public Set<String> getScannedBTDevices() {
+        if (scannedBTDevices == null || scannedBTDevices.size() == 0) {
+            if (getScannedBTDNEStatus() == DNEStatusCode.EXPIRED)
+                return scannedBTDevices;
 
             long startTime = System.currentTimeMillis();
             long currentTime = startTime;
             float waitTime = 250;
 
             while ((currentTime - startTime) < waitTime) {
-                if (discoveredBLEDevices != null && discoveredBLEDevices.size() > 0)
-                    return discoveredBLEDevices;
+                if (scannedBTDevices != null && scannedBTDevices.size() > 0)
+                    return scannedBTDevices;
                 try {
                     Thread.sleep(10);
                 } catch (InterruptedException e) {
@@ -687,10 +685,10 @@ public class SentegrityTrustFactorDatasets {
                 currentTime = System.currentTimeMillis();
             }
 
-            setDiscoveredBLEDNEStatus(DNEStatusCode.NO_DATA);
-            return discoveredBLEDevices;
+            setScannedBTDNEStatus(DNEStatusCode.NO_DATA);
+            return scannedBTDevices;
         }
-        return discoveredBLEDevices;
+        return scannedBTDevices;
 //        Random r = new Random();
 //        int rand = r.nextInt(4);
 //        List<String> listOfDevices = new ArrayList<>();

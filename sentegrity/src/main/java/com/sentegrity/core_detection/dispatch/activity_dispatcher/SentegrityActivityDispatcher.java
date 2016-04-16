@@ -3,10 +3,7 @@ package com.sentegrity.core_detection.dispatch.activity_dispatcher;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -31,6 +28,8 @@ import com.karumi.dexter.listener.multi.CompositeMultiplePermissionsListener;
 import com.karumi.dexter.listener.multi.DialogOnAnyDeniedMultiplePermissionsListener;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
+import com.sentegrity.core_detection.dispatch.activity_dispatcher.bluetooth.BTDeviceCallback;
+import com.sentegrity.core_detection.dispatch.activity_dispatcher.bluetooth.BTScanner;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetNetstat;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
@@ -50,12 +49,13 @@ import java.util.Set;
 /**
  * Created by dmestrov on 05/04/16.
  */
-public class SentegrityActivityDispatcher {
+public class SentegrityActivityDispatcher implements BTDeviceCallback {
 
+    private Handler mHandler = new Handler();
 
     public void runCoreDetectionActivities(Context context) {
-        bleDevices = new HashSet<>();
-        classicDevices = new HashSet<>();
+        scannedDevices = new HashSet<>();
+        pairedDevices = new HashSet<>();
 
         accelRadsArray = new ArrayList<>();
         pitchRollArray = new ArrayList<>();
@@ -70,7 +70,7 @@ public class SentegrityActivityDispatcher {
     }
 
     private void startNetstat() {
-        new Thread(){
+        new Thread() {
             @Override
             public void run() {
                 Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
@@ -89,7 +89,7 @@ public class SentegrityActivityDispatcher {
                     failedV6 = true;
                 }
 
-                if(failedV6 && failedV4){
+                if (failedV6 && failedV4) {
                     SentegrityTrustFactorDatasets.getInstance().setNetstatData(null);
                     SentegrityTrustFactorDatasets.getInstance().setNetstatDataDNEStatus(DNEStatusCode.ERROR);
                     return;
@@ -106,35 +106,13 @@ public class SentegrityActivityDispatcher {
      * Get BLE and classic devices nearby (uses broadcast receiver)
      */
     private void startBluetooth(Context context) {
-        unregisterBTReceivers(context);
-
-        BluetoothAdapter BTAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (BTAdapter == null) {
-            SentegrityTrustFactorDatasets.getInstance().setConnectedClassicDNEStatus(DNEStatusCode.UNSUPPORTED);
-            SentegrityTrustFactorDatasets.getInstance().setDiscoveredBLEDNEStatus(DNEStatusCode.UNSUPPORTED);
+        if (BluetoothAdapter.getDefaultAdapter() == null) {
+            SentegrityTrustFactorDatasets.getInstance().setPairedBTDNEStatus(DNEStatusCode.UNSUPPORTED);
+            SentegrityTrustFactorDatasets.getInstance().setScannedBTDNEStatus(DNEStatusCode.UNSUPPORTED);
             return;
         }
-        IntentFilter bt = new IntentFilter();
-        bt.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        bt.addAction(BluetoothDevice.ACTION_NAME_CHANGED);
-        context.registerReceiver(btReceiver, bt);
 
-        prevStateEnabled = BTAdapter.isEnabled();
-
-        if (!prevStateEnabled) {
-            BTAdapter.enable();
-        } else {
-            if (BluetoothAdapter.getDefaultAdapter().isDiscovering())
-                BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-
-            BluetoothAdapter.getDefaultAdapter().startDiscovery();
-
-            unregisterBTReceivers(context, 5000);
-            //TODO: different trustfactor?
-//            for (BluetoothDevice device : BTAdapter.getBondedDevices()) {
-//                updateBLDevice(device);
-//            }
-        }
+        BTScanner.startScanning(context, this);
     }
 
     /**
@@ -170,7 +148,7 @@ public class SentegrityActivityDispatcher {
             public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
             }
         };
-        if(!Dexter.isRequestOngoing())
+        if (!Dexter.isRequestOngoing())
             Dexter.continuePendingRequestsIfPossible(new CompositeMultiplePermissionsListener(listener, listener2));
         Dexter.checkPermissions(new CompositeMultiplePermissionsListener(listener, listener2), permissions);
     }
@@ -218,10 +196,10 @@ public class SentegrityActivityDispatcher {
 
         //Gyro Data (grip)
         Sensor gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-        if(gyroSensor == null){
+        if (gyroSensor == null) {
             SentegrityTrustFactorDatasets.getInstance().setGyroMotionDNEStatus(DNEStatusCode.UNSUPPORTED);
             SentegrityTrustFactorDatasets.getInstance().setUserMovementDNEStatus(DNEStatusCode.UNSUPPORTED);
-        }else{
+        } else {
             //USER MOVEMENT!?
 
 
@@ -234,7 +212,7 @@ public class SentegrityActivityDispatcher {
                     gyroRadsArray.add(object);
                     SentegrityTrustFactorDatasets.getInstance().setGyroRads(gyroRadsArray);
 
-                    if(gyroRadsArray.size() > 3)
+                    if (gyroRadsArray.size() > 3)
                         sensorManager.unregisterListener(this);
                 }
 
@@ -246,15 +224,14 @@ public class SentegrityActivityDispatcher {
         }
 
 
-
         //DEVICE MOTION
         //probably orientation -> this requires accel and mag
         //maybe even use gyro if available?
         Sensor acc = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         Sensor mag = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-        if(acc == null || mag == null){
+        if (acc == null || mag == null) {
             //we don't have pitch/roll data ?
-        }else {
+        } else {
             SensorEventListener listener = new SensorEventListener() {
                 float rotation[] = null; //for gravity rotational data
                 float accels[] = new float[3];
@@ -304,9 +281,9 @@ public class SentegrityActivityDispatcher {
 
         //MAGNETOMETER DATA
         Sensor magnetometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED);
-        if(magnetometerSensor == null){
+        if (magnetometerSensor == null) {
             SentegrityTrustFactorDatasets.getInstance().setMagneticHeadingDNEStatus(DNEStatusCode.UNSUPPORTED);
-        }else{
+        } else {
             sensorManager.registerListener(new SensorEventListener() {
                 @Override
                 public void onSensorChanged(SensorEvent event) {
@@ -315,7 +292,7 @@ public class SentegrityActivityDispatcher {
                     headingsArray.add(object);
                     SentegrityTrustFactorDatasets.getInstance().setMagneticHeading(headingsArray);
 
-                    if(headingsArray.size() > 5)
+                    if (headingsArray.size() > 5)
                         sensorManager.unregisterListener(this);
                 }
 
@@ -328,9 +305,9 @@ public class SentegrityActivityDispatcher {
 
         //ACCELEROMETER DATA
         Sensor accelerometerData = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
-        if(accelerometerData == null){
+        if (accelerometerData == null) {
             SentegrityTrustFactorDatasets.getInstance().setAccelMotionDNEStatus(DNEStatusCode.UNSUPPORTED);
-        }else{
+        } else {
             sensorManager.registerListener(new SensorEventListener() {
                 @Override
                 public void onSensorChanged(SensorEvent event) {
@@ -339,7 +316,7 @@ public class SentegrityActivityDispatcher {
                     accelRadsArray.add(object);
                     SentegrityTrustFactorDatasets.getInstance().setAccelRads(accelRadsArray);
 
-                    if(accelRadsArray.size() > 3)
+                    if (accelRadsArray.size() > 3)
                         sensorManager.unregisterListener(this);
                 }
 
@@ -407,86 +384,41 @@ public class SentegrityActivityDispatcher {
     }
 
 
-
-
     /**
      * Bluetooth helpers
      */
-    Set<String> bleDevices = new HashSet<>();
-    Set<String> classicDevices = new HashSet<>();
-    private boolean prevStateEnabled = false;
 
-    private BroadcastReceiver btReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(final Context context, Intent intent) {
-            String action = intent.getAction();
+    Set<String> scannedDevices = new HashSet<>();
+    Set<String> pairedDevices = new HashSet<>();
 
-            Log.d("bluetooth", action);
+    @Override
+    public void onDeviceUpdate(BluetoothDevice device) {
+        updateBTDevice(device);
+    }
 
-            if (BluetoothDevice.ACTION_NAME_CHANGED.equals(action)) {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                updateBLDevice(device);
-                return;
-            }
-            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
-                switch (state) {
-                    case BluetoothAdapter.STATE_OFF:
-                        SentegrityTrustFactorDatasets.getInstance().setConnectedClassicDNEStatus(DNEStatusCode.DISABLED);
-                        SentegrityTrustFactorDatasets.getInstance().setDiscoveredBLEDNEStatus(DNEStatusCode.DISABLED);
-                        break;
-                    case BluetoothAdapter.STATE_TURNING_OFF:
-                        break;
-                    case BluetoothAdapter.STATE_ON:
-                        SentegrityTrustFactorDatasets.getInstance().setConnectedClassicDNEStatus(DNEStatusCode.OK);
-                        SentegrityTrustFactorDatasets.getInstance().setDiscoveredBLEDNEStatus(DNEStatusCode.OK);
-                        BluetoothAdapter.getDefaultAdapter().startDiscovery();
-                        unregisterBTReceivers(context, 5000);
-                        break;
-                    case BluetoothAdapter.STATE_TURNING_ON:
-                        break;
-                }
-                return;
-            }
+    @Override
+    public void onStateUpdate(int btAdapterState){
+        if(btAdapterState == BluetoothAdapter.STATE_OFF){
+            SentegrityTrustFactorDatasets.getInstance().setPairedBTDNEStatus(DNEStatusCode.DISABLED);
+            SentegrityTrustFactorDatasets.getInstance().setScannedBTDNEStatus(DNEStatusCode.DISABLED);
+        } else if(btAdapterState == BluetoothAdapter.STATE_ON){
+            SentegrityTrustFactorDatasets.getInstance().setPairedBTDNEStatus(DNEStatusCode.OK);
+            SentegrityTrustFactorDatasets.getInstance().setScannedBTDNEStatus(DNEStatusCode.OK);
         }
-    };
+    }
 
-    private void updateBLDevice(BluetoothDevice device) {
-        if (device.getType() == BluetoothDevice.DEVICE_TYPE_UNKNOWN) {
-
-        } else if (device.getType() == BluetoothDevice.DEVICE_TYPE_CLASSIC) {
-            classicDevices.add(device.getAddress());
-            SentegrityTrustFactorDatasets.getInstance().setConnectedClassicBTDevices(classicDevices);
-            SentegrityTrustFactorDatasets.getInstance().setConnectedClassicDNEStatus(DNEStatusCode.OK);
+    private void updateBTDevice(BluetoothDevice device) {
+        if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
+            Log.d("bluetooth", "got bonded: " + device.getAddress());
+            pairedDevices.add(device.getAddress());
+            SentegrityTrustFactorDatasets.getInstance().setPairedBTDevices(pairedDevices);
+            SentegrityTrustFactorDatasets.getInstance().setPairedBTDNEStatus(DNEStatusCode.OK);
         } else {
-            bleDevices.add(device.getAddress());
-            SentegrityTrustFactorDatasets.getInstance().setDiscoveredBLEDevices(bleDevices);
-            SentegrityTrustFactorDatasets.getInstance().setDiscoveredBLEDNEStatus(DNEStatusCode.OK);
+            Log.d("bluetooth", "got scanned: " + device.getAddress());
+            scannedDevices.add(device.getAddress());
+            SentegrityTrustFactorDatasets.getInstance().setScannedBTDevices(scannedDevices);
+            SentegrityTrustFactorDatasets.getInstance().setScannedBTDNEStatus(DNEStatusCode.OK);
         }
-    }
-
-    private void unregisterBTReceivers(Context context) {
-        try {
-            context.unregisterReceiver(btReceiver);
-        } catch (IllegalArgumentException e) {
-
-        }
-    }
-
-    private void unregisterBTReceivers(final Context context, int delay) {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                unregisterBTReceivers(context);
-                if (!prevStateEnabled) {
-                    BluetoothAdapter.getDefaultAdapter().disable();
-                    return;
-                }
-
-                if (BluetoothAdapter.getDefaultAdapter().isDiscovering())
-                    BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-            }
-        }, delay);
     }
 
     /**

@@ -20,16 +20,16 @@ public class TrustFactorDispatchBluetooth {
 
         List<String> outputList = new ArrayList<>();
 
-        if (SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus() != DNEStatusCode.OK &&
-                SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus() != DNEStatusCode.EXPIRED) {
-            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus());
+        if (SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus() != DNEStatusCode.OK &&
+                SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus() != DNEStatusCode.EXPIRED) {
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus());
             return output;
         }
 
-        Set<String> bluetoothDevices = SentegrityTrustFactorDatasets.getInstance().getClassicBTInfo();
+        Set<String> bluetoothDevices = SentegrityTrustFactorDatasets.getInstance().getPairedBTDevices();
 
-        if (SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus() != DNEStatusCode.OK) {
-            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getConnectedClassicDNEStatus());
+        if (SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus() != DNEStatusCode.OK) {
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus());
             return output;
         }
 
@@ -53,16 +53,16 @@ public class TrustFactorDispatchBluetooth {
 
         List<String> outputList = new ArrayList<>();
 
-        if (SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEDNEStatus() != DNEStatusCode.OK &&
-                SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEDNEStatus() != DNEStatusCode.EXPIRED) {
-            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEDNEStatus());
+        if (SentegrityTrustFactorDatasets.getInstance().getScannedBTDNEStatus() != DNEStatusCode.OK &&
+                SentegrityTrustFactorDatasets.getInstance().getScannedBTDNEStatus() != DNEStatusCode.EXPIRED) {
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getScannedBTDNEStatus());
             return output;
         }
 
-        Set<String> bluetoothDevices = SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEInfo();
+        Set<String> bluetoothDevices = SentegrityTrustFactorDatasets.getInstance().getScannedBTDevices();
 
-        if (SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEDNEStatus() != DNEStatusCode.OK) {
-            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getDiscoveredBLEDNEStatus());
+        if (SentegrityTrustFactorDatasets.getInstance().getScannedBTDNEStatus() != DNEStatusCode.OK) {
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getScannedBTDNEStatus());
             return output;
         }
 
