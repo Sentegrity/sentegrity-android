@@ -1,7 +1,9 @@
 package com.sentegrity.core_detection.dispatch.activity_dispatcher.bluetooth;
 
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.os.Build;
 import android.os.Handler;
 
 import com.sentegrity.core_detection.constants.SentegrityConstants;
@@ -9,6 +11,7 @@ import com.sentegrity.core_detection.constants.SentegrityConstants;
 /**
  * Created by dmestrov on 16/04/16.
  */
+@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class BTScannerSweeterJB {
 
     public static void startScanning(final BTDeviceCallback callback) {

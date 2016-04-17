@@ -6,10 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.AssetManager;
-//import android.hardware.Sensor;
-//import android.hardware.SensorEvent;
-//import android.hardware.SensorEventListener;
-//import android.hardware.SensorManager;
 import android.location.Location;
 import android.net.TrafficStats;
 import android.net.wifi.WifiInfo;
@@ -17,7 +13,6 @@ import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.provider.Settings;
-import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
@@ -42,6 +37,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
+
+//import android.hardware.Sensor;
+//import android.hardware.SensorEvent;
+//import android.hardware.SensorEventListener;
+//import android.hardware.SensorManager;
 
 /**
  * Created by dmestrov on 23/03/16.
@@ -93,7 +93,6 @@ public class SentegrityTrustFactorDatasets {
     private TelephonyManager telephonyManager;
     private KeyguardManager keyguardManager;
     private String carrierConnectionSpeed;
-    private PhoneStateListener phoneStateListener;
 
     public SentegrityTrustFactorDatasets(Context context) {
         this.context = context;
@@ -358,72 +357,6 @@ public class SentegrityTrustFactorDatasets {
         return cellularSignalRaw;
     }
 
-    /*public Integer getCellularSignalRaw() {
-        //not really a good one! move data to some static place -> maybe implement same as location!
-        //takes about 10-15ms
-        //also looper stops working after 3, 4 runs.
-        if (cellularSignalRaw == null) {
-            if (!updateTelefonyManager()) {
-                return cellularSignalRaw = null;
-            }
-
-            Looper.prepare();
-            phoneStateListener = new PhoneStateListener() {
-                @Override
-                public void onSignalStrengthsChanged(SignalStrength signalStrength) {
-                    super.onSignalStrengthsChanged(signalStrength);
-
-                    Log.d("strength", "strength start calc");
-                    int strength = 0;
-                    boolean gotValidValue = false;
-
-                    if (signalStrength.isGsm()) {
-                        strength = signalStrength.getGsmSignalStrength();
-
-                        //GSM values -> (0-31, 99) valid (TS 27.007)
-                        if (strength >= 0 && strength <= 31)
-                            gotValidValue = true;
-
-                        if (strength == 99) {
-                            try {
-                                Method method = SignalStrength.class.getMethod("getLteSignalStrength");
-                                strength = (int) method.invoke(signalStrength);
-
-                                //LTE values -> (0-63, 99) valid (TS 36.331)
-                                if (strength >= 0 && strength <= 63)
-                                    gotValidValue = true;
-
-                            } catch (SecurityException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    } else if (signalStrength.getCdmaDbm() > 0) {
-                        strength = signalStrength.getCdmaDbm();
-                    } else {
-                        strength = signalStrength.getEvdoDbm();
-                    }
-
-                    if (gotValidValue) {
-                        cellularSignalRaw = strength;
-                        Log.d("strength", "strength " + strength);
-                    } else {
-                        cellularSignalRaw = null;
-                    }
-                    telephonyManager.listen(this, LISTEN_NONE);
-                    if (Looper.myLooper() != null)
-                        Looper.myLooper().quit();
-                }
-            };
-            telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
-            telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS | PhoneStateListener.LISTEN_SIGNAL_STRENGTH);
-            Looper.loop();
-
-            return cellularSignalRaw;
-
-        }
-        return cellularSignalRaw;
-    }*/
-
     public void setMagneticHeading(List<MagneticObject> magneticHeading) {
         this.magneticHeading = magneticHeading;
     }
@@ -657,13 +590,6 @@ public class SentegrityTrustFactorDatasets {
             return pairedBTDevices;
         }
         return pairedBTDevices;
-//        Random r = new Random();
-//        int rand = r.nextInt(4);
-//        List<String> listOfDevices = new ArrayList<>();
-//        for (int i = 0; i < rand; i++) {
-//            listOfDevices.add("device" + r.nextInt(20));
-//        }
-//        return listOfDevices;
     }
 
     public Set<String> getScannedBTDevices() {
@@ -689,13 +615,6 @@ public class SentegrityTrustFactorDatasets {
             return scannedBTDevices;
         }
         return scannedBTDevices;
-//        Random r = new Random();
-//        int rand = r.nextInt(4);
-//        List<String> listOfDevices = new ArrayList<>();
-//        for (int i = 0; i < rand; i++) {
-//            listOfDevices.add("device" + r.nextInt(20));
-//        }
-//        return listOfDevices;
     }
 
     public List<ActiveConnection> getNetstatData() {
@@ -766,11 +685,6 @@ public class SentegrityTrustFactorDatasets {
             return location;
         }
         return location;
-//        Random r = new Random();
-//        Location l = new Location("random_provider");
-//        l.setLatitude((double) (r.nextInt(500) + 1000) / 1000.0f);
-//        l.setLongitude((double) (r.nextInt(500) + 1000) / 1000.0f);
-//        return l;
     }
 
     public Boolean isPasscodeSet() {
@@ -883,6 +797,7 @@ public class SentegrityTrustFactorDatasets {
 
     public Float getSystemBrightness() {
         if (brightness == null) {
+            //TODO: this is the way to go. android internally uses light sensor. move this to activity dispatcher and we're good to go!
 //            SensorManager mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
 //            Sensor mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
 //            mSensorManager.registerListener(new SensorEventListener() {
@@ -897,8 +812,17 @@ public class SentegrityTrustFactorDatasets {
 //
 //                }
 //            }, mLight, 1000);
-            //TODO: this will return same old value if set to auto mode. cannot get real current if in auto!
             float current = Settings.System.getInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, -1);
+
+            //if we're in auto mode, then get adjusted brightness level
+            //screen_auto_brightness_adj has values [-1.0, 1.0]
+            //this returns only user adjusted value
+//            if(Settings.System.getInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE, -1) == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
+//                float adjusted = Settings.System.getFloat(context.getContentResolver(), "screen_auto_brightness_adj", -99);
+//                if (adjusted != -99)
+//                    current = (adjusted + 1.0f) / 2.0f;
+//            }
+
             if (current == -1)
                 return brightness = null;
             return brightness = current / 255.0f;

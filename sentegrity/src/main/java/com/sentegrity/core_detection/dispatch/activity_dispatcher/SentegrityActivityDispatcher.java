@@ -220,7 +220,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
                 }
-            }, gyroSensor, 1000);
+            }, gyroSensor, 1000000);
         }
 
 
@@ -275,8 +275,8 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
 
                 }
             };
-            sensorManager.registerListener(listener, acc, 1000);
-            sensorManager.registerListener(listener, mag, 1000);
+            sensorManager.registerListener(listener, acc, 1000000);
+            sensorManager.registerListener(listener, mag, 1000000);
         }
 
         //MAGNETOMETER DATA
@@ -300,7 +300,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
                 }
-            }, magnetometerSensor, 1000);
+            }, magnetometerSensor, 1000000);
         }
 
         //ACCELEROMETER DATA
@@ -324,7 +324,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
                 }
-            }, accelerometerData, 1000);
+            }, accelerometerData, 1000000);
         }
     }
 
@@ -409,12 +409,12 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
 
     private void updateBTDevice(BluetoothDevice device) {
         if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
-            Log.d("bluetooth", "got bonded: " + device.getAddress());
+            Log.d("bluetooth", "got bonded: " + device.getAddress() + ": " + device.getName());
             pairedDevices.add(device.getAddress());
             SentegrityTrustFactorDatasets.getInstance().setPairedBTDevices(pairedDevices);
             SentegrityTrustFactorDatasets.getInstance().setPairedBTDNEStatus(DNEStatusCode.OK);
         } else {
-            Log.d("bluetooth", "got scanned: " + device.getAddress());
+            Log.d("bluetooth", "got scanned: " + device.getAddress() + ": " + device.getName());
             scannedDevices.add(device.getAddress());
             SentegrityTrustFactorDatasets.getInstance().setScannedBTDevices(scannedDevices);
             SentegrityTrustFactorDatasets.getInstance().setScannedBTDNEStatus(DNEStatusCode.OK);
