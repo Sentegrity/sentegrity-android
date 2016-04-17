@@ -226,7 +226,7 @@ public class CoreDetection {
                 if (computationResults == null) {
                     SentegrityError error = SentegrityError.ERROR_DURING_COMPUTATION;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
-                    error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No computation objects returned / Error during computation").setRecoverySuggestion("Check error logs for details"));
+                    error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No result analysis objects returned / Error during result analysis").setRecoverySuggestion("Check error logs for details"));
 
                     Logger.INFO("Perform Core Detection Unsuccessful", error);
                     this.success = false;

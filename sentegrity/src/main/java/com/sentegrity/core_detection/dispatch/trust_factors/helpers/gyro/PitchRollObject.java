@@ -1,4 +1,4 @@
-package com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro;
+package com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro;
 
 import android.util.Log;
 
@@ -11,12 +11,6 @@ public class PitchRollObject {
     public float pitch;
     public float roll;
     public float azimuth;
-
-    public PitchRollObject(){
-        Random r = new Random();
-        pitch = r.nextInt(3) / 10.0f;
-        roll = r.nextInt(3) / 10.0f;
-    }
 
     public PitchRollObject(float[] values){
         if(values == null || values.length < 3) return;

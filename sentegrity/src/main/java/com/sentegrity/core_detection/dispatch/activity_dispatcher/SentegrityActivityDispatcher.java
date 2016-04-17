@@ -33,10 +33,10 @@ import com.sentegrity.core_detection.dispatch.activity_dispatcher.bluetooth.BTSc
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetNetstat;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
-import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.AccelRadsObject;
-import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.GyroRadsObject;
-import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.MagneticObject;
-import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.PitchRollObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.AccelRadsObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.GyroRadsObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.MagneticObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.PitchRollObject;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;

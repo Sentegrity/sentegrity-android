@@ -18,14 +18,16 @@ import android.text.TextUtils;
 
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetApplication;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetMotion;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetRoute;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.application.AppInfo;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.route.ActiveRoute;
-import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.AccelRadsObject;
-import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.GyroRadsObject;
-import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.MagneticObject;
-import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.PitchRollObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.AccelRadsObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.GyroRadsObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.MagneticObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.PitchRollObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -88,6 +90,7 @@ public class SentegrityTrustFactorDatasets {
     private List<AccelRadsObject> accelRads;
     private List<ActiveConnection> netstatData;
     private List<ActiveRoute> routeData;
+    private List<AppInfo> installedApps;
 
     private WifiManager wifiManager;
     private TelephonyManager telephonyManager;
@@ -122,6 +125,8 @@ public class SentegrityTrustFactorDatasets {
 
         pairedBTDevices = null;
         scannedBTDevices = null;
+
+        installedApps = null;
 
     }
 
@@ -214,6 +219,13 @@ public class SentegrityTrustFactorDatasets {
         int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
 
         return level / (float) scale;
+    }
+
+    public List<AppInfo> getInstalledAppInfo() {
+        if (installedApps == null || installedApps.size() == 0) {
+            return installedApps = SentegrityTrustFactorDatasetApplication.getUserAppInfo(context);
+        }
+        return installedApps;
     }
 
     public Boolean isTethering() {

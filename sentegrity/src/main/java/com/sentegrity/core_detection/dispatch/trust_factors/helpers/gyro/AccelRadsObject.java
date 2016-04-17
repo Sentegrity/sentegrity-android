@@ -1,21 +1,23 @@
-package com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro;
+package com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro;
 
 import android.util.Log;
+
+import java.util.Random;
 
 /**
  * Created by dmestrov on 09/04/16.
  */
-public class MagneticObject {
+public class AccelRadsObject {
     public float x;
     public float y;
     public float z;
 
-    public MagneticObject(float[] values){
+    public AccelRadsObject(float[] values){
         if(values == null || values.length < 3) return;
         x = values[0];
         y = values[1];
         z = values[2];
 
-        Log.d("mag", x + ", " + y + ", " + z);
+        Log.d("accel", x + ", " + y + ", " + z);
     }
 }

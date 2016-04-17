@@ -7,8 +7,8 @@ import android.view.WindowManager;
 
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
-import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.AccelRadsObject;
-import com.sentegrity.core_detection.dispatch.trust_factors.rules.gyro.GyroRadsObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.AccelRadsObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.GyroRadsObject;
 
 import java.util.List;
 import java.util.Random;
