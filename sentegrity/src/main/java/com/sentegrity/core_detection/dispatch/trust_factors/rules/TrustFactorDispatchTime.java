@@ -17,7 +17,7 @@ import java.util.Random;
  */
 public class TrustFactorDispatchTime {
 
-    public static SentegrityTrustFactorOutput accessTime(List<Object> payload){
+    public static SentegrityTrustFactorOutput accessTimeHour(List<Object> payload){
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         if(!SentegrityTrustFactorDatasets.validatePayload(payload)){
@@ -29,9 +29,23 @@ public class TrustFactorDispatchTime {
 
         List<String> outputList = new ArrayList<>();
 
-        String time = SentegrityTrustFactorDatasets.getInstance().getTimeDateString(hoursInBlock, true);
+        String time = SentegrityTrustFactorDatasets.getInstance().getTimeDateString(hoursInBlock, false);
 
         outputList.add(time);
+
+        output.setOutput(outputList);
+
+        return output;
+    }
+
+    public static SentegrityTrustFactorOutput accessTimeDay(List<Object> payload){
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        List<String> outputList = new ArrayList<>();
+
+        String day = SentegrityTrustFactorDatasets.getInstance().getTimeDateString(0, true);
+
+        outputList.add(day);
 
         output.setOutput(outputList);
 

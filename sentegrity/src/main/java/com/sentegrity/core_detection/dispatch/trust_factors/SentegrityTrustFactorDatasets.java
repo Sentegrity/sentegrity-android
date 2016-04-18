@@ -12,10 +12,21 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.credentials.CredentialRequest;
+import com.google.android.gms.auth.api.credentials.CredentialRequestResult;
+import com.google.android.gms.auth.api.credentials.IdentityProviders;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetApplication;
@@ -111,6 +122,7 @@ public class SentegrityTrustFactorDatasets {
         netstatDataDNEStatus = DNEStatusCode.OK;
         cellularSignalDNEStatus = DNEStatusCode.OK;
 
+        //testMethod();
         updateWifiManager();
         updateTelefonyManager();
         updateKeyguardManager();
@@ -154,7 +166,7 @@ public class SentegrityTrustFactorDatasets {
     }
 
     public String getTimeDateString(double blockSize, boolean withDayOfWeek) {
-        if (hourOfDay < 0) {
+        if (hourOfDay < 0 || dayOfWeek < 0) {
 
             this.dayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK);
             this.hourOfDay = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
@@ -167,15 +179,32 @@ public class SentegrityTrustFactorDatasets {
             if (this.hourOfDay == 0) {
                 this.hourOfDay = 1;
             }
-        }
 
-        int hourBlock = (int) Math.ceil((double) this.hourOfDay / blockSize);
+            if (blockSize == 0 && withDayOfWeek) {
+                return "DAY_" + dayOfWeek;
+            } else {
+                int hourBlock = (int) Math.ceil((double) this.hourOfDay / blockSize);
 
-        if (withDayOfWeek) {
-            return "DAY_" + dayOfWeek + "_" + "HOUR_" + hourBlock;
+                if (withDayOfWeek) {
+                    return "DAY_" + dayOfWeek + "_" + "HOUR_" + hourBlock;
+                } else {
+                    return "HOUR_" + hourBlock;
+                }
+            }
         } else {
-            return "HOUR_" + hourBlock;
+            if (blockSize == 0 && withDayOfWeek) {
+                return "DAY_" + dayOfWeek;
+            } else {
+                int hourBlock = (int) Math.ceil((double) this.hourOfDay / blockSize);
+
+                if (withDayOfWeek) {
+                    return "DAY_" + dayOfWeek + "_" + "HOUR_" + hourBlock;
+                } else {
+                    return "HOUR_" + hourBlock;
+                }
+            }
         }
+
     }
 
     public String getBatteryState() {
@@ -436,7 +465,7 @@ public class SentegrityTrustFactorDatasets {
         return pitchRoll;
     }
 
-    public List<AccelRadsObject> getAccelRads(){
+    public List<AccelRadsObject> getAccelRads() {
         if (accelRads == null || accelRads.size() == 0) {
             if (getAccelMotionDNEStatus() == DNEStatusCode.EXPIRED)
                 return accelRads;
@@ -461,7 +490,7 @@ public class SentegrityTrustFactorDatasets {
         return accelRads;
     }
 
-    public List<MagneticObject> getMagneticHeading(){
+    public List<MagneticObject> getMagneticHeading() {
         if (magneticHeading == null || magneticHeading.size() == 0) {
             if (getAccelMotionDNEStatus() == DNEStatusCode.EXPIRED)
                 return magneticHeading;
@@ -575,7 +604,7 @@ public class SentegrityTrustFactorDatasets {
         this.location = location;
     }
 
-    public void setCellularSignalRaw(Integer cellularSignalRaw){
+    public void setCellularSignalRaw(Integer cellularSignalRaw) {
         this.cellularSignalRaw = cellularSignalRaw;
     }
 
@@ -653,22 +682,22 @@ public class SentegrityTrustFactorDatasets {
         return netstatData;
     }
 
-    public Long getDataXferInfo(){
+    public Long getDataXferInfo() {
         long trafficBytesSent = TrafficStats.getTotalTxBytes();
-        if(trafficBytesSent == TrafficStats.UNSUPPORTED){
+        if (trafficBytesSent == TrafficStats.UNSUPPORTED) {
             return null;
         }
         return trafficBytesSent;
     }
 
-    public List<ActiveRoute> getRouteInfo(){
-        if(routeData == null){
+    public List<ActiveRoute> getRouteInfo() {
+        if (routeData == null) {
             try {
                 return routeData = SentegrityTrustFactorDatasetRoute.getAllRoutes();
             } catch (IOException e) {
                 return null;
             }
-        }else {
+        } else {
             return routeData;
         }
     }
@@ -700,10 +729,10 @@ public class SentegrityTrustFactorDatasets {
     }
 
     public Boolean isPasscodeSet() {
-        if(passcodeSet == null) {
+        if (passcodeSet == null) {
             //version 23+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if(!updateKeyguardManager())
+                if (!updateKeyguardManager())
                     return null;
                 return keyguardManager.isDeviceSecure();
             }
@@ -865,5 +894,34 @@ public class SentegrityTrustFactorDatasets {
      */
     public static void destroy() {
         sInstance = null;
+    }
+
+    GoogleApiClient mCredentialsApiClient;
+
+    public void testMethod() {
+        mCredentialsApiClient = new GoogleApiClient.Builder(context)
+                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                    @Override
+                    public void onConnected(Bundle bundle) {
+                        CredentialRequest mCredentialRequest = new CredentialRequest.Builder()
+                                .setPasswordLoginSupported(true)
+                                .build();
+
+                        Auth.CredentialsApi.request(mCredentialsApiClient, mCredentialRequest).setResultCallback(new ResultCallback<CredentialRequestResult>() {
+                            @Override
+                            public void onResult(CredentialRequestResult credentialRequestResult) {
+                                // check if smart lock is enabled
+                                // if -> credentialRequestResult.getStatus().getStatusCode() == CommonStatusCodes.CANCELED;
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onConnectionSuspended(int i) {
+                    }
+                })
+                .addApi(Auth.CREDENTIALS_API)
+                .build();
+        mCredentialsApiClient.connect();
     }
 }
