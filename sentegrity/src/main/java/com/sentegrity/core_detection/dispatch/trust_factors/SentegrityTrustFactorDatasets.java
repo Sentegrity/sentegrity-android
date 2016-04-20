@@ -16,15 +16,10 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.CredentialRequest;
 import com.google.android.gms.auth.api.credentials.CredentialRequestResult;
-import com.google.android.gms.auth.api.credentials.IdentityProviders;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
@@ -94,6 +89,7 @@ public class SentegrityTrustFactorDatasets {
     private DNEStatusCode accelMotionDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode netstatDataDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode cellularSignalDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode ambientLightDNEstatus = DNEStatusCode.OK;
 
     private List<MagneticObject> magneticHeading;
     private List<GyroRadsObject> gyroRads;
@@ -102,6 +98,7 @@ public class SentegrityTrustFactorDatasets {
     private List<ActiveConnection> netstatData;
     private List<ActiveRoute> routeData;
     private List<AppInfo> installedApps;
+    private List<Integer> ambientLightData;
 
     private WifiManager wifiManager;
     private TelephonyManager telephonyManager;
@@ -134,11 +131,26 @@ public class SentegrityTrustFactorDatasets {
         accelRads = null;
         netstatData = null;
         routeData = null;
+        ambientLightData = null;
 
         pairedBTDevices = null;
         scannedBTDevices = null;
 
         installedApps = null;
+
+        batteryState = null;
+        tethering = null;
+        carrierConnectionName = null;
+        airplaneMode = null;
+        wifiEnabled = null;
+        wifiInfo = null;
+        location = null;
+        brightness = null;
+        cellularSignalRaw = null;
+        gripMovement = null;
+        userMovement = null;
+        deviceOrientation = null;
+        passcodeSet = null;
 
     }
 
@@ -552,6 +564,10 @@ public class SentegrityTrustFactorDatasets {
         return netstatDataDNEStatus;
     }
 
+    public DNEStatusCode getAmbientLightDNEstatus() {
+        return ambientLightDNEstatus;
+    }
+
     public void setPairedBTDNEStatus(DNEStatusCode pairedBTDNEStatus) {
         this.pairedBTDNEStatus = pairedBTDNEStatus;
     }
@@ -588,6 +604,10 @@ public class SentegrityTrustFactorDatasets {
         this.cellularSignalDNEStatus = cellularSignalDNEStatus;
     }
 
+    public void setAmbientLightDNEstatus(DNEStatusCode ambientLightDNEstatus) {
+        this.ambientLightDNEstatus = ambientLightDNEstatus;
+    }
+
     public void setScannedBTDevices(Set<String> scannedBTDevices) {
         this.scannedBTDevices = scannedBTDevices;
     }
@@ -606,6 +626,10 @@ public class SentegrityTrustFactorDatasets {
 
     public void setCellularSignalRaw(Integer cellularSignalRaw) {
         this.cellularSignalRaw = cellularSignalRaw;
+    }
+
+    public void setAmbientLight(List<Integer> ambientLightData){
+        this.ambientLightData = ambientLightData;
     }
 
     public Set<String> getPairedBTDevices() {
@@ -836,6 +860,33 @@ public class SentegrityTrustFactorDatasets {
             ex.printStackTrace();
             return null;
         }
+    }
+
+    public List<Integer> getAmbientLightData(){
+        if(ambientLightData == null){
+            if (getAmbientLightDNEstatus() == DNEStatusCode.EXPIRED) {
+                return ambientLightData;
+            }
+
+            long startTime = System.currentTimeMillis();
+            long currentTime = startTime;
+            float waitTime = 50;
+
+            while ((currentTime - startTime) < waitTime) {
+                if (ambientLightData != null)
+                    return ambientLightData;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                }
+
+                currentTime = System.currentTimeMillis();
+            }
+
+            setAmbientLightDNEstatus(DNEStatusCode.EXPIRED);
+            return ambientLightData;
+        }
+        return ambientLightData;
     }
 
     public Float getSystemBrightness() {

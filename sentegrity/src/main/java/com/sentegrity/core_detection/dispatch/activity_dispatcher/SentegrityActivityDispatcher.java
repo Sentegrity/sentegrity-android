@@ -54,6 +54,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
     private Handler mHandler = new Handler();
 
     public void runCoreDetectionActivities(Context context) {
+        //we need to restart data
         scannedDevices = new HashSet<>();
         pairedDevices = new HashSet<>();
 
@@ -62,6 +63,9 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         headingsArray = new ArrayList<>();
         gyroRadsArray = new ArrayList<>();
 
+        ambientLightArray = new ArrayList<>();
+
+        startAmbientLight(context);
         startNetstat();
         startBluetooth(context);
         startLocation(context);
@@ -376,11 +380,38 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 } else {
                     SentegrityTrustFactorDatasets.getInstance().setCellularSignalDNEStatus(DNEStatusCode.UNAVAILABLE);
                 }
+                //TODO: have array of values or only one?
                 telephonyManager.listen(this, LISTEN_NONE);
             }
         };
         telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE);
         telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+    }
+
+    private void startAmbientLight(Context context) {
+        final SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+        Sensor light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
+        if (light == null) {
+            SentegrityTrustFactorDatasets.getInstance().setAmbientLightDNEstatus(DNEStatusCode.UNSUPPORTED);
+        } else {
+            sensorManager.registerListener(new SensorEventListener() {
+                @Override
+                public void onSensorChanged(SensorEvent event) {
+                    int value = (int) Math.min(event.values[0], event.sensor.getMaximumRange());
+                    ambientLightArray.add(0, value);
+                    SentegrityTrustFactorDatasets.getInstance().setAmbientLight(ambientLightArray);
+
+                    Log.d("light", "got light " + value);
+                    if (ambientLightArray.size() > 5)
+                        sensorManager.unregisterListener(this);
+                }
+
+                @Override
+                public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+                }
+            }, light, SensorManager.SENSOR_DELAY_NORMAL);
+        }
     }
 
 
@@ -397,11 +428,11 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
     }
 
     @Override
-    public void onStateUpdate(int btAdapterState){
-        if(btAdapterState == BluetoothAdapter.STATE_OFF){
+    public void onStateUpdate(int btAdapterState) {
+        if (btAdapterState == BluetoothAdapter.STATE_OFF) {
             SentegrityTrustFactorDatasets.getInstance().setPairedBTDNEStatus(DNEStatusCode.DISABLED);
             SentegrityTrustFactorDatasets.getInstance().setScannedBTDNEStatus(DNEStatusCode.DISABLED);
-        } else if(btAdapterState == BluetoothAdapter.STATE_ON){
+        } else if (btAdapterState == BluetoothAdapter.STATE_ON) {
             SentegrityTrustFactorDatasets.getInstance().setPairedBTDNEStatus(DNEStatusCode.OK);
             SentegrityTrustFactorDatasets.getInstance().setScannedBTDNEStatus(DNEStatusCode.OK);
         }
@@ -435,5 +466,13 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
 
     /**
      * End motion helpers
+     */
+
+    /**
+     * Ambient Light helpers
+     */
+    private List<Integer> ambientLightArray = new ArrayList<>();
+    /**
+     * End Ambient Light helpers
      */
 }
