@@ -1,6 +1,7 @@
 package com.sentegrity.android.activities;
 
 import android.app.Activity;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,8 +12,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.DetectedActivity;
 import com.sentegrity.android.R;
+import com.sentegrity.android.activity.ActivitiesIntentService;
 import com.sentegrity.core_detection.CoreDetection;
 import com.sentegrity.core_detection.CoreDetectionCallback;
 import com.sentegrity.core_detection.computation.SentegrityTrustScoreComputation;
@@ -21,16 +28,38 @@ import com.sentegrity.core_detection.policy.SentegrityPolicy;
 import com.sentegrity.core_detection.protect_mode.ProtectMode;
 import com.sentegrity.core_detection.startup.SentegrityStartupStore;
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private SentegrityTrustScoreComputation computationResults;
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(ActivityRecognition.API)
+                .build();
+
         startAnalyzing();
+    }
+
+    //let's skip this for now
+    @Override
+    protected void onStart() {
+        super.onStart();
+        //mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //if (mGoogleApiClient.isConnected()) {
+        //    mGoogleApiClient.disconnect();
+        //}
     }
 
     private void startAnalyzing() {
@@ -183,6 +212,39 @@ public class LoginActivity extends Activity {
         });
     }
 
+    @Override
+    public void onConnected(Bundle bundle) {
+        requestActivityUpdates();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        if(mGoogleApiClient != null)
+            mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    public void requestActivityUpdates() {
+        if (!mGoogleApiClient.isConnected()) {
+            Toast.makeText(this, "GoogleApiClient not yet connected", Toast.LENGTH_SHORT).show();
+        } else {
+            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 1000 * 60 * 5, getActivityDetectionPendingIntent());
+        }
+    }
+
+    public void removeActivityUpdates() {
+        ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent());
+    }
+
+    private PendingIntent getActivityDetectionPendingIntent() {
+        Intent intent = new Intent(this, ActivitiesIntentService.class);
+
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
 
     private interface OnLoginListener {
         boolean onLogin(String password);
