@@ -613,6 +613,7 @@ public class SentegrityTrustFactorDatasets {
             if (getPairedBTDNEStatus() == DNEStatusCode.EXPIRED)
                 return pairedBTDevices;
 
+            //TODO: this waiting period should probably be removed
             long startTime = System.currentTimeMillis();
             long currentTime = startTime;
             float waitTime = 50;
@@ -638,9 +639,10 @@ public class SentegrityTrustFactorDatasets {
             if (getScannedBTDNEStatus() == DNEStatusCode.EXPIRED)
                 return scannedBTDevices;
 
+            //TODO: this waiting period should probably be removed
             long startTime = System.currentTimeMillis();
             long currentTime = startTime;
-            float waitTime = 250;
+            float waitTime = 50;
 
             while ((currentTime - startTime) < waitTime) {
                 if (scannedBTDevices != null && scannedBTDevices.size() > 0)
