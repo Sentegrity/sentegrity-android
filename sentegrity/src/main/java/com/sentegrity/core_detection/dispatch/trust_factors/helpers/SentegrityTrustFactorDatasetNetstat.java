@@ -1,6 +1,7 @@
 package com.sentegrity.core_detection.dispatch.trust_factors.helpers;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.IpVersion;
@@ -44,6 +45,7 @@ public class SentegrityTrustFactorDatasetNetstat {
         bufferedreader = new BufferedReader(reader, 8192);
         String[] list;
 
+        long start = System.nanoTime();
         while ((line = bufferedreader.readLine()) != null) {
 
             if (line == null) {
@@ -85,8 +87,8 @@ public class SentegrityTrustFactorDatasetNetstat {
                 if(remoteInetAddress != null){
 
                     connection.remoteIp = remoteInetAddress.getHostAddress();
-                    //TODO: should we be getting this? it takes time, maybe put ip address directly in policy
-                    connection.remoteHost = remoteInetAddress.getHostName();
+                    //we'll go with ip address instead of host name - this requires to go online and check it... it can take a while
+                    //connection.remoteHost = remoteInetAddress.getHostName();
                     connection.remotePort = getPort(list[2]);
                 }
             }
@@ -97,6 +99,7 @@ public class SentegrityTrustFactorDatasetNetstat {
         IOUtils.closeQuietly(bufferedreader);
         IOUtils.closeQuietly(reader);
 
+        Log.d("test", "netstat " + (System.nanoTime() - start));
         return connections;
     }
 

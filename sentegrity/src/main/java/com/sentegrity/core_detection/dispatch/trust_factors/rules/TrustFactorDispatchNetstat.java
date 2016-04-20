@@ -46,14 +46,20 @@ public class TrustFactorDispatchNetstat {
         }
 
         for (ActiveConnection connection : connections) {
-            if (connection.isListening() || connection.isLoopBack() || TextUtils.isEmpty(connection.remoteHost)) {
+            //we replaced remoteHost with remoteIp
+
+            if (connection.isListening() || connection.isLoopBack() || TextUtils.isEmpty(/*connection.remoteHost*/connection.remoteIp)) {
                 continue;
             }
 
             for (Object badDst : payload) {
-                if (connection.remoteHost.contains((CharSequence) badDst)) {
+                /*if (connection.remoteHost.contains((CharSequence) badDst)) {
                     if (!outputList.contains(connection.remoteHost))
                         outputList.add(connection.remoteHost);
+                }*/
+                if (connection.remoteIp.contains((CharSequence) badDst)) {
+                    if (!outputList.contains(connection.remoteIp))
+                        outputList.add(connection.remoteIp);
                 }
             }
         }
@@ -266,6 +272,7 @@ public class TrustFactorDispatchNetstat {
 
             for (int badDstPort : payloadInt) {
                 if (connection.getRemotePort() == badDstPort) {
+                    /*remoteHost is replaced with remoteIp and added to output
                     if (!outputList.contains(connection.remoteHost)) {
                         String host = connection.remoteHost;
                         if (host == null)
@@ -285,6 +292,9 @@ public class TrustFactorDispatchNetstat {
                         if (!outputList.contains(host)) {
                             outputList.add(host);
                         }
+                    }*/
+                    if(!outputList.contains(connection.remotePort)){
+                        outputList.add(connection.remotePort);
                     }
                 }
             }
