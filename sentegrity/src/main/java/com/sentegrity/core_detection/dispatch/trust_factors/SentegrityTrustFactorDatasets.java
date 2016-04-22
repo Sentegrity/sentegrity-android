@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.AssetManager;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
@@ -42,9 +44,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.NetworkInterface;
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -77,6 +81,8 @@ public class SentegrityTrustFactorDatasets {
     private Boolean passcodeSet = null;
     private Boolean wifiUnencrypted = null;
     private Integer backupEnabled = null;
+    private Boolean hasInternetConnection = null;
+    private String carrierConnectionSpeed;
 
     private Set<String> pairedBTDevices;
     private Set<String> scannedBTDevices;
@@ -100,14 +106,14 @@ public class SentegrityTrustFactorDatasets {
     private List<PitchRollObject> pitchRoll;
     private List<AccelRadsObject> accelRads;
     private List<ActiveConnection> netstatData;
-    private List<ActiveRoute> routeData;
+    private List<NetworkInterface> routeData;
     private List<AppInfo> installedApps;
     private List<Integer> ambientLightData;
 
     private WifiManager wifiManager;
     private TelephonyManager telephonyManager;
     private KeyguardManager keyguardManager;
-    private String carrierConnectionSpeed;
+    private ConnectivityManager connectivityManager;
 
     public SentegrityTrustFactorDatasets(Context context) {
         this.context = context;
@@ -127,6 +133,7 @@ public class SentegrityTrustFactorDatasets {
         updateWifiManager();
         updateTelefonyManager();
         updateKeyguardManager();
+        updateConnectivityManager();
         this.runTime = -1;
 
         magneticHeading = null;
@@ -157,6 +164,7 @@ public class SentegrityTrustFactorDatasets {
         passcodeSet = null;
         wifiUnencrypted = null;
         backupEnabled = null;
+        hasInternetConnection = null;
 
     }
 
@@ -749,16 +757,27 @@ public class SentegrityTrustFactorDatasets {
         return trafficBytesSent;
     }
 
-    public List<ActiveRoute> getRouteInfo() {
+    public List<NetworkInterface> getRouteInfo() {
         if (routeData == null) {
             try {
-                return routeData = SentegrityTrustFactorDatasetRoute.getAllRoutes();
+                return routeData = Collections.list(NetworkInterface.getNetworkInterfaces());
             } catch (IOException e) {
                 return null;
             }
         } else {
             return routeData;
         }
+    }
+
+    public Boolean hasInternetConnection() {
+        if (hasInternetConnection == null) {
+            if (!updateConnectivityManager()) {
+                return null;
+            }
+            NetworkInfo netInfo = connectivityManager.getActiveNetworkInfo();
+            return hasInternetConnection = netInfo != null && netInfo.isConnectedOrConnecting();
+        }
+        return hasInternetConnection;
     }
 
     public Location getLocationInfo() {
@@ -982,6 +1001,12 @@ public class SentegrityTrustFactorDatasets {
         if (keyguardManager != null) return true;
         keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         return keyguardManager != null;
+    }
+
+    private boolean updateConnectivityManager() {
+        if (connectivityManager != null) return true;
+        connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return connectivityManager != null;
     }
 
     /**
