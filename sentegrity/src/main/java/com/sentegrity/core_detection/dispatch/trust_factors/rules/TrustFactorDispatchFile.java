@@ -13,6 +13,7 @@ public class TrustFactorDispatchFile {
         return new SentegrityTrustFactorOutput();
     }
 
+    @Deprecated
     public static SentegrityTrustFactorOutput sizeChange(List<Object> payload){
         return new SentegrityTrustFactorOutput();
     }

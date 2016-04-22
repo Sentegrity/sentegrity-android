@@ -20,7 +20,7 @@ public class TrustFactorDispatchPlatform {
         return new SentegrityTrustFactorOutput();
     }
 
-    //TODO: maybe disable this one for android?
+    @Deprecated
     public static SentegrityTrustFactorOutput versionAllowed(List<Object> payload){
         return new SentegrityTrustFactorOutput();
     }

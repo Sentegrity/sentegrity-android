@@ -46,7 +46,7 @@ public class TrustFactorDispatchCelluar {
         }
 
         if (airplaneMode) {
-            outputList.add("airplane");
+            outputList.add("airplane-enabled");
         }
 
         output.setOutput(outputList);

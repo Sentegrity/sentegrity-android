@@ -162,6 +162,7 @@ public class TrustFactorDispatchNetstat {
         return output;
     }
 
+    @Deprecated
     public static SentegrityTrustFactorOutput dataExfiltration(List<Object> payload) {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 

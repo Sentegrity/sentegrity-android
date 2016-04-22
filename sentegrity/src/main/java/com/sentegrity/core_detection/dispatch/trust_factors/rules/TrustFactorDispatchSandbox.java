@@ -9,6 +9,7 @@ import java.util.List;
  */
 public class TrustFactorDispatchSandbox {
 
+    @Deprecated
     public static SentegrityTrustFactorOutput integrity(List<Object> payload){
         return new SentegrityTrustFactorOutput();
     }
