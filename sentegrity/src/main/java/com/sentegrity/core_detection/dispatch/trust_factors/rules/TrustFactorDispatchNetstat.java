@@ -294,8 +294,8 @@ public class TrustFactorDispatchNetstat {
                             outputList.add(host);
                         }
                     }*/
-                    if(!outputList.contains(connection.remotePort)){
-                        outputList.add(connection.remotePort);
+                    if(!outputList.contains(connection.remoteIp)){
+                        outputList.add(connection.remoteIp);
                     }
                 }
             }

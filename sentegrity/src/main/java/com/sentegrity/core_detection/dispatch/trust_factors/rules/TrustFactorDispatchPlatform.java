@@ -20,6 +20,10 @@ public class TrustFactorDispatchPlatform {
         return new SentegrityTrustFactorOutput();
     }
 
+    public static SentegrityTrustFactorOutput outdatedVersion(List<Object> payload){
+        return new SentegrityTrustFactorOutput();
+    }
+
     @Deprecated
     public static SentegrityTrustFactorOutput versionAllowed(List<Object> payload){
         return new SentegrityTrustFactorOutput();

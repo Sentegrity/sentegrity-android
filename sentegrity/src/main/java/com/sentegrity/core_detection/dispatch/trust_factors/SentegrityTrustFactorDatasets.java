@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.res.AssetManager;
 import android.location.Location;
 import android.net.TrafficStats;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
@@ -41,6 +42,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -73,6 +75,7 @@ public class SentegrityTrustFactorDatasets {
     private String userMovement = null;
     private String deviceOrientation = null;
     private Boolean passcodeSet = null;
+    private Boolean wifiUnencrypted = null;
     private Integer backupEnabled = null;
 
     private Set<String> pairedBTDevices;
@@ -152,6 +155,7 @@ public class SentegrityTrustFactorDatasets {
         userMovement = null;
         deviceOrientation = null;
         passcodeSet = null;
+        wifiUnencrypted = null;
         backupEnabled = null;
 
     }
@@ -285,6 +289,33 @@ public class SentegrityTrustFactorDatasets {
             }
         }
         return tethering;
+    }
+
+    public Boolean isWifiUnencrypted() {
+        if (wifiUnencrypted == null) {
+            if (!updateWifiManager()) {
+                return null;
+            }
+            final WifiInfo wifiInfo = getWifiInfo();
+
+            for (WifiConfiguration configuration : wifiManager.getConfiguredNetworks()) {
+                if (wifiInfo.getBSSID().equals(configuration.BSSID)) {
+                    boolean unencrypted = false;
+                    if (configuration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_PSK)) {
+                        unencrypted = true;
+                    } else if (configuration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_EAP)) {
+                        unencrypted = true;
+                    } else if (configuration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.IEEE8021X)) {
+                        unencrypted = true;
+                    } else if (configuration.wepKeys.length > 0 && configuration.wepKeys[0] != null) {
+                        unencrypted = true;
+                    }
+                    return wifiUnencrypted = unencrypted;
+                }
+            }
+            return null;
+        }
+        return wifiUnencrypted;
     }
 
     public String getCarrierConnectionName() {
