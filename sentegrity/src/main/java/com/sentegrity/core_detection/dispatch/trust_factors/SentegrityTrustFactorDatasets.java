@@ -73,6 +73,7 @@ public class SentegrityTrustFactorDatasets {
     private String userMovement = null;
     private String deviceOrientation = null;
     private Boolean passcodeSet = null;
+    private Integer backupEnabled = null;
 
     private Set<String> pairedBTDevices;
     private Set<String> scannedBTDevices;
@@ -151,6 +152,7 @@ public class SentegrityTrustFactorDatasets {
         userMovement = null;
         deviceOrientation = null;
         passcodeSet = null;
+        backupEnabled = null;
 
     }
 
@@ -792,6 +794,15 @@ public class SentegrityTrustFactorDatasets {
             return passcodeSet = false;
         }
         return passcodeSet;
+    }
+
+    public Integer isBackupEnabled(){
+            if (backupEnabled == null) {
+                //only tested for nexus 5, android version 6.0.1
+                //TODO: "backup_enabled" is hidden secure setting, this should be checked
+                return backupEnabled = Settings.Secure.getInt(context.getContentResolver(), "backup_enabled", -1);
+            }
+            return backupEnabled;
     }
 
     public ArrayList<String> getSSIDList() {
