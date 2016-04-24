@@ -94,6 +94,10 @@ public class SentegrityTrustFactorDatasets {
     private Boolean hasInternetConnection = null;
     private String carrierConnectionSpeed = null;
     private RootDetection rootDetection = null;
+    private Boolean isFromPlayStore = null;
+    private Boolean isOnEmulator = null;
+    private Boolean isDebuggable = null;
+    private Boolean isSignatureOK = null;
 
     private Set<String> pairedBTDevices;
     private Set<String> scannedBTDevices;
@@ -973,61 +977,73 @@ public class SentegrityTrustFactorDatasets {
 
     //Get MD5 hash of app signature -> compare it with our own one
     public Boolean isAppSignatureOk(){
-        try {
-            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
-            for (Signature signature : packageInfo.signatures) {
-                MessageDigest mdMd5 = MessageDigest.getInstance("MD5");
+        if(isSignatureOK == null) {
+            try {
+                PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
+                for (Signature signature : packageInfo.signatures) {
+                    MessageDigest mdMd5 = MessageDigest.getInstance("MD5");
 
-                mdMd5.update(signature.toCharsString().getBytes());
-                byte byteData[] = mdMd5.digest();
+                    mdMd5.update(signature.toCharsString().getBytes());
+                    byte byteData[] = mdMd5.digest();
 
-                StringBuilder hexString = new StringBuilder();
-                for (byte aByteData : byteData) {
-                    String hex = Integer.toHexString(0xff & aByteData);
-                    if (hex.length() == 1) hexString.append('0');
-                    hexString.append(hex);
+                    StringBuilder hexString = new StringBuilder();
+                    for (byte aByteData : byteData) {
+                        String hex = Integer.toHexString(0xff & aByteData);
+                        if (hex.length() == 1) hexString.append('0');
+                        hexString.append(hex);
+                    }
+
+                    if (SentegrityConstants.APK_SIGNATURE.equals(hexString.toString())) {
+                        return isSignatureOK = true;
+                    }
+                    return isSignatureOK = false;
                 }
-
-                if (SentegrityConstants.APK_SIGNATURE.equals(hexString.toString())) {
-                    return true;
-                }
+            } catch (Exception e) {
+                return null;
             }
-        } catch (Exception e) {
-            return null;
         }
-        return false;
+        return isSignatureOK;
     }
 
     //check if application is installed from Google play store
     public Boolean isFromPlayStore() {
-        final String installer = context.getPackageManager().getInstallerPackageName(context.getPackageName());
-        return installer != null && installer.startsWith("com.android.vending");
+        if(isFromPlayStore == null) {
+            final String installer = context.getPackageManager().getInstallerPackageName(context.getPackageName());
+            return isFromPlayStore = (installer != null && installer.startsWith("com.android.vending"));
+        }
+        return isFromPlayStore;
     }
 
     //check if app is run on emulator -> this shouldn't happen
     public Boolean isOnEmulator() {
-        try {
+        if(isOnEmulator == null) {
+            try {
 
-            return Helpers.getSystemProperty("ro.hardware").contains("goldfish")
-                    || Helpers.getSystemProperty("ro.kernel.qemu").length() > 0
-                    || Helpers.getSystemProperty("ro.product.model").equals("sdk");
+                return isOnEmulator = (Helpers.getSystemProperty("ro.hardware").contains("goldfish")
+                        || Helpers.getSystemProperty("ro.kernel.qemu").length() > 0
+                        || Helpers.getSystemProperty("ro.product.model").equals("sdk"));
 
-        } catch (Exception e) {
+            } catch (Exception e) {
 
+            }
+
+            return isOnEmulator = (Build.FINGERPRINT.startsWith("generic")
+                    || Build.FINGERPRINT.startsWith("unknown")
+                    || Build.MODEL.contains("google_sdk")
+                    || Build.MODEL.contains("Emulator")
+                    || Build.MODEL.contains("Android SDK built for x86")
+                    || Build.MANUFACTURER.contains("Genymotion")
+                    || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+                    || "google_sdk".equals(Build.PRODUCT));
         }
-
-        return Build.FINGERPRINT.startsWith("generic")
-                || Build.FINGERPRINT.startsWith("unknown")
-                || Build.MODEL.contains("google_sdk")
-                || Build.MODEL.contains("Emulator")
-                || Build.MODEL.contains("Android SDK built for x86")
-                || Build.MANUFACTURER.contains("Genymotion")
-                || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
-                || "google_sdk".equals(Build.PRODUCT);
+        return isOnEmulator;
     }
 
     public Boolean checkDebuggable(){
-        return (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
+        if(isDebuggable == null) {
+            return isDebuggable = ((context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
+        }
+        return isDebuggable;
     }
 
     @Deprecated
