@@ -5,6 +5,10 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.content.res.AssetManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -19,6 +23,8 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Base64;
+import android.util.Log;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.CredentialRequest;
@@ -38,6 +44,7 @@ import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.AccelRa
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.GyroRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.MagneticObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.PitchRollObject;
+import com.sentegrity.core_detection.utilities.Helpers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,7 +53,9 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.NetworkInterface;
+import java.nio.charset.Charset;
 import java.security.Key;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -960,6 +969,65 @@ public class SentegrityTrustFactorDatasets {
     //TODO: check how to implement this
     public RootDetection getRootDetection(){
         return rootDetection;
+    }
+
+    //Get MD5 hash of app signature -> compare it with our own one
+    public Boolean isAppSignatureOk(){
+        try {
+            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
+            for (Signature signature : packageInfo.signatures) {
+                MessageDigest mdMd5 = MessageDigest.getInstance("MD5");
+
+                mdMd5.update(signature.toCharsString().getBytes());
+                byte byteData[] = mdMd5.digest();
+
+                StringBuilder hexString = new StringBuilder();
+                for (byte aByteData : byteData) {
+                    String hex = Integer.toHexString(0xff & aByteData);
+                    if (hex.length() == 1) hexString.append('0');
+                    hexString.append(hex);
+                }
+
+                if (SentegrityConstants.APK_SIGNATURE.equals(hexString.toString())) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return false;
+    }
+
+    //check if application is installed from Google play store
+    public Boolean isFromPlayStore() {
+        final String installer = context.getPackageManager().getInstallerPackageName(context.getPackageName());
+        return installer != null && installer.startsWith("com.android.vending");
+    }
+
+    //check if app is run on emulator -> this shouldn't happen
+    public Boolean isOnEmulator() {
+        try {
+
+            return Helpers.getSystemProperty("ro.hardware").contains("goldfish")
+                    || Helpers.getSystemProperty("ro.kernel.qemu").length() > 0
+                    || Helpers.getSystemProperty("ro.product.model").equals("sdk");
+
+        } catch (Exception e) {
+
+        }
+
+        return Build.FINGERPRINT.startsWith("generic")
+                || Build.FINGERPRINT.startsWith("unknown")
+                || Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Android SDK built for x86")
+                || Build.MANUFACTURER.contains("Genymotion")
+                || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+                || "google_sdk".equals(Build.PRODUCT);
+    }
+
+    public Boolean checkDebuggable(){
+        return (context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
     }
 
     @Deprecated

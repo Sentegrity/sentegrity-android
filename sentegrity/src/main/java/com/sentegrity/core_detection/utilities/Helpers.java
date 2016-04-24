@@ -66,4 +66,9 @@ public class Helpers {
 
         return ssid;
     }
+
+    public static String getSystemProperty(String name) throws Exception {
+        Class systemPropertyClazz = Class.forName("android.os.SystemProperties");
+        return (String) systemPropertyClazz.getMethod("get", new Class[]{String.class}).invoke(systemPropertyClazz, new Object[]{name});
+    }
 }
