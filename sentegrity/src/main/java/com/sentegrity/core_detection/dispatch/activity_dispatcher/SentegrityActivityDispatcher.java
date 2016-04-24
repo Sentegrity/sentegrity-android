@@ -18,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.karumi.dexter.Dexter;
@@ -37,6 +38,8 @@ import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.AccelRa
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.GyroRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.MagneticObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.PitchRollObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDetection;
+import com.stericson.RootShell.RootShell;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -71,6 +74,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         startLocation(context);
         startMotion(context);
         startCellularSignal(context);
+        startRootCheck();
     }
 
     private void startNetstat() {
@@ -414,6 +418,25 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         }
     }
 
+    private void startRootCheck(){
+        new Thread() {
+            @Override
+            public void run() {
+                Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+
+                RootDetection rootDetection = new RootDetection();
+
+                rootDetection.isAccessGiven = RootShell.isAccessGiven();
+                SentegrityTrustFactorDatasets.getInstance().setRootDetection(rootDetection);
+
+                rootDetection.isRootAvailable = RootShell.isRootAvailable();
+                SentegrityTrustFactorDatasets.getInstance().setRootDetection(rootDetection);
+
+                rootDetection.isBusyBoxAvailable = RootShell.isBusyboxAvailable();
+                SentegrityTrustFactorDatasets.getInstance().setRootDetection(rootDetection);
+            }
+        }.start();
+    }
 
     /**
      * Bluetooth helpers

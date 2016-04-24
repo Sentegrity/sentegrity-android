@@ -32,6 +32,7 @@ import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTr
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetRoute;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.application.AppInfo;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDetection;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.route.ActiveRoute;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.AccelRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.GyroRadsObject;
@@ -82,7 +83,8 @@ public class SentegrityTrustFactorDatasets {
     private Boolean wifiUnencrypted = null;
     private Integer backupEnabled = null;
     private Boolean hasInternetConnection = null;
-    private String carrierConnectionSpeed;
+    private String carrierConnectionSpeed = null;
+    private RootDetection rootDetection = null;
 
     private Set<String> pairedBTDevices;
     private Set<String> scannedBTDevices;
@@ -165,6 +167,7 @@ public class SentegrityTrustFactorDatasets {
         wifiUnencrypted = null;
         backupEnabled = null;
         hasInternetConnection = null;
+        rootDetection = null;
 
     }
 
@@ -950,25 +953,19 @@ public class SentegrityTrustFactorDatasets {
         return ambientLightData;
     }
 
+    public void setRootDetection(RootDetection rootDetection){
+        this.rootDetection = rootDetection;
+    }
+
+    //TODO: check how to implement this
+    public RootDetection getRootDetection(){
+        return rootDetection;
+    }
+
+    @Deprecated
     public Float getSystemBrightness() {
         if (brightness == null) {
-            //TODO: this is the way to go. android internally uses light sensor. move this to activity dispatcher and we're good to go!
-//            SensorManager mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
-//            Sensor mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-//            mSensorManager.registerListener(new SensorEventListener() {
-//                @Override
-//                public void onSensorChanged(SensorEvent event) {
-//                    if( event.sensor.getType() == Sensor.TYPE_LIGHT) {
-//                    }
-//                }
-//
-//                @Override
-//                public void onAccuracyChanged(Sensor sensor, int accuracy) {
-//
-//                }
-//            }, mLight, 1000);
             float current = Settings.System.getInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, -1);
-
             //if we're in auto mode, then get adjusted brightness level
             //screen_auto_brightness_adj has values [-1.0, 1.0]
             //this returns only user adjusted value

@@ -3,6 +3,7 @@ package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
+import com.stericson.RootShell.RootShell;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class TrustFactorDispatchFile {
             String path = (String) objectPath;
 
             File f = new File(path);
-            if(!f.exists())
+            if(!f.exists() /*&& !RootShell.exists(path)*/)
                 continue;
 
             outputList.add(path);
