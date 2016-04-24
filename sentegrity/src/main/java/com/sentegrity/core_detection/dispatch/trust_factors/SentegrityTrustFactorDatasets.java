@@ -23,8 +23,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Base64;
-import android.util.Log;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.CredentialRequest;
@@ -33,17 +31,13 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
-import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetApplication;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetMotion;
-import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetRoute;
-import com.sentegrity.core_detection.dispatch.trust_factors.helpers.application.AppInfo;
-import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
-import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDetection;
-import com.sentegrity.core_detection.dispatch.trust_factors.helpers.route.ActiveRoute;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.AccelRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.GyroRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.MagneticObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.PitchRollObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDetection;
 import com.sentegrity.core_detection.utilities.Helpers;
 
 import java.io.BufferedReader;
@@ -53,8 +47,6 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.NetworkInterface;
-import java.nio.charset.Charset;
-import java.security.Key;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -122,7 +114,7 @@ public class SentegrityTrustFactorDatasets {
     private List<AccelRadsObject> accelRads;
     private List<ActiveConnection> netstatData;
     private List<NetworkInterface> routeData;
-    private List<AppInfo> installedApps;
+    private List<ApplicationInfo> installedApps;
     private List<Integer> ambientLightData;
 
     private WifiManager wifiManager;
@@ -292,9 +284,10 @@ public class SentegrityTrustFactorDatasets {
         return level / (float) scale;
     }
 
-    public List<AppInfo> getInstalledAppInfo() {
+    public List<ApplicationInfo> getInstalledAppInfo() {
         if (installedApps == null || installedApps.size() == 0) {
-            return installedApps = SentegrityTrustFactorDatasetApplication.getUserAppInfo(context);
+            PackageManager packageManager = context.getPackageManager();
+            return installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
         }
         return installedApps;
     }
