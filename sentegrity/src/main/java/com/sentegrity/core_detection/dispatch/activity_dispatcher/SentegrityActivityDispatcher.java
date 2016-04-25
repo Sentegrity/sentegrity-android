@@ -118,6 +118,10 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
             SentegrityTrustFactorDatasets.getInstance().setPairedBTDNEStatus(DNEStatusCode.UNSUPPORTED);
             SentegrityTrustFactorDatasets.getInstance().setScannedBTDNEStatus(DNEStatusCode.UNSUPPORTED);
             return;
+        }else if(!BluetoothAdapter.getDefaultAdapter().isEnabled()){
+            SentegrityTrustFactorDatasets.getInstance().setScannedBTDNEStatus(DNEStatusCode.DISABLED);
+            SentegrityTrustFactorDatasets.getInstance().setPairedBTDNEStatus(DNEStatusCode.DISABLED);
+            return;
         }
 
         BTScanner.startScanning(context, this);
