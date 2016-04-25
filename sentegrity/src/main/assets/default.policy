@@ -868,7 +868,9 @@
       "whitelistable": 1,
       "privateAPI": 1,
       "payload": [
-        
+        {
+          "rounding": 1
+        }
       ]
     },
     {
