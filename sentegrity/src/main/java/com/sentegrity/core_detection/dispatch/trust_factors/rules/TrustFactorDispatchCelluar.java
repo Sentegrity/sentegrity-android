@@ -1,7 +1,9 @@
 package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
+import android.location.Location;
 import android.text.TextUtils;
 
+import com.google.gson.internal.LinkedTreeMap;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
@@ -19,6 +21,8 @@ public class TrustFactorDispatchCelluar {
 
         List<String> outputList = new ArrayList<>();
 
+        String cell;
+
         String carrierName = SentegrityTrustFactorDatasets.getInstance().getCarrierConnectionName();
 
         if (TextUtils.isEmpty(carrierName)) {
@@ -26,7 +30,32 @@ public class TrustFactorDispatchCelluar {
             return output;
         }
 
-        outputList.add(carrierName);
+        String connectionSpeed = SentegrityTrustFactorDatasets.getInstance().getCarrierConnectionSpeed();
+
+        if (TextUtils.isEmpty(connectionSpeed)) {
+            output.setStatusCode(DNEStatusCode.ERROR);
+            return output;
+        }
+
+        cell = connectionSpeed + "_" + carrierName;
+
+        Location currentLocation;
+
+        if (SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() == DNEStatusCode.OK ||
+                SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() == DNEStatusCode.EXPIRED) {
+
+            currentLocation = SentegrityTrustFactorDatasets.getInstance().getLocationInfo();
+
+            if (currentLocation != null) {
+                int decimalPlaces = (int) (double) ((LinkedTreeMap) payload.get(0)).get("rounding");
+
+                String locationBuilder = "LO_%." + decimalPlaces + "f_LT_%." + decimalPlaces + "f";
+                String roundedLocation = String.format(locationBuilder, currentLocation.getLongitude(), currentLocation.getLatitude());
+                cell += "_" + roundedLocation;
+            }
+        }
+
+        outputList.add(cell);
 
         output.setOutput(outputList);
 
