@@ -27,7 +27,7 @@ import dalvik.system.DexFile;
  */
 public class TrustFactorDispatchSentegrity {
 
-    public static SentegrityTrustFactorOutput tamper(List<Object> payload){
+    public static SentegrityTrustFactorOutput tamper2(List<Object> payload){
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         List<String> outputList = new ArrayList<>();

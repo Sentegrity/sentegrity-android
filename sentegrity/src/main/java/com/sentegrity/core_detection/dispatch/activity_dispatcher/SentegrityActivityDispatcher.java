@@ -449,6 +449,8 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         new Thread() {
             @Override
             public void run() {
+                long start = System.currentTimeMillis();
+                Log.d("rootDetection", "start");
                 Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 
                 RootDetection rootDetection = new RootDetection();
@@ -456,11 +458,19 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 rootDetection.isAccessGiven = RootShell.isAccessGiven();
                 SentegrityTrustFactorDatasets.getInstance().setRootDetection(rootDetection);
 
-                rootDetection.isRootAvailable = RootShell.isRootAvailable();
-                SentegrityTrustFactorDatasets.getInstance().setRootDetection(rootDetection);
+                Log.d("rootDetection", "access: " + (System.currentTimeMillis() - start));
+                start = System.currentTimeMillis();
 
                 rootDetection.isBusyBoxAvailable = RootShell.isBusyboxAvailable();
                 SentegrityTrustFactorDatasets.getInstance().setRootDetection(rootDetection);
+
+                Log.d("rootDetection", "BB: " + (System.currentTimeMillis() - start));
+                start = System.currentTimeMillis();
+
+                rootDetection.isRootAvailable = RootShell.isRootAvailable();
+                SentegrityTrustFactorDatasets.getInstance().setRootDetection(rootDetection);
+
+                Log.d("rootDetection", "root: " + (System.currentTimeMillis() - start));
             }
         }.start();
     }

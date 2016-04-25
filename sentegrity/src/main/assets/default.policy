@@ -1454,7 +1454,7 @@
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
       "classID": 1,
-      "subClassID": 1,
+      "subClassID": 4,
       "name": "Sandbox integrity compromise",
       "transparentEligible": 0,
       "partialWeight": 0,
