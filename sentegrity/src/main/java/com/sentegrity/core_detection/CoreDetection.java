@@ -1,13 +1,22 @@
 package com.sentegrity.core_detection;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.CompositeMultiplePermissionsListener;
+import com.karumi.dexter.listener.multi.DialogOnAnyDeniedMultiplePermissionsListener;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorStore;
 import com.sentegrity.core_detection.baseline_analysis.SentegrityBaselineAnalysis;
@@ -74,7 +83,7 @@ public class CoreDetection {
             SentegrityStartupStore.initialize(context);
             SentegrityTrustFactorDatasets.initialize(context);
 
-            sInstance.startCoreDetectionActivities();
+            //sInstance.startCoreDetectionActivities();
         } else {
             Log.d("coreDetection", "Core Detection has already been initialized");
         }
@@ -109,13 +118,47 @@ public class CoreDetection {
         }
     }
 
-    private void startCoreDetectionActivities() {
+    public void performCoreDetection(final SentegrityPolicy policy, final CoreDetectionCallback callback){
         if (activityDispatcher == null)
-            activityDispatcher = new SentegrityActivityDispatcher();
-        activityDispatcher.runCoreDetectionActivities(context);
+            activityDispatcher = new SentegrityActivityDispatcher(context);
+
+        activityDispatcher.startBluetooth();
+        activityDispatcher.startAmbientLight();
+        activityDispatcher.startCellularSignal();
+        activityDispatcher.startMotion();
+        activityDispatcher.startNetstat();
+        activityDispatcher.startRootCheck();
+
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            activityDispatcher.startLocation();
+            startCoreDetection(policy, callback);
+            return;
+        }
+
+        final String[] permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
+        MultiplePermissionsListener listener = new MultiplePermissionsListener() {
+            @Override
+            public void onPermissionsChecked(MultiplePermissionsReport report) {
+                activityDispatcher.startLocation();
+                startCoreDetection(policy, callback);
+            }
+
+            @Override
+            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                //we should use either one of these
+                //depending on do we want to wait for permission or just continue
+                //token.continuePermissionRequest();
+                activityDispatcher.startLocation();
+                startCoreDetection(policy, callback);
+            }
+        };
+        if (!Dexter.isRequestOngoing())
+            Dexter.continuePendingRequestsIfPossible(listener);
+        Dexter.checkPermissions(listener, permissions);
     }
 
-    public void performCoreDetection(final SentegrityPolicy policy, final CoreDetectionCallback callback) {
+    public void startCoreDetection(final SentegrityPolicy policy, final CoreDetectionCallback callback) {
 
         AsyncTask coreDetectionTask = new AsyncTask() {
 
@@ -301,7 +344,7 @@ public class CoreDetection {
         SentegrityStartupStore.initialize(context);
         SentegrityTrustFactorDatasets.initialize(context);
 
-        startCoreDetectionActivities();
+        //startCoreDetectionActivities();
     }
 
 }

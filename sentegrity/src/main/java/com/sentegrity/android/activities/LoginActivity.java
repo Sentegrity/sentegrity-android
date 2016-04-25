@@ -1,17 +1,27 @@
 package com.sentegrity.android.activities;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.CompositeMultiplePermissionsListener;
+import com.karumi.dexter.listener.multi.DialogOnAnyDeniedMultiplePermissionsListener;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.sentegrity.android.R;
 import com.sentegrity.core_detection.CoreDetection;
 import com.sentegrity.core_detection.CoreDetectionCallback;
@@ -20,6 +30,8 @@ import com.sentegrity.core_detection.logger.SentegrityError;
 import com.sentegrity.core_detection.policy.SentegrityPolicy;
 import com.sentegrity.core_detection.protect_mode.ProtectMode;
 import com.sentegrity.core_detection.startup.SentegrityStartupStore;
+
+import java.util.List;
 
 public class LoginActivity extends Activity {
 
@@ -43,11 +55,16 @@ public class LoginActivity extends Activity {
         final SentegrityPolicy policy = CoreDetection.getInstance().parsePolicy("default.policy");
         CoreDetection.getInstance().performCoreDetection(policy, new CoreDetectionCallback() {
             @Override
-            public void onFinish(SentegrityTrustScoreComputation computationResult, SentegrityError error, boolean success) {
+            public void onFinish(final SentegrityTrustScoreComputation computationResult, SentegrityError error, boolean success) {
                 if (success) {
-                    analyzeResults(computationResult, policy);
-                    progressDialog.cancel();
-                    //showError();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            analyzeResults(computationResult, policy);
+                            progressDialog.cancel();
+                            //showError();
+                        }
+                    });
                 }
             }
         });

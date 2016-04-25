@@ -54,7 +54,14 @@ import java.util.Set;
  */
 public class SentegrityActivityDispatcher implements BTDeviceCallback {
 
-    private Handler mHandler = new Handler();
+    private Context context;
+
+    public SentegrityActivityDispatcher(Context context){
+        if(context == null){
+            throw new IllegalArgumentException("we need that context here!");
+        }
+        this.context = context;
+    }
 
     public void runCoreDetectionActivities(Context context) {
         //we need to restart data
@@ -68,16 +75,16 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
 
         ambientLightArray = new ArrayList<>();
 
-        startAmbientLight(context);
+        startAmbientLight();
         startNetstat();
-        startBluetooth(context);
-        startLocation(context);
-        startMotion(context);
-        startCellularSignal(context);
+        startBluetooth();
+        startLocation();
+        startMotion();
+        startCellularSignal();
         startRootCheck();
     }
 
-    private void startNetstat() {
+    public void startNetstat() {
         new Thread() {
             @Override
             public void run() {
@@ -113,7 +120,11 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
     /**
      * Get BLE and classic devices nearby (uses broadcast receiver)
      */
-    private void startBluetooth(Context context) {
+    public void startBluetooth() {
+
+        scannedDevices = new HashSet<>();
+        pairedDevices = new HashSet<>();
+
         if (BluetoothAdapter.getDefaultAdapter() == null) {
             SentegrityTrustFactorDatasets.getInstance().setPairedBTDNEStatus(DNEStatusCode.UNSUPPORTED);
             SentegrityTrustFactorDatasets.getInstance().setScannedBTDNEStatus(DNEStatusCode.UNSUPPORTED);
@@ -130,14 +141,18 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
     /**
      * Get location data (uses location listener)
      */
-    private void startLocation(final Context context) {
+    public void startLocation() {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            startLocationListener(context);
+            startLocationListener();
             return;
         }
 
-        final String[] permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
+        //we already need to have permission at this moment
+        //if there's no permission update DNEStatus as required
+        SentegrityTrustFactorDatasets.getInstance().setLocationDNEStatus(DNEStatusCode.UNAUTHORIZED);
+
+        /*final String[] permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
         MultiplePermissionsListener listener = DialogOnAnyDeniedMultiplePermissionsListener.Builder
                 .withContext(context)
                 .withTitle("Location Permission")
@@ -162,10 +177,10 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         };
         if (!Dexter.isRequestOngoing())
             Dexter.continuePendingRequestsIfPossible(new CompositeMultiplePermissionsListener(listener, listener2));
-        Dexter.checkPermissions(new CompositeMultiplePermissionsListener(listener, listener2), permissions);
+        Dexter.checkPermissions(new CompositeMultiplePermissionsListener(listener, listener2), permissions);*/
     }
 
-    private void startLocationListener(Context context) {
+    private void startLocationListener() {
         final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         LocationListener locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
@@ -202,7 +217,12 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
     /**
      * Get Motion pitch/roll, movement, orientation data
      */
-    private void startMotion(Context context) {
+    public void startMotion() {
+
+        accelRadsArray = new ArrayList<>();
+        pitchRollArray = new ArrayList<>();
+        headingsArray = new ArrayList<>();
+        gyroRadsArray = new ArrayList<>();
 
         final SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 
@@ -344,7 +364,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
      * Get signal strength
      */
     //TODO: maybe extend this for 10-20seconds?
-    private void startCellularSignal(Context context) {
+    public void startCellularSignal() {
         final TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         PhoneStateListener phoneStateListener = new PhoneStateListener() {
             @Override
@@ -396,7 +416,10 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
     }
 
-    private void startAmbientLight(Context context) {
+    public void startAmbientLight() {
+
+        ambientLightArray = new ArrayList<>();
+
         final SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         Sensor light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         if (light == null) {
@@ -422,7 +445,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         }
     }
 
-    private void startRootCheck(){
+    public void startRootCheck(){
         new Thread() {
             @Override
             public void run() {
