@@ -857,7 +857,7 @@ public class SentegrityTrustFactorDatasets {
 
     public Integer isBackupEnabled(){
             if (backupEnabled == null) {
-                //only tested for nexus 5, android version 6.0.1
+                //only tested for nexus 5 and nexus 5x, android version 6.0.1
                 //TODO: "backup_enabled" is hidden secure setting, this should be checked
                 return backupEnabled = Settings.Secure.getInt(context.getContentResolver(), "backup_enabled", -1);
             }

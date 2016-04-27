@@ -72,7 +72,6 @@ public class SentegrityTrustFactorDatasetRoute {
 
     @Deprecated
     public static List<ActiveRoute> getRoutes() throws IOException {
-        //TODO: if fails try other command --> route -n
         Process process = Runtime.getRuntime().exec(new String[]{"netstat", "-rn"});
         BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
 

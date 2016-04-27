@@ -32,19 +32,19 @@ public class TrustFactorDispatchLocation {
         alignedLightNoLoc.put(2, 15);
         alignedLightNoLoc.put(3, 40);
         alignedLightNoLoc.put(4, 80);
-        alignedLightNoLoc.put(5, 120);
-        alignedLightNoLoc.put(6, 200);
-        alignedLightNoLoc.put(7, 350);
-        alignedLightNoLoc.put(8, 600);
-        alignedLightNoLoc.put(9, 1000);
+        alignedLightNoLoc.put(5, 150);
+        alignedLightNoLoc.put(6, 350);
+        alignedLightNoLoc.put(7, 600);
+        alignedLightNoLoc.put(8, Integer.MAX_VALUE/*1000*/);
     }
     static {
         alignedLightLoc = new ArrayMap<>();
-        alignedLightLoc.put(1, 5);
-        alignedLightLoc.put(3, 40);
-        alignedLightLoc.put(5, 120);
-        alignedLightLoc.put(7, 600);
-        alignedLightLoc.put(9, 1000);
+        alignedLightLoc.put(1, 7);
+        alignedLightLoc.put(2, 45);
+        alignedLightLoc.put(3, 100);
+        alignedLightLoc.put(4, 250);
+        alignedLightLoc.put(5, 500);
+        alignedLightLoc.put(6, Integer.MAX_VALUE/*1000*/);
     }
     public static SentegrityTrustFactorOutput locationGPS(List<Object> payload) {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
