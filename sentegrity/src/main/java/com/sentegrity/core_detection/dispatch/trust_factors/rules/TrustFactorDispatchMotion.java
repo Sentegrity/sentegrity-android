@@ -132,7 +132,7 @@ public class TrustFactorDispatchMotion /*implements TrustFactorDispatch*/ {
         float pitchAvg = 0.0f;
         float rollAvg = 0.0f;
 
-        int counter = 1;
+        int counter = 0;
 
         for(PitchRollObject pr : gyroPitch){
             pitchTotal += pr.pitch;

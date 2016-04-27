@@ -84,6 +84,11 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         startRootCheck();
     }
 
+    /**
+     * Starts netstat collection.
+     * We use {@link SentegrityTrustFactorDatasetNetstat} for collecting TCP data on IPv4 and IPv6.
+     * NetstatData status code will be {@link DNEStatusCode#ERROR} if exception occures for both methods.
+     */
     public void startNetstat() {
         new Thread() {
             @Override
@@ -118,7 +123,10 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
 
 
     /**
-     * Get BLE and classic devices nearby (uses broadcast receiver)
+     * Start searching for nearby bluetooth devices.
+     * Bluetooth status code will be {@link DNEStatusCode#UNSUPPORTED} if there is
+     * no bluetooth adapter or {@link DNEStatusCode#DISABLED} if bluetooth is disabled.
+     * @see BTScanner Bluetooth Scanner
      */
     public void startBluetooth() {
 
@@ -139,7 +147,8 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
     }
 
     /**
-     * Get location data (uses location listener)
+     * Start location listener, if app has required permissions otherwise
+     * just updates location status code to {@link DNEStatusCode#UNAUTHORIZED}.
      */
     public void startLocation() {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
@@ -180,6 +189,10 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         Dexter.checkPermissions(new CompositeMultiplePermissionsListener(listener, listener2), permissions);*/
     }
 
+    /**
+     * Starts location listener.
+     * Once we have location, we will stop collecting to preserve battery.
+     */
     private void startLocationListener() {
         final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         LocationListener locationListener = new LocationListener() {
@@ -215,7 +228,9 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
     }
 
     /**
-     * Get Motion pitch/roll, movement, orientation data
+     * Starts collecting various motion data ({@link AccelRadsObject accel rads},
+     * {@link PitchRollObject pitch roll}, {@link MagneticObject magnetic heading}, {@link GyroRadsObject gyro rads}).
+     * Uses internal Sensor manager and different sensors.
      */
     public void startMotion() {
 
@@ -292,6 +307,10 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                         mags = null;
                         accels = null;
 
+                        //first values can come as 0.0, 0.0, 0.0 --> we don't need those
+                        if(values[0] == 0 && values[1] == 0 && values[2] == 0)
+                            return;
+
                         PitchRollObject object = new PitchRollObject(values);
 
                         pitchRollArray.add(object);
@@ -361,9 +380,9 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
     }
 
     /**
-     * Get signal strength
+     * Starts collecting cellular signal data, and stops after first value.
      */
-    //TODO: maybe extend this for 10-20seconds?
+    //TODO: maybe extend this for 10-20seconds?, uses reflection to get LTE data
     public void startCellularSignal() {
         final TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         PhoneStateListener phoneStateListener = new PhoneStateListener() {
@@ -416,6 +435,11 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
     }
 
+    /**
+     * Starts collecting ambient light data.
+     * Value will be registered only when it's updated (no two same values in row).
+     * If there is no light sensor we'll set ambient status to {@link DNEStatusCode#UNSUPPORTED}
+     */
     public void startAmbientLight() {
 
         ambientLightArray = new ArrayList<>();
@@ -445,6 +469,11 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         }
     }
 
+    /**
+     * Starts root check.
+     * It will check if root access is given to the app, if busy box is available or if there's root available on the device.
+     * @see RootShell
+     */
     public void startRootCheck(){
         new Thread() {
             @Override
