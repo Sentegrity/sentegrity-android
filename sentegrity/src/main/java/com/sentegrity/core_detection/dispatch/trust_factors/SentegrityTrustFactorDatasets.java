@@ -1,5 +1,6 @@
 package com.sentegrity.core_detection.dispatch.trust_factors;
 
+import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -23,6 +24,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.CredentialRequest;
@@ -675,6 +677,29 @@ public class SentegrityTrustFactorDatasets {
             return cellularSignalRaw;
         }
         return cellularSignalRaw;
+    }
+
+    public String getLastApplication(){
+        //NOT WORKING ON ANDROID API >= 21
+        final ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(Integer.MAX_VALUE);
+
+        for (int i = 0; i < recentTasks.size(); i++) {
+        }
+        return null;
+    }
+
+    public Boolean hasOrientationLock(){
+        if (null == null) {
+            int orientationLock = Settings.System.getInt(context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, -1);
+            if(orientationLock == -1)
+                return null;
+            else if(orientationLock == 0)
+                return Boolean.FALSE;
+            else
+                return Boolean.TRUE;
+        }
+        return null;
     }
 
     /**
