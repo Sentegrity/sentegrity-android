@@ -18,6 +18,7 @@ import java.util.List;
 public class ActivitiesIntentService extends IntentService {
 
     private static final String TAG = "ActivitiesIntentService";
+    private int lastActivity = -1;
 
     public ActivitiesIntentService() {
         super(TAG);
@@ -29,13 +30,13 @@ public class ActivitiesIntentService extends IntentService {
 
         ArrayList<DetectedActivity> detectedActivities = (ArrayList) result.getProbableActivities();
 
-        SharedPreferences sp = getApplicationContext().getSharedPreferences("prefs", MODE_PRIVATE);
-        String currentValue = sp.getString("activities", "");
-        if(currentValue.substring(currentValue.lastIndexOf("\n")).startsWith(getDetectedActivity(detectedActivities.get(0).getType()))){
-
-        }else{
+        if(detectedActivities.get(0).getType() != lastActivity){
+            SharedPreferences sp = getApplicationContext().getSharedPreferences("prefs", MODE_PRIVATE);
+            String currentValue = sp.getString("activities", "");
             currentValue += getLine(detectedActivities);
             sp.edit().putString("activities", currentValue).apply();
+
+            lastActivity = detectedActivities.get(0).getType();
         }
     }
 
