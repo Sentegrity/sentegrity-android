@@ -1146,12 +1146,15 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Gets current application signature, hashes it using MD5, and compares with expected signature {@link SentegrityConstants#APK_SIGNATURE}.
+     * We need to check all the available signatures since there could be multiple ones (fake + real).
+     * Only return {@code true} if all signatures are ok (in practice that should be only one REAL signature)
      * @return {@code true/false} if app signature is ok, or {@code null} if there were some problems getting and hashing signature
      */
     public Boolean isAppSignatureOk(){
         if(isSignatureOK == null) {
             try {
                 PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
+                boolean signatureOk = false;
                 for (Signature signature : packageInfo.signatures) {
                     MessageDigest mdMd5 = MessageDigest.getInstance("MD5");
 
@@ -1166,10 +1169,12 @@ public class SentegrityTrustFactorDatasets {
                     }
 
                     if (SentegrityConstants.APK_SIGNATURE.equals(hexString.toString())) {
-                        return isSignatureOK = true;
+                        signatureOk = true;
+                    } else {
+                        return isSignatureOK = false;
                     }
-                    return isSignatureOK = false;
                 }
+                return isSignatureOK = signatureOk;
             } catch (Exception e) {
                 return null;
             }

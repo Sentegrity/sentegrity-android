@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * Created by dmestrov on 25/03/16.
  */
-public class TrustFactorDispatchMotion /*implements TrustFactorDispatch*/ {
+public class TrustFactorDispatchMotion {
 
     public static SentegrityTrustFactorOutput orientation(List<Object> payload){
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
@@ -168,19 +168,4 @@ public class TrustFactorDispatchMotion /*implements TrustFactorDispatch*/ {
 
         return output;
     }
-
-    /*
-    @Override
-    public SentegrityTrustFactorOutput run(String method, List<Object> payload) {
-        if("orientation".equals(method)){
-            return orientation(payload);
-        }
-        else if("movement".equals(method)){
-            return movement(payload);
-        }
-        else if("grip".equals(method)){
-            return grip(payload);
-        }
-        return null;
-    }*/
 }
