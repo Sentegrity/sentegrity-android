@@ -277,4 +277,31 @@ public class TrustFactorDispatchWifi {
 
         return output;
     }
+
+    public static SentegrityTrustFactorOutput unencryptedWifi(List<Object> payload){
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        List<String> outputList = new ArrayList<>();
+
+        if (!SentegrityTrustFactorDatasets.getInstance().isWifiEnabled()) {
+            output.setStatusCode(DNEStatusCode.DISABLED);
+            return output;
+        } else if (SentegrityTrustFactorDatasets.getInstance().isTethering()) {
+            output.setStatusCode(DNEStatusCode.UNAVAILABLE);
+            return output;
+        }
+
+        Boolean unencrypted = SentegrityTrustFactorDatasets.getInstance().isWifiUnencrypted();
+
+        if (unencrypted == null) {
+            output.setStatusCode(DNEStatusCode.NO_DATA);
+            return output;
+        }else if(unencrypted){
+            outputList.add(SentegrityTrustFactorDatasets.getInstance().getWifiInfo().getBSSID());
+        }
+
+        output.setOutput(outputList);
+
+        return output;
+    }
 }

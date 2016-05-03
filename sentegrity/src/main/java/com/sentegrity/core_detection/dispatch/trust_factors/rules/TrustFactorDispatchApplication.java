@@ -1,9 +1,10 @@
 package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
+import android.content.pm.ApplicationInfo;
+
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
-import com.sentegrity.core_detection.dispatch.trust_factors.helpers.application.AppInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +24,14 @@ public class TrustFactorDispatchApplication {
 
         List<String> outputList = new ArrayList<>();
 
-        List<AppInfo> userApps = SentegrityTrustFactorDatasets.getInstance().getInstalledAppInfo();
+        List<ApplicationInfo> userApps = SentegrityTrustFactorDatasets.getInstance().getInstalledAppInfo();
 
         if (userApps == null || userApps.size() == 0) {
             output.setStatusCode(DNEStatusCode.ERROR);
             return output;
         }
 
-        for (AppInfo appInfo : userApps) {
+        for (ApplicationInfo appInfo : userApps) {
 
             for (Object badAppName : payload) {
 

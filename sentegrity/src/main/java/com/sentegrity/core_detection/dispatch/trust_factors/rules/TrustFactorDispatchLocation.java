@@ -3,6 +3,7 @@ package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 import android.location.Location;
 import android.net.wifi.WifiInfo;
 import android.text.TextUtils;
+import android.util.ArrayMap;
 
 import com.google.gson.internal.LinkedTreeMap;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
@@ -12,13 +13,39 @@ import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.Magneti
 import com.sentegrity.core_detection.utilities.Helpers;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by dmestrov on 25/03/16.
  */
 public class TrustFactorDispatchLocation {
 
+    //TODO: agree on the values --> put them in policy
+    private static Map<Integer, Integer> alignedLightNoLoc;
+    private static Map<Integer, Integer> alignedLightLoc;
+    static {
+        alignedLightNoLoc = new ArrayMap<>();
+        alignedLightNoLoc.put(1, 5);
+        alignedLightNoLoc.put(2, 15);
+        alignedLightNoLoc.put(3, 40);
+        alignedLightNoLoc.put(4, 80);
+        alignedLightNoLoc.put(5, 150);
+        alignedLightNoLoc.put(6, 350);
+        alignedLightNoLoc.put(7, 600);
+        alignedLightNoLoc.put(8, Integer.MAX_VALUE/*1000*/);
+    }
+    static {
+        alignedLightLoc = new ArrayMap<>();
+        alignedLightLoc.put(1, 7);
+        alignedLightLoc.put(2, 45);
+        alignedLightLoc.put(3, 100);
+        alignedLightLoc.put(4, 250);
+        alignedLightLoc.put(5, 500);
+        alignedLightLoc.put(6, Integer.MAX_VALUE/*1000*/);
+    }
     public static SentegrityTrustFactorOutput locationGPS(List<Object> payload) {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
@@ -185,8 +212,8 @@ public class TrustFactorDispatchLocation {
         /**
          * Screen brightness
          */
-
-        //TODO: check if auto brightness
+        /*
+        // check if auto brightness
         Float screenLevel = SentegrityTrustFactorDatasets.getInstance().getSystemBrightness();
         float brightnessBlockSize = 0;
 
@@ -201,8 +228,44 @@ public class TrustFactorDispatchLocation {
         }
 
         int blockOfBrightness = Math.round(screenLevel * brightnessBlockSize);
+        */
 
-        anomalyString += "_LIGHT:" + blockOfBrightness;
+        //we'll be using lux value (from light_sensor)
+        //it returns ambient light value
+        List<Integer> ambientLightData = SentegrityTrustFactorDatasets.getInstance().getAmbientLightData();
+
+        if(ambientLightData == null || ambientLightData.size() == 0) {
+            //TODO:do we need some penalization? do we really have this data always - check for "unsupported" status
+            anomalyString += "_LIGHT:" + "NODATA";
+        }else{
+
+            int ambientLightLevel = 0;
+
+            //we'll take an average from all the values we have
+            for(Integer level : ambientLightData){
+                ambientLightLevel += level;
+            }
+            ambientLightLevel = ambientLightLevel / ambientLightData.size();
+
+            //set aligned value to highest possible
+            int alignedAmbientLight = 9;
+
+            Map<Integer, Integer> alignedValues;
+            if (!locationAvailable) {
+                alignedValues = alignedLightNoLoc;
+            } else {
+                alignedValues = alignedLightLoc;
+            }
+
+            for(Map.Entry<Integer, Integer> entry : alignedValues.entrySet()){
+                if(ambientLightLevel < entry.getValue()){
+                    alignedAmbientLight = entry.getKey();
+                    break;
+                }
+            }
+
+            anomalyString += "_LIGHT:" + alignedAmbientLight;
+        }
 
 
         /**
@@ -227,6 +290,7 @@ public class TrustFactorDispatchLocation {
 
         int cellularBlockSize;
 
+        //TODO: should we have different blocksizes for different connection speeds?
         if (!locationAvailable) {
             cellularBlockSize = (int) (double) ((LinkedTreeMap) payload.get(0)).get("cellSignalBlocksizeNoLocation");
         } else {

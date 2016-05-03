@@ -1,13 +1,21 @@
 package com.sentegrity.core_detection.dispatch.trust_factors;
 
+import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.content.res.AssetManager;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.TrafficStats;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
@@ -21,24 +29,19 @@ import android.util.Log;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.CredentialRequest;
 import com.google.android.gms.auth.api.credentials.CredentialRequestResult;
-import com.google.android.gms.auth.api.credentials.IdentityProviders;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
-import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetApplication;
+import com.sentegrity.core_detection.dispatch.activity_dispatcher.SentegrityActivityDispatcher;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetMotion;
-import com.sentegrity.core_detection.dispatch.trust_factors.helpers.SentegrityTrustFactorDatasetRoute;
-import com.sentegrity.core_detection.dispatch.trust_factors.helpers.application.AppInfo;
-import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
-import com.sentegrity.core_detection.dispatch.trust_factors.helpers.route.ActiveRoute;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.AccelRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.GyroRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.MagneticObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.PitchRollObject;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDetection;
+import com.sentegrity.core_detection.utilities.Helpers;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -46,8 +49,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.NetworkInterface;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -57,7 +63,10 @@ import java.util.Set;
 //import android.hardware.SensorManager;
 
 /**
- * Created by dmestrov on 23/03/16.
+ * Storage for all trustfactors data.
+ * First call to one method will calculate / obtain data, and later we will use that values.
+ * To obtain instance we simply call {@link SentegrityTrustFactorDatasets#getInstance()}.
+ * @see SentegrityActivityDispatcher Sentegrity activity dispatcher
  */
 public class SentegrityTrustFactorDatasets {
 
@@ -65,19 +74,28 @@ public class SentegrityTrustFactorDatasets {
 
     private int hourOfDay = -1;
     private int dayOfWeek = -1;
-    private String batteryState;
+    private String batteryState = null;
     private Boolean tethering = null;
-    private String carrierConnectionName;
+    private String carrierConnectionName = null;
     private Boolean airplaneMode = null;
     private Boolean wifiEnabled = null;
-    private WifiInfo wifiInfo;
-    private Location location;
+    private WifiInfo wifiInfo = null;
+    private Location location = null;
     private Float brightness = null;
     private Integer cellularSignalRaw = null;
     private Float gripMovement = null;
     private String userMovement = null;
     private String deviceOrientation = null;
     private Boolean passcodeSet = null;
+    private Boolean wifiUnencrypted = null;
+    private Integer backupEnabled = null;
+    private Boolean hasInternetConnection = null;
+    private String carrierConnectionSpeed = null;
+    private RootDetection rootDetection = null;
+    private Boolean isFromPlayStore = null;
+    private Boolean isOnEmulator = null;
+    private Boolean isDebuggable = null;
+    private Boolean isSignatureOK = null;
 
     private Set<String> pairedBTDevices;
     private Set<String> scannedBTDevices;
@@ -94,19 +112,21 @@ public class SentegrityTrustFactorDatasets {
     private DNEStatusCode accelMotionDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode netstatDataDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode cellularSignalDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode ambientLightDNEstatus = DNEStatusCode.OK;
 
     private List<MagneticObject> magneticHeading;
     private List<GyroRadsObject> gyroRads;
     private List<PitchRollObject> pitchRoll;
     private List<AccelRadsObject> accelRads;
     private List<ActiveConnection> netstatData;
-    private List<ActiveRoute> routeData;
-    private List<AppInfo> installedApps;
+    private List<NetworkInterface> routeData;
+    private List<ApplicationInfo> installedApps;
+    private List<Integer> ambientLightData;
 
     private WifiManager wifiManager;
     private TelephonyManager telephonyManager;
     private KeyguardManager keyguardManager;
-    private String carrierConnectionSpeed;
+    private ConnectivityManager connectivityManager;
 
     public SentegrityTrustFactorDatasets(Context context) {
         this.context = context;
@@ -126,6 +146,7 @@ public class SentegrityTrustFactorDatasets {
         updateWifiManager();
         updateTelefonyManager();
         updateKeyguardManager();
+        updateConnectivityManager();
         this.runTime = -1;
 
         magneticHeading = null;
@@ -134,11 +155,30 @@ public class SentegrityTrustFactorDatasets {
         accelRads = null;
         netstatData = null;
         routeData = null;
+        ambientLightData = null;
 
         pairedBTDevices = null;
         scannedBTDevices = null;
 
         installedApps = null;
+
+        batteryState = null;
+        tethering = null;
+        carrierConnectionName = null;
+        airplaneMode = null;
+        wifiEnabled = null;
+        wifiInfo = null;
+        location = null;
+        brightness = null;
+        cellularSignalRaw = null;
+        gripMovement = null;
+        userMovement = null;
+        deviceOrientation = null;
+        passcodeSet = null;
+        wifiUnencrypted = null;
+        backupEnabled = null;
+        hasInternetConnection = null;
+        rootDetection = null;
 
     }
 
@@ -146,6 +186,11 @@ public class SentegrityTrustFactorDatasets {
         sInstance = new SentegrityTrustFactorDatasets(context);
     }
 
+    /**
+     * If instance is not already available, method throws illegal state exception. Call {@link com.sentegrity.core_detection.CoreDetection#initialize(Context)}.
+     * First time we run it sets run time - this way all trustfactors will have same run time.
+     * @return current instance of the sentegrity trust factor dataset
+     */
     public static SentegrityTrustFactorDatasets getInstance() {
         if (sInstance == null) {
             throw new IllegalStateException("Please call CoreDetection.initialize({context}) before requesting the instance.");
@@ -161,10 +206,145 @@ public class SentegrityTrustFactorDatasets {
         return runTime;
     }
 
+    public DNEStatusCode getLocationDNEStatus() {
+        return locationDNEStatus;
+    }
+
+    public DNEStatusCode getCellularSignalDNEStatus() {
+        return cellularSignalDNEStatus;
+    }
+
+    public DNEStatusCode getPairedBTDNEStatus() {
+        return pairedBTDNEStatus;
+    }
+
+    public DNEStatusCode getScannedBTDNEStatus() {
+        return scannedBTDNEStatus;
+    }
+
+    public DNEStatusCode getUserMovementDNEStatus() {
+        return userMovementDNEStatus;
+    }
+
+    public DNEStatusCode getGyroMotionDNEStatus() {
+        return gyroMotionDNEStatus;
+    }
+
+    public DNEStatusCode getMagneticHeadingDNEStatus() {
+        return magneticHeadingDNEStatus;
+    }
+
+    public DNEStatusCode getAccelMotionDNEStatus() {
+        return accelMotionDNEStatus;
+    }
+
+    public DNEStatusCode getNetstatDataDNEStatus() {
+        return netstatDataDNEStatus;
+    }
+
+    public DNEStatusCode getAmbientLightDNEstatus() {
+        return ambientLightDNEstatus;
+    }
+
+    public void setPairedBTDNEStatus(DNEStatusCode pairedBTDNEStatus) {
+        this.pairedBTDNEStatus = pairedBTDNEStatus;
+    }
+
+    public void setScannedBTDNEStatus(DNEStatusCode scannedBTDNEStatus) {
+        this.scannedBTDNEStatus = scannedBTDNEStatus;
+    }
+
+    public void setLocationDNEStatus(DNEStatusCode locationDNEStatus) {
+        this.locationDNEStatus = locationDNEStatus;
+    }
+
+    public void setGyroMotionDNEStatus(DNEStatusCode gyroMotionDNEStatus) {
+        this.gyroMotionDNEStatus = gyroMotionDNEStatus;
+    }
+
+    public void setMagneticHeadingDNEStatus(DNEStatusCode magneticHeadingDNEStatus) {
+        this.magneticHeadingDNEStatus = magneticHeadingDNEStatus;
+    }
+
+    public void setUserMovementDNEStatus(DNEStatusCode userMovementDNEStatus) {
+        this.userMovementDNEStatus = userMovementDNEStatus;
+    }
+
+    public void setAccelMotionDNEStatus(DNEStatusCode accelMotionDNEStatus) {
+        this.accelMotionDNEStatus = accelMotionDNEStatus;
+    }
+
+    public void setNetstatDataDNEStatus(DNEStatusCode netstatDataDNEStatus) {
+        this.netstatDataDNEStatus = netstatDataDNEStatus;
+    }
+
+    public void setCellularSignalDNEStatus(DNEStatusCode cellularSignalDNEStatus) {
+        this.cellularSignalDNEStatus = cellularSignalDNEStatus;
+    }
+
+    public void setAmbientLightDNEstatus(DNEStatusCode ambientLightDNEstatus) {
+        this.ambientLightDNEstatus = ambientLightDNEstatus;
+    }
+
+    public void setScannedBTDevices(Set<String> scannedBTDevices) {
+        this.scannedBTDevices = scannedBTDevices;
+    }
+
+    public void setPairedBTDevices(Set<String> pairedBTDevices) {
+        this.pairedBTDevices = pairedBTDevices;
+    }
+
+    public void setNetstatData(List<ActiveConnection> netstatData) {
+        this.netstatData = netstatData;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public void setCellularSignalRaw(Integer cellularSignalRaw) {
+        this.cellularSignalRaw = cellularSignalRaw;
+    }
+
+    public void setAmbientLight(List<Integer> ambientLightData){
+        this.ambientLightData = ambientLightData;
+    }
+
+    public void setMagneticHeading(List<MagneticObject> magneticHeading) {
+        this.magneticHeading = magneticHeading;
+    }
+
+    public void setGyroRads(List<GyroRadsObject> gyroRads) {
+        this.gyroRads = gyroRads;
+    }
+
+    public void setPitchRoll(List<PitchRollObject> pitchRoll) {
+        this.pitchRoll = pitchRoll;
+    }
+
+    public void setAccelRads(List<AccelRadsObject> accelRads) {
+        this.accelRads = accelRads;
+    }
+
+    public void setRootDetection(RootDetection rootDetection){
+        this.rootDetection = rootDetection;
+    }
+
+    /**
+     * Validates trustfactors payload
+     * @param payload trustfactor rule payload
+     * @return {@code false} if payload is null or empty, otherwise {@code true}
+     */
     public static boolean validatePayload(List<Object> payload) {
         return !(payload == null || payload.size() < 1);
     }
 
+    /**
+     * Calculates current hour and day from calendar instance.
+     * @param blockSize hours block size for aligning current hours value --> if zero, return only day
+     * @param withDayOfWeek if day should be returned or not
+     * @return string with aligned hours and day (numerical value)
+     */
     public String getTimeDateString(double blockSize, boolean withDayOfWeek) {
         if (hourOfDay < 0 || dayOfWeek < 0) {
 
@@ -207,6 +387,11 @@ public class SentegrityTrustFactorDatasets {
 
     }
 
+    /**
+     * Gets current battery state based on internal ACTION_BATTERY_CHANGED filter.
+     * First we'll check if battery is plugged and return state, otherwise we'll check status.
+     * @return string representing current battery state
+     */
     public String getBatteryState() {
         if (TextUtils.isEmpty(batteryState)) {
             IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
@@ -238,6 +423,10 @@ public class SentegrityTrustFactorDatasets {
         }
     }
 
+    /**
+     * Gets current battery percentage based on internal ACTION_BATTERY_CHANGED filter.
+     * @return float representing current battery percentage (0.0 -> 1.0), -1 if not available
+     */
     public float getBatteryPercent() {
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, ifilter);
@@ -250,13 +439,24 @@ public class SentegrityTrustFactorDatasets {
         return level / (float) scale;
     }
 
-    public List<AppInfo> getInstalledAppInfo() {
+    /**
+     * Gets all installed apps from package manager.
+     * @return list of installed application info
+     */
+    public List<ApplicationInfo> getInstalledAppInfo() {
         if (installedApps == null || installedApps.size() == 0) {
-            return installedApps = SentegrityTrustFactorDatasetApplication.getUserAppInfo(context);
+            PackageManager packageManager = context.getPackageManager();
+            return installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
         }
         return installedApps;
     }
 
+    /**
+     * Checks if device is in tethering mode at the moment.
+     * Uses reflection for current status.
+     * @return {@code true/false} if in tethering mode, or {@code null} if not available
+     */
+    //TODO: uses reflection
     public Boolean isTethering() {
         if (tethering == null) {
             if (!updateWifiManager()) {
@@ -273,6 +473,57 @@ public class SentegrityTrustFactorDatasets {
         return tethering;
     }
 
+    /**
+     * Checks wifi encryption status based on wifi manager configured networks and current bssid.
+     * Checks for WPA_PSK, WPA_EAP, IEEE8021X or WEP.
+     * @return {@code true/false} if (un)encrypted, or {@code null} if not available
+     */
+    public Boolean isWifiUnencrypted() {
+        if (wifiUnencrypted == null) {
+            if (!updateWifiManager()) {
+                return null;
+            }
+            final WifiInfo wifiInfo = getWifiInfo();
+
+            for (WifiConfiguration configuration : wifiManager.getConfiguredNetworks()) {
+                if (wifiInfo.getBSSID().equals(configuration.BSSID)) {
+                    boolean unencrypted = false;
+                    if (configuration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_PSK)) {
+                        unencrypted = true;
+                    } else if (configuration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_EAP)) {
+                        unencrypted = true;
+                    } else if (configuration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.IEEE8021X)) {
+                        unencrypted = true;
+                    } else if (configuration.wepKeys.length > 0 && configuration.wepKeys[0] != null) {
+                        unencrypted = true;
+                    }
+                    return wifiUnencrypted = unencrypted;
+                }
+            }
+            return null;
+        }
+        return wifiUnencrypted;
+    }
+
+    /**
+     * Checks if device has working internet connection.
+     * @return {@code true/false} if there is active internet connections, or {@code null} if not available
+     */
+    public Boolean hasInternetConnection() {
+        if (hasInternetConnection == null) {
+            if (!updateConnectivityManager()) {
+                return null;
+            }
+            NetworkInfo netInfo = connectivityManager.getActiveNetworkInfo();
+            return hasInternetConnection = netInfo != null && netInfo.isConnectedOrConnecting();
+        }
+        return hasInternetConnection;
+    }
+
+    /**
+     * Gets current carrier name.
+     * @return string representing current operator
+     */
     public String getCarrierConnectionName() {
         if (TextUtils.isEmpty(carrierConnectionName)) {
             if (!updateWifiManager()) {
@@ -283,6 +534,11 @@ public class SentegrityTrustFactorDatasets {
         return carrierConnectionName;
     }
 
+    /**
+     * Checks if device is in airplane mode at the moment.
+     * Settings.Global for newer versions, and Setting.System for API < 17
+     * @return {@code true/false} if in airplane mode
+     */
     public Boolean isAirplaneMode() {
         if (airplaneMode == null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -296,6 +552,10 @@ public class SentegrityTrustFactorDatasets {
         return airplaneMode;
     }
 
+    /**
+     * Checks if wifi is currently enabled on device.
+     * @return {@code true/false} if wifi is enabled, or {@code null} if not available
+     */
     public Boolean isWifiEnabled() {
         if (wifiEnabled == null) {
             if (!updateWifiManager()) {
@@ -306,6 +566,10 @@ public class SentegrityTrustFactorDatasets {
         return wifiEnabled;
     }
 
+    /**
+     * Collects current wifi info from wifi manager.
+     * @return wifi info, or {@code null} if not available
+     */
     public WifiInfo getWifiInfo() {
         if (wifiInfo == null) {
             if (!updateWifiManager()) {
@@ -316,6 +580,9 @@ public class SentegrityTrustFactorDatasets {
         return wifiInfo;
     }
 
+    /**
+     * @return string representing current device orientation
+     */
     public String getDeviceOrientation() {
         if (deviceOrientation == null) {
             return deviceOrientation = SentegrityTrustFactorDatasetMotion.getOrientation(context);
@@ -323,6 +590,9 @@ public class SentegrityTrustFactorDatasets {
         return deviceOrientation;
     }
 
+    /**
+     * @return string representing current user movement
+     */
     public String getUserMovement() {
         if (userMovement == null) {
             return userMovement = SentegrityTrustFactorDatasetMotion.getUserMovement();
@@ -330,6 +600,9 @@ public class SentegrityTrustFactorDatasets {
         return userMovement;
     }
 
+    /**
+     * @return float representing current grip movement
+     */
     public float getGripMovement() {
         if (gripMovement == null) {
             return gripMovement = SentegrityTrustFactorDatasetMotion.getGripMovement();
@@ -337,6 +610,10 @@ public class SentegrityTrustFactorDatasets {
         return gripMovement;
     }
 
+    /**
+     * Groups connection speed into 2G, 3G, 4G.
+     * @return string representing current connection speed, or "unknown" if not applicable
+     */
     public String getCarrierConnectionSpeed() {
         if (carrierConnectionSpeed == null) {
             if (!updateTelefonyManager()) {
@@ -372,6 +649,10 @@ public class SentegrityTrustFactorDatasets {
         return carrierConnectionSpeed;
     }
 
+    /**
+     * Waits for cellular signal data populated from {@link SentegrityActivityDispatcher#startCellularSignal()}.
+     * @return list of cellular signal, {@code null} if expired or not available
+     */
     public Integer getCellularSignalRaw() {
         if (cellularSignalRaw == null) {
             if (getCellularSignalDNEStatus() == DNEStatusCode.EXPIRED) {
@@ -398,22 +679,33 @@ public class SentegrityTrustFactorDatasets {
         return cellularSignalRaw;
     }
 
-    public void setMagneticHeading(List<MagneticObject> magneticHeading) {
-        this.magneticHeading = magneticHeading;
+    public String getLastApplication(){
+        //NOT WORKING ON ANDROID API >= 21
+        final ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(Integer.MAX_VALUE);
+
+        for (int i = 0; i < recentTasks.size(); i++) {
+        }
+        return null;
     }
 
-    public void setGyroRads(List<GyroRadsObject> gyroRads) {
-        this.gyroRads = gyroRads;
+    public Boolean hasOrientationLock(){
+        if (null == null) {
+            int orientationLock = Settings.System.getInt(context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, -1);
+            if(orientationLock == -1)
+                return null;
+            else if(orientationLock == 0)
+                return Boolean.FALSE;
+            else
+                return Boolean.TRUE;
+        }
+        return null;
     }
 
-    public void setPitchRoll(List<PitchRollObject> pitchRoll) {
-        this.pitchRoll = pitchRoll;
-    }
-
-    public void setAccelRads(List<AccelRadsObject> accelRads) {
-        this.accelRads = accelRads;
-    }
-
+    /**
+     * Waits for gyro rads data populated from {@link SentegrityActivityDispatcher#startMotion()}.
+     * @return list of gyro rads data, {@code null} if expired or not available
+     */
     public List<GyroRadsObject> getGyroRads() {
         //TODO: what? doesn't make sense, we're using accelerometer and magnetometer for pitch and roll. check again
         if (gyroRads == null || gyroRads.size() == 0) {
@@ -440,6 +732,10 @@ public class SentegrityTrustFactorDatasets {
         return gyroRads;
     }
 
+    /**
+     * Waits for gyro pitch roll data populated from {@link SentegrityActivityDispatcher#startMotion()}.
+     * @return list of gyro pitch roll data, {@code null} if expired or not available
+     */
     public List<PitchRollObject> getGyroPitchRoll() {
         if (pitchRoll == null || pitchRoll.size() == 0) {
             if (getGyroMotionDNEStatus() == DNEStatusCode.EXPIRED)
@@ -465,6 +761,10 @@ public class SentegrityTrustFactorDatasets {
         return pitchRoll;
     }
 
+    /**
+     * Waits for accelerometer rads data populated from {@link SentegrityActivityDispatcher#startMotion()}.
+     * @return list of accelerometer rads data, {@code null} if expired or not available
+     */
     public List<AccelRadsObject> getAccelRads() {
         if (accelRads == null || accelRads.size() == 0) {
             if (getAccelMotionDNEStatus() == DNEStatusCode.EXPIRED)
@@ -490,6 +790,10 @@ public class SentegrityTrustFactorDatasets {
         return accelRads;
     }
 
+    /**
+     * Waits for magnetic heading data populated from {@link SentegrityActivityDispatcher#startMotion()}.
+     * @return list of magnetic heading data, {@code null} if expired or not available
+     */
     public List<MagneticObject> getMagneticHeading() {
         if (magneticHeading == null || magneticHeading.size() == 0) {
             if (getAccelMotionDNEStatus() == DNEStatusCode.EXPIRED)
@@ -515,104 +819,16 @@ public class SentegrityTrustFactorDatasets {
         return magneticHeading;
     }
 
-
-    public DNEStatusCode getLocationDNEStatus() {
-        return locationDNEStatus;
-    }
-
-    public DNEStatusCode getCellularSignalDNEStatus() {
-        return cellularSignalDNEStatus;
-    }
-
-    public DNEStatusCode getPairedBTDNEStatus() {
-        return pairedBTDNEStatus;
-    }
-
-    public DNEStatusCode getScannedBTDNEStatus() {
-        return scannedBTDNEStatus;
-    }
-
-    public DNEStatusCode getUserMovementDNEStatus() {
-        return userMovementDNEStatus;
-    }
-
-    public DNEStatusCode getGyroMotionDNEStatus() {
-        return gyroMotionDNEStatus;
-    }
-
-    public DNEStatusCode getMagneticHeadingDNEStatus() {
-        return magneticHeadingDNEStatus;
-    }
-
-    public DNEStatusCode getAccelMotionDNEStatus() {
-        return accelMotionDNEStatus;
-    }
-
-    public DNEStatusCode getNetstatDataDNEStatus() {
-        return netstatDataDNEStatus;
-    }
-
-    public void setPairedBTDNEStatus(DNEStatusCode pairedBTDNEStatus) {
-        this.pairedBTDNEStatus = pairedBTDNEStatus;
-    }
-
-    public void setScannedBTDNEStatus(DNEStatusCode scannedBTDNEStatus) {
-        this.scannedBTDNEStatus = scannedBTDNEStatus;
-    }
-
-    public void setLocationDNEStatus(DNEStatusCode locationDNEStatus) {
-        this.locationDNEStatus = locationDNEStatus;
-    }
-
-    public void setGyroMotionDNEStatus(DNEStatusCode gyroMotionDNEStatus) {
-        this.gyroMotionDNEStatus = gyroMotionDNEStatus;
-    }
-
-    public void setMagneticHeadingDNEStatus(DNEStatusCode magneticHeadingDNEStatus) {
-        this.magneticHeadingDNEStatus = magneticHeadingDNEStatus;
-    }
-
-    public void setUserMovementDNEStatus(DNEStatusCode userMovementDNEStatus) {
-        this.userMovementDNEStatus = userMovementDNEStatus;
-    }
-
-    public void setAccelMotionDNEStatus(DNEStatusCode accelMotionDNEStatus) {
-        this.accelMotionDNEStatus = accelMotionDNEStatus;
-    }
-
-    public void setNetstatDataDNEStatus(DNEStatusCode netstatDataDNEStatus) {
-        this.netstatDataDNEStatus = netstatDataDNEStatus;
-    }
-
-    public void setCellularSignalDNEStatus(DNEStatusCode cellularSignalDNEStatus) {
-        this.cellularSignalDNEStatus = cellularSignalDNEStatus;
-    }
-
-    public void setScannedBTDevices(Set<String> scannedBTDevices) {
-        this.scannedBTDevices = scannedBTDevices;
-    }
-
-    public void setPairedBTDevices(Set<String> pairedBTDevices) {
-        this.pairedBTDevices = pairedBTDevices;
-    }
-
-    public void setNetstatData(List<ActiveConnection> netstatData) {
-        this.netstatData = netstatData;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public void setCellularSignalRaw(Integer cellularSignalRaw) {
-        this.cellularSignalRaw = cellularSignalRaw;
-    }
-
+    /**
+     * Waits for paired bluetooth devices populated from {@link SentegrityActivityDispatcher#startBluetooth()}.
+     * @return list of paired bluetooth devices, {@code null} if expired or not available
+     */
     public Set<String> getPairedBTDevices() {
         if (pairedBTDevices == null || pairedBTDevices.size() == 0) {
             if (getPairedBTDNEStatus() == DNEStatusCode.EXPIRED)
                 return pairedBTDevices;
 
+            //TODO: this waiting period should probably be removed
             long startTime = System.currentTimeMillis();
             long currentTime = startTime;
             float waitTime = 50;
@@ -633,14 +849,19 @@ public class SentegrityTrustFactorDatasets {
         return pairedBTDevices;
     }
 
+    /**
+     * Waits for found bluetooth devices populated from {@link SentegrityActivityDispatcher#startBluetooth()}.
+     * @return list of found bluetooth devices, {@code null} if expired or not available
+     */
     public Set<String> getScannedBTDevices() {
         if (scannedBTDevices == null || scannedBTDevices.size() == 0) {
             if (getScannedBTDNEStatus() == DNEStatusCode.EXPIRED)
                 return scannedBTDevices;
 
+            //TODO: this waiting period should probably be removed
             long startTime = System.currentTimeMillis();
             long currentTime = startTime;
-            float waitTime = 250;
+            float waitTime = 50;
 
             while ((currentTime - startTime) < waitTime) {
                 if (scannedBTDevices != null && scannedBTDevices.size() > 0)
@@ -658,6 +879,10 @@ public class SentegrityTrustFactorDatasets {
         return scannedBTDevices;
     }
 
+    /**
+     * Waits for netstat data populated from {@link SentegrityActivityDispatcher#startNetstat()}.
+     * @return list of netstat data, {@code null} if expired or not available
+     */
     public List<ActiveConnection> getNetstatData() {
         if (netstatData == null || netstatData.size() == 0) {
             if (getNetstatDataDNEStatus() == DNEStatusCode.EXPIRED)
@@ -682,6 +907,10 @@ public class SentegrityTrustFactorDatasets {
         return netstatData;
     }
 
+    /**
+     * Gets total transmitted bytes since last boot.
+     * @return total transmitted data or @UNSUPPORTED (for some devices with API < 17)
+     */
     public Long getDataXferInfo() {
         long trafficBytesSent = TrafficStats.getTotalTxBytes();
         if (trafficBytesSent == TrafficStats.UNSUPPORTED) {
@@ -690,10 +919,14 @@ public class SentegrityTrustFactorDatasets {
         return trafficBytesSent;
     }
 
-    public List<ActiveRoute> getRouteInfo() {
+    /**
+     * Gets all network interfaces.
+     * @return list of currently active network interfaces, or {@code null} if not available
+     */
+    public List<NetworkInterface> getRouteInfo() {
         if (routeData == null) {
             try {
-                return routeData = SentegrityTrustFactorDatasetRoute.getAllRoutes();
+                return routeData = Collections.list(NetworkInterface.getNetworkInterfaces());
             } catch (IOException e) {
                 return null;
             }
@@ -702,6 +935,10 @@ public class SentegrityTrustFactorDatasets {
         }
     }
 
+    /**
+     * Waits for location data populated from {@link SentegrityActivityDispatcher#startLocation()}.
+     * @return list of location data, {@code null} if expired or not available
+     */
     public Location getLocationInfo() {
         if (location == null) {
             if (getLocationDNEStatus() == DNEStatusCode.EXPIRED) {
@@ -728,6 +965,13 @@ public class SentegrityTrustFactorDatasets {
         return location;
     }
 
+    /**
+     * Check whether device has some passcode set or not.
+     * For Android API >= 23 there is class/method for this, but for previous versions we are using
+     * couple of different techniques all using reflection.
+     * @return {@code true/false} if there is some passcode set, {@code null} if not available
+     */
+    //TODO: uses reflection
     public Boolean isPasscodeSet() {
         if (passcodeSet == null) {
             //version 23+
@@ -768,6 +1012,23 @@ public class SentegrityTrustFactorDatasets {
         return passcodeSet;
     }
 
+    /**
+     * Checks whether we have backup enabled.
+     * @return {@code true/false} if there is backup enabled
+     */
+    public Integer isBackupEnabled(){
+            if (backupEnabled == null) {
+                //only tested for nexus 5 and nexus 5x, android version 6.0.1
+                //TODO: "backup_enabled" is hidden secure setting, this should be checked
+                return backupEnabled = Settings.Secure.getInt(context.getContentResolver(), "backup_enabled", -1);
+            }
+            return backupEnabled;
+    }
+
+    /**
+     * Collects SSID list from internal application file.
+     * @return arraylist of SSIDs, or {@code null} if not available
+     */
     public ArrayList<String> getSSIDList() {
         try {
             AssetManager mg = context.getResources().getAssets();
@@ -794,6 +1055,10 @@ public class SentegrityTrustFactorDatasets {
         }
     }
 
+    /**
+     * Collects OUI list from internal application file.
+     * @return list of OUIs, or {@code null} if not available
+     */
     public List<String> getOUIList() {
         try {
             AssetManager mg = context.getResources().getAssets();
@@ -815,6 +1080,10 @@ public class SentegrityTrustFactorDatasets {
         }
     }
 
+    /**
+     * Collects hotspot names list from internal application file.
+     * @return list of hotspot names, or {@code null} if not available
+     */
     public List<String> getHotspotList() {
         try {
             AssetManager mg = context.getResources().getAssets();
@@ -836,25 +1105,144 @@ public class SentegrityTrustFactorDatasets {
         }
     }
 
+    /**
+     * Waits for ambient light data.
+     * @return list of ambient light data, {@code null} if expired or not available
+     */
+    public List<Integer> getAmbientLightData(){
+        if(ambientLightData == null){
+            if (getAmbientLightDNEstatus() == DNEStatusCode.EXPIRED) {
+                return ambientLightData;
+            }
+
+            long startTime = System.currentTimeMillis();
+            long currentTime = startTime;
+            float waitTime = 50;
+
+            while ((currentTime - startTime) < waitTime) {
+                if (ambientLightData != null)
+                    return ambientLightData;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                }
+
+                currentTime = System.currentTimeMillis();
+            }
+
+            setAmbientLightDNEstatus(DNEStatusCode.EXPIRED);
+            return ambientLightData;
+        }
+        return ambientLightData;
+    }
+
+    /**
+     * @return current root detection object that is populated from {@link SentegrityActivityDispatcher#startRootCheck()}
+     */
+    //TODO: check how to implement this
+    public RootDetection getRootDetection(){
+        return rootDetection;
+    }
+
+    /**
+     * Gets current application signature, hashes it using MD5, and compares with expected signature {@link SentegrityConstants#APK_SIGNATURE}.
+     * We need to check all the available signatures since there could be multiple ones (fake + real).
+     * Only return {@code true} if all signatures are ok (in practice that should be only one REAL signature)
+     * @return {@code true/false} if app signature is ok, or {@code null} if there were some problems getting and hashing signature
+     */
+    public Boolean isAppSignatureOk(){
+        if(isSignatureOK == null) {
+            try {
+                PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
+                boolean signatureOk = false;
+                for (Signature signature : packageInfo.signatures) {
+                    MessageDigest mdMd5 = MessageDigest.getInstance("MD5");
+
+                    mdMd5.update(signature.toCharsString().getBytes());
+                    byte byteData[] = mdMd5.digest();
+
+                    StringBuilder hexString = new StringBuilder();
+                    for (byte aByteData : byteData) {
+                        String hex = Integer.toHexString(0xff & aByteData);
+                        if (hex.length() == 1) hexString.append('0');
+                        hexString.append(hex);
+                    }
+
+                    if (SentegrityConstants.APK_SIGNATURE.equals(hexString.toString())) {
+                        signatureOk = true;
+                    } else {
+                        return isSignatureOK = false;
+                    }
+                }
+                return isSignatureOK = signatureOk;
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return isSignatureOK;
+    }
+
+    /**
+     * Checks if this app is installed from play store (otherwise it could be fake).
+     * @return {@code true/false} if app is installed from play store
+     */
+    public Boolean isFromPlayStore() {
+        if(isFromPlayStore == null) {
+            final String installer = context.getPackageManager().getInstallerPackageName(context.getPackageName());
+            return isFromPlayStore = (installer != null && installer.startsWith("com.android.vending"));
+        }
+        return isFromPlayStore;
+    }
+
+    /**
+     * Checks if app is running on the emulator.
+     * This shouldn't be the case - it might indicate that someone is using app for "fishy" stuff.
+     * @return {@code true/false} if app is running on emulator
+     */
+    public Boolean isOnEmulator() {
+        if(isOnEmulator == null) {
+            try {
+
+                return isOnEmulator = (Helpers.getSystemProperty("ro.hardware").contains("goldfish")
+                        || Helpers.getSystemProperty("ro.kernel.qemu").length() > 0
+                        || Helpers.getSystemProperty("ro.product.model").equals("sdk"));
+
+            } catch (Exception e) {
+
+            }
+
+            return isOnEmulator = (Build.FINGERPRINT.startsWith("generic")
+                    || Build.FINGERPRINT.startsWith("unknown")
+                    || Build.MODEL.contains("google_sdk")
+                    || Build.MODEL.contains("Emulator")
+                    || Build.MODEL.contains("Android SDK built for x86")
+                    || Build.MANUFACTURER.contains("Genymotion")
+                    || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+                    || "google_sdk".equals(Build.PRODUCT));
+        }
+        return isOnEmulator;
+    }
+
+    /**
+     * Checks whether current running app is debuggable. This shouldn't happen once it's in production.
+     * @return {@code true/false} if app is debuggable
+     */
+    public Boolean checkDebuggable(){
+        if(isDebuggable == null) {
+            return isDebuggable = ((context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
+        }
+        return isDebuggable;
+    }
+
+    /**
+     * Gets system brightness.
+     * It only works when brightness is on Manual mode.
+     * @return float representing current brightness (0.0 - 1.0)
+     */
+    @Deprecated
     public Float getSystemBrightness() {
         if (brightness == null) {
-            //TODO: this is the way to go. android internally uses light sensor. move this to activity dispatcher and we're good to go!
-//            SensorManager mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
-//            Sensor mLight = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-//            mSensorManager.registerListener(new SensorEventListener() {
-//                @Override
-//                public void onSensorChanged(SensorEvent event) {
-//                    if( event.sensor.getType() == Sensor.TYPE_LIGHT) {
-//                    }
-//                }
-//
-//                @Override
-//                public void onAccuracyChanged(Sensor sensor, int accuracy) {
-//
-//                }
-//            }, mLight, 1000);
             float current = Settings.System.getInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS, -1);
-
             //if we're in auto mode, then get adjusted brightness level
             //screen_auto_brightness_adj has values [-1.0, 1.0]
             //this returns only user adjusted value
@@ -871,22 +1259,44 @@ public class SentegrityTrustFactorDatasets {
         return brightness;
     }
 
+    /**
+     * Private method for updating wifi manager.
+     * @return {@code false} if there is no {@link Context#WIFI_SERVICE WIFI_SERVICE}, {@code true} if everything went fine
+     */
     private boolean updateWifiManager() {
         if (wifiManager != null) return true;
         wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
         return wifiManager != null;
     }
 
+    /**
+     * Private method for updating telephony manager.
+     * @return {@code false} if there is no {@link Context#TELEPHONY_SERVICE TELEPHONY_SERVICE}, {@code true} if everything went fine
+     */
     private boolean updateTelefonyManager() {
         if (telephonyManager != null) return true;
         telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         return telephonyManager != null;
     }
 
+    /**
+     * Private method for updating keyguard manager.
+     * @return {@code false} if there is no {@link Context#KEYGUARD_SERVICE KEYGUARD_SERVICE}, {@code true} if everything went fine
+     */
     private boolean updateKeyguardManager() {
         if (keyguardManager != null) return true;
         keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
         return keyguardManager != null;
+    }
+
+    /**
+     * Private method for updating connectivity manager.
+     * @return {@code false} if there is no {@link Context#CONNECTIVITY_SERVICE CONNECTIVITY_SERVICE}, {@code true} if everything went fine
+     */
+    private boolean updateConnectivityManager() {
+        if (connectivityManager != null) return true;
+        connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        return connectivityManager != null;
     }
 
     /**

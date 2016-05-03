@@ -13,7 +13,22 @@ import java.util.List;
 public class TrustFactorDispatchConfiguration {
 
     public static SentegrityTrustFactorOutput backupEnabled(List<Object> payload) {
-        return new SentegrityTrustFactorOutput();
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        List<String> outputList = new ArrayList<>();
+
+        Integer backupEnabled = SentegrityTrustFactorDatasets.getInstance().isBackupEnabled();
+
+        if(backupEnabled == -1){
+            output.setStatusCode(DNEStatusCode.UNAVAILABLE);
+            return output;
+        } else if(backupEnabled == 1) {
+            outputList.add("backup-enabled");
+        }
+
+        output.setOutput(outputList);
+
+        return output;
     }
 
     public static SentegrityTrustFactorOutput passcodeSet(List<Object> payload) {
@@ -28,7 +43,7 @@ public class TrustFactorDispatchConfiguration {
             return output;
         }
         if(!isPasscodeSet)
-            outputList.add("passcodeNotSet");
+            outputList.add("passcode-not-set");
 
         output.setOutput(outputList);
 

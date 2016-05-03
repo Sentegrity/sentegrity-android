@@ -11,6 +11,7 @@ public class ActiveConnection {
     public String localIp;
     public String localPort;
     public String remoteIp;
+    @Deprecated
     public String remoteHost;
     public String remotePort;
     public String state;

@@ -17,8 +17,11 @@ import java.util.regex.Pattern;
 /**
  * Created by dmestrov on 13/04/16.
  */
+@Deprecated
 public class SentegrityTrustFactorDatasetRoute {
 
+    //not working really good
+    @Deprecated
     public static List<ActiveRoute> getAllRoutes() throws IOException {
         Process process = Runtime.getRuntime().exec(new String[]{"ip", "route", "list", "table", "all"});
         BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -69,7 +72,6 @@ public class SentegrityTrustFactorDatasetRoute {
 
     @Deprecated
     public static List<ActiveRoute> getRoutes() throws IOException {
-        //TODO: if fails try other command --> route -n
         Process process = Runtime.getRuntime().exec(new String[]{"netstat", "-rn"});
         BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
 

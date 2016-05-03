@@ -17,7 +17,6 @@ import android.widget.Toast;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.ActivityRecognition;
-import com.google.android.gms.location.DetectedActivity;
 import com.sentegrity.android.R;
 import com.sentegrity.android.activity.ActivitiesIntentService;
 import com.sentegrity.core_detection.CoreDetection;
@@ -47,19 +46,18 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
         startAnalyzing();
     }
 
-    //let's skip this for now
     @Override
     protected void onStart() {
         super.onStart();
-        //mGoogleApiClient.connect();
+        mGoogleApiClient.connect();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        //if (mGoogleApiClient.isConnected()) {
-        //    mGoogleApiClient.disconnect();
-        //}
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
     }
 
     private void startAnalyzing() {
@@ -72,11 +70,16 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
         final SentegrityPolicy policy = CoreDetection.getInstance().parsePolicy("default.policy");
         CoreDetection.getInstance().performCoreDetection(policy, new CoreDetectionCallback() {
             @Override
-            public void onFinish(SentegrityTrustScoreComputation computationResult, SentegrityError error, boolean success) {
+            public void onFinish(final SentegrityTrustScoreComputation computationResult, SentegrityError error, boolean success) {
                 if (success) {
-                    analyzeResults(computationResult, policy);
-                    progressDialog.cancel();
-                    //showError();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            analyzeResults(computationResult, policy);
+                            progressDialog.cancel();
+                            //showError();
+                        }
+                    });
                 }
             }
         });
@@ -219,7 +222,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
 
     @Override
     public void onConnectionSuspended(int i) {
-        if(mGoogleApiClient != null)
+        if (mGoogleApiClient != null)
             mGoogleApiClient.connect();
     }
 
@@ -232,7 +235,8 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
         if (!mGoogleApiClient.isConnected()) {
             Toast.makeText(this, "GoogleApiClient not yet connected", Toast.LENGTH_SHORT).show();
         } else {
-            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 1000 * 60 * 5, getActivityDetectionPendingIntent());
+            removeActivityUpdates();
+            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 1000 * 60 * 3, getActivityDetectionPendingIntent());
         }
     }
 

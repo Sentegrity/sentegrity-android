@@ -33,4 +33,6 @@ dependencies {
 
     compile 'com.karumi:dexter:2.2.2'
     compile "commons-io:commons-io:2.4"
+
+    compile 'com.jaredrummler:android-processes:1.0.8'
 }
