@@ -39,25 +39,30 @@ public class TrustFactorDispatchActivity {
         //some idea for the solution?
 
 //        if ([statusBar[@"doNotDisturb"] intValue]==1)
-        //use Settings.ACTION_VOICE_CONTROL_DO_NOT_DISTURB_MODE only on android >= 23
-
 //        if ([statusBar[@"orientationLock"] intValue]==1)
 //        if ([statusBar[@"isTethering"] intValue]==1)
 //        if (![statusBar[@"lastApp"] isEqualToString:@""])
 //        if ([statusBar[@"isAirplaneMode"] intValue]==1)
 
-        if(SentegrityTrustFactorDatasets.getInstance().isTethering()){
+        if(SentegrityTrustFactorDatasets.getInstance().isTethering() != null &&
+                SentegrityTrustFactorDatasets.getInstance().isTethering()){
             anomalyString += "isTethering_";
         }
-        if(SentegrityTrustFactorDatasets.getInstance().hasOrientationLock()){
+        if(SentegrityTrustFactorDatasets.getInstance().hasOrientationLock() != null &&
+                SentegrityTrustFactorDatasets.getInstance().hasOrientationLock()){
             anomalyString += "orientationLock_";
+        }
+        if(SentegrityTrustFactorDatasets.getInstance().isNotDisturbMode() != null &&
+                SentegrityTrustFactorDatasets.getInstance().isNotDisturbMode()){
+            anomalyString += "doNotDisturb_";
         }
         if(!TextUtils.isEmpty(SentegrityTrustFactorDatasets.getInstance().getLastApplication())){
 
         }
 
 
-        if(SentegrityTrustFactorDatasets.getInstance().isAirplaneMode()){
+        if(SentegrityTrustFactorDatasets.getInstance().isAirplaneMode() != null &&
+                SentegrityTrustFactorDatasets.getInstance().isAirplaneMode()){
             anomalyString += "airplane_";
         }
 

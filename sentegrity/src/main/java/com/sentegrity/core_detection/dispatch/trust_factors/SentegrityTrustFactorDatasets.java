@@ -12,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.content.res.AssetManager;
 import android.location.Location;
+import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
@@ -66,6 +67,7 @@ import java.util.Set;
  * Storage for all trustfactors data.
  * First call to one method will calculate / obtain data, and later we will use that values.
  * To obtain instance we simply call {@link SentegrityTrustFactorDatasets#getInstance()}.
+ *
  * @see SentegrityActivityDispatcher Sentegrity activity dispatcher
  */
 public class SentegrityTrustFactorDatasets {
@@ -96,6 +98,7 @@ public class SentegrityTrustFactorDatasets {
     private Boolean isOnEmulator = null;
     private Boolean isDebuggable = null;
     private Boolean isSignatureOK = null;
+    private Boolean isNotDisturbeMode = null;
 
     private Set<String> pairedBTDevices;
     private Set<String> scannedBTDevices;
@@ -127,6 +130,7 @@ public class SentegrityTrustFactorDatasets {
     private TelephonyManager telephonyManager;
     private KeyguardManager keyguardManager;
     private ConnectivityManager connectivityManager;
+    private AudioManager audioManager;
 
     public SentegrityTrustFactorDatasets(Context context) {
         this.context = context;
@@ -189,6 +193,7 @@ public class SentegrityTrustFactorDatasets {
     /**
      * If instance is not already available, method throws illegal state exception. Call {@link com.sentegrity.core_detection.CoreDetection#initialize(Context)}.
      * First time we run it sets run time - this way all trustfactors will have same run time.
+     *
      * @return current instance of the sentegrity trust factor dataset
      */
     public static SentegrityTrustFactorDatasets getInstance() {
@@ -306,7 +311,7 @@ public class SentegrityTrustFactorDatasets {
         this.cellularSignalRaw = cellularSignalRaw;
     }
 
-    public void setAmbientLight(List<Integer> ambientLightData){
+    public void setAmbientLight(List<Integer> ambientLightData) {
         this.ambientLightData = ambientLightData;
     }
 
@@ -326,12 +331,13 @@ public class SentegrityTrustFactorDatasets {
         this.accelRads = accelRads;
     }
 
-    public void setRootDetection(RootDetection rootDetection){
+    public void setRootDetection(RootDetection rootDetection) {
         this.rootDetection = rootDetection;
     }
 
     /**
      * Validates trustfactors payload
+     *
      * @param payload trustfactor rule payload
      * @return {@code false} if payload is null or empty, otherwise {@code true}
      */
@@ -341,7 +347,8 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Calculates current hour and day from calendar instance.
-     * @param blockSize hours block size for aligning current hours value --> if zero, return only day
+     *
+     * @param blockSize     hours block size for aligning current hours value --> if zero, return only day
      * @param withDayOfWeek if day should be returned or not
      * @return string with aligned hours and day (numerical value)
      */
@@ -390,6 +397,7 @@ public class SentegrityTrustFactorDatasets {
     /**
      * Gets current battery state based on internal ACTION_BATTERY_CHANGED filter.
      * First we'll check if battery is plugged and return state, otherwise we'll check status.
+     *
      * @return string representing current battery state
      */
     public String getBatteryState() {
@@ -425,6 +433,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Gets current battery percentage based on internal ACTION_BATTERY_CHANGED filter.
+     *
      * @return float representing current battery percentage (0.0 -> 1.0), -1 if not available
      */
     public float getBatteryPercent() {
@@ -441,6 +450,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Gets all installed apps from package manager.
+     *
      * @return list of installed application info
      */
     public List<ApplicationInfo> getInstalledAppInfo() {
@@ -454,6 +464,7 @@ public class SentegrityTrustFactorDatasets {
     /**
      * Checks if device is in tethering mode at the moment.
      * Uses reflection for current status.
+     *
      * @return {@code true/false} if in tethering mode, or {@code null} if not available
      */
     //TODO: uses reflection
@@ -476,6 +487,7 @@ public class SentegrityTrustFactorDatasets {
     /**
      * Checks wifi encryption status based on wifi manager configured networks and current bssid.
      * Checks for WPA_PSK, WPA_EAP, IEEE8021X or WEP.
+     *
      * @return {@code true/false} if (un)encrypted, or {@code null} if not available
      */
     public Boolean isWifiUnencrypted() {
@@ -507,6 +519,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Checks if device has working internet connection.
+     *
      * @return {@code true/false} if there is active internet connections, or {@code null} if not available
      */
     public Boolean hasInternetConnection() {
@@ -522,6 +535,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Gets current carrier name.
+     *
      * @return string representing current operator
      */
     public String getCarrierConnectionName() {
@@ -537,6 +551,7 @@ public class SentegrityTrustFactorDatasets {
     /**
      * Checks if device is in airplane mode at the moment.
      * Settings.Global for newer versions, and Setting.System for API < 17
+     *
      * @return {@code true/false} if in airplane mode
      */
     public Boolean isAirplaneMode() {
@@ -554,6 +569,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Checks if wifi is currently enabled on device.
+     *
      * @return {@code true/false} if wifi is enabled, or {@code null} if not available
      */
     public Boolean isWifiEnabled() {
@@ -568,6 +584,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Collects current wifi info from wifi manager.
+     *
      * @return wifi info, or {@code null} if not available
      */
     public WifiInfo getWifiInfo() {
@@ -612,6 +629,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Groups connection speed into 2G, 3G, 4G.
+     *
      * @return string representing current connection speed, or "unknown" if not applicable
      */
     public String getCarrierConnectionSpeed() {
@@ -651,6 +669,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Waits for cellular signal data populated from {@link SentegrityActivityDispatcher#startCellularSignal()}.
+     *
      * @return list of cellular signal, {@code null} if expired or not available
      */
     public Integer getCellularSignalRaw() {
@@ -679,7 +698,7 @@ public class SentegrityTrustFactorDatasets {
         return cellularSignalRaw;
     }
 
-    public String getLastApplication(){
+    public String getLastApplication() {
         //NOT WORKING ON ANDROID API >= 21
         final ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
         final List<ActivityManager.RunningTaskInfo> recentTasks = activityManager.getRunningTasks(Integer.MAX_VALUE);
@@ -689,12 +708,12 @@ public class SentegrityTrustFactorDatasets {
         return null;
     }
 
-    public Boolean hasOrientationLock(){
+    public Boolean hasOrientationLock() {
         if (null == null) {
             int orientationLock = Settings.System.getInt(context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, -1);
-            if(orientationLock == -1)
+            if (orientationLock == -1)
                 return null;
-            else if(orientationLock == 0)
+            else if (orientationLock == 0)
                 return Boolean.FALSE;
             else
                 return Boolean.TRUE;
@@ -702,8 +721,26 @@ public class SentegrityTrustFactorDatasets {
         return null;
     }
 
+    public Boolean isNotDisturbMode() {
+        if(isNotDisturbeMode == null) {
+            if(!updateAudioManager()){
+                return null;
+            }
+            switch (audioManager.getRingerMode()) {
+                case AudioManager.RINGER_MODE_SILENT:
+                case AudioManager.RINGER_MODE_VIBRATE:
+                    return isNotDisturbeMode = true;
+                case AudioManager.RINGER_MODE_NORMAL:
+                    return isNotDisturbeMode = false;
+            }
+            return null;
+        }
+        return isNotDisturbeMode;
+    }
+
     /**
      * Waits for gyro rads data populated from {@link SentegrityActivityDispatcher#startMotion()}.
+     *
      * @return list of gyro rads data, {@code null} if expired or not available
      */
     public List<GyroRadsObject> getGyroRads() {
@@ -734,6 +771,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Waits for gyro pitch roll data populated from {@link SentegrityActivityDispatcher#startMotion()}.
+     *
      * @return list of gyro pitch roll data, {@code null} if expired or not available
      */
     public List<PitchRollObject> getGyroPitchRoll() {
@@ -763,6 +801,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Waits for accelerometer rads data populated from {@link SentegrityActivityDispatcher#startMotion()}.
+     *
      * @return list of accelerometer rads data, {@code null} if expired or not available
      */
     public List<AccelRadsObject> getAccelRads() {
@@ -792,6 +831,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Waits for magnetic heading data populated from {@link SentegrityActivityDispatcher#startMotion()}.
+     *
      * @return list of magnetic heading data, {@code null} if expired or not available
      */
     public List<MagneticObject> getMagneticHeading() {
@@ -821,6 +861,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Waits for paired bluetooth devices populated from {@link SentegrityActivityDispatcher#startBluetooth()}.
+     *
      * @return list of paired bluetooth devices, {@code null} if expired or not available
      */
     public Set<String> getPairedBTDevices() {
@@ -851,6 +892,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Waits for found bluetooth devices populated from {@link SentegrityActivityDispatcher#startBluetooth()}.
+     *
      * @return list of found bluetooth devices, {@code null} if expired or not available
      */
     public Set<String> getScannedBTDevices() {
@@ -881,6 +923,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Waits for netstat data populated from {@link SentegrityActivityDispatcher#startNetstat()}.
+     *
      * @return list of netstat data, {@code null} if expired or not available
      */
     public List<ActiveConnection> getNetstatData() {
@@ -909,6 +952,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Gets total transmitted bytes since last boot.
+     *
      * @return total transmitted data or @UNSUPPORTED (for some devices with API < 17)
      */
     public Long getDataXferInfo() {
@@ -921,6 +965,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Gets all network interfaces.
+     *
      * @return list of currently active network interfaces, or {@code null} if not available
      */
     public List<NetworkInterface> getRouteInfo() {
@@ -937,6 +982,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Waits for location data populated from {@link SentegrityActivityDispatcher#startLocation()}.
+     *
      * @return list of location data, {@code null} if expired or not available
      */
     public Location getLocationInfo() {
@@ -969,6 +1015,7 @@ public class SentegrityTrustFactorDatasets {
      * Check whether device has some passcode set or not.
      * For Android API >= 23 there is class/method for this, but for previous versions we are using
      * couple of different techniques all using reflection.
+     *
      * @return {@code true/false} if there is some passcode set, {@code null} if not available
      */
     //TODO: uses reflection
@@ -1014,19 +1061,21 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Checks whether we have backup enabled.
+     *
      * @return {@code true/false} if there is backup enabled
      */
-    public Integer isBackupEnabled(){
-            if (backupEnabled == null) {
-                //only tested for nexus 5 and nexus 5x, android version 6.0.1
-                //TODO: "backup_enabled" is hidden secure setting, this should be checked
-                return backupEnabled = Settings.Secure.getInt(context.getContentResolver(), "backup_enabled", -1);
-            }
-            return backupEnabled;
+    public Integer isBackupEnabled() {
+        if (backupEnabled == null) {
+            //only tested for nexus 5 and nexus 5x, android version 6.0.1
+            //TODO: "backup_enabled" is hidden secure setting, this should be checked
+            return backupEnabled = Settings.Secure.getInt(context.getContentResolver(), "backup_enabled", -1);
+        }
+        return backupEnabled;
     }
 
     /**
      * Collects SSID list from internal application file.
+     *
      * @return arraylist of SSIDs, or {@code null} if not available
      */
     public ArrayList<String> getSSIDList() {
@@ -1057,6 +1106,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Collects OUI list from internal application file.
+     *
      * @return list of OUIs, or {@code null} if not available
      */
     public List<String> getOUIList() {
@@ -1082,6 +1132,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Collects hotspot names list from internal application file.
+     *
      * @return list of hotspot names, or {@code null} if not available
      */
     public List<String> getHotspotList() {
@@ -1107,10 +1158,11 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Waits for ambient light data.
+     *
      * @return list of ambient light data, {@code null} if expired or not available
      */
-    public List<Integer> getAmbientLightData(){
-        if(ambientLightData == null){
+    public List<Integer> getAmbientLightData() {
+        if (ambientLightData == null) {
             if (getAmbientLightDNEstatus() == DNEStatusCode.EXPIRED) {
                 return ambientLightData;
             }
@@ -1140,7 +1192,7 @@ public class SentegrityTrustFactorDatasets {
      * @return current root detection object that is populated from {@link SentegrityActivityDispatcher#startRootCheck()}
      */
     //TODO: check how to implement this
-    public RootDetection getRootDetection(){
+    public RootDetection getRootDetection() {
         return rootDetection;
     }
 
@@ -1148,10 +1200,11 @@ public class SentegrityTrustFactorDatasets {
      * Gets current application signature, hashes it using MD5, and compares with expected signature {@link SentegrityConstants#APK_SIGNATURE}.
      * We need to check all the available signatures since there could be multiple ones (fake + real).
      * Only return {@code true} if all signatures are ok (in practice that should be only one REAL signature)
+     *
      * @return {@code true/false} if app signature is ok, or {@code null} if there were some problems getting and hashing signature
      */
-    public Boolean isAppSignatureOk(){
-        if(isSignatureOK == null) {
+    public Boolean isAppSignatureOk() {
+        if (isSignatureOK == null) {
             try {
                 PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
                 boolean signatureOk = false;
@@ -1184,10 +1237,11 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Checks if this app is installed from play store (otherwise it could be fake).
+     *
      * @return {@code true/false} if app is installed from play store
      */
     public Boolean isFromPlayStore() {
-        if(isFromPlayStore == null) {
+        if (isFromPlayStore == null) {
             final String installer = context.getPackageManager().getInstallerPackageName(context.getPackageName());
             return isFromPlayStore = (installer != null && installer.startsWith("com.android.vending"));
         }
@@ -1197,10 +1251,11 @@ public class SentegrityTrustFactorDatasets {
     /**
      * Checks if app is running on the emulator.
      * This shouldn't be the case - it might indicate that someone is using app for "fishy" stuff.
+     *
      * @return {@code true/false} if app is running on emulator
      */
     public Boolean isOnEmulator() {
-        if(isOnEmulator == null) {
+        if (isOnEmulator == null) {
             try {
 
                 return isOnEmulator = (Helpers.getSystemProperty("ro.hardware").contains("goldfish")
@@ -1225,10 +1280,11 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Checks whether current running app is debuggable. This shouldn't happen once it's in production.
+     *
      * @return {@code true/false} if app is debuggable
      */
-    public Boolean checkDebuggable(){
-        if(isDebuggable == null) {
+    public Boolean checkDebuggable() {
+        if (isDebuggable == null) {
             return isDebuggable = ((context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
         }
         return isDebuggable;
@@ -1237,6 +1293,7 @@ public class SentegrityTrustFactorDatasets {
     /**
      * Gets system brightness.
      * It only works when brightness is on Manual mode.
+     *
      * @return float representing current brightness (0.0 - 1.0)
      */
     @Deprecated
@@ -1261,6 +1318,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Private method for updating wifi manager.
+     *
      * @return {@code false} if there is no {@link Context#WIFI_SERVICE WIFI_SERVICE}, {@code true} if everything went fine
      */
     private boolean updateWifiManager() {
@@ -1271,6 +1329,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Private method for updating telephony manager.
+     *
      * @return {@code false} if there is no {@link Context#TELEPHONY_SERVICE TELEPHONY_SERVICE}, {@code true} if everything went fine
      */
     private boolean updateTelefonyManager() {
@@ -1281,6 +1340,7 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Private method for updating keyguard manager.
+     *
      * @return {@code false} if there is no {@link Context#KEYGUARD_SERVICE KEYGUARD_SERVICE}, {@code true} if everything went fine
      */
     private boolean updateKeyguardManager() {
@@ -1291,12 +1351,24 @@ public class SentegrityTrustFactorDatasets {
 
     /**
      * Private method for updating connectivity manager.
+     *
      * @return {@code false} if there is no {@link Context#CONNECTIVITY_SERVICE CONNECTIVITY_SERVICE}, {@code true} if everything went fine
      */
     private boolean updateConnectivityManager() {
         if (connectivityManager != null) return true;
         connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         return connectivityManager != null;
+    }
+
+    /**
+     * Private method for updating audio manager.
+     *
+     * @return {@code false} if there is no {@link Context#AUDIO_SERVICE AUDIO_SERVICE}, {@code true} if everything went fine
+     */
+    private boolean updateAudioManager() {
+        if (audioManager != null) return true;
+        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        return audioManager != null;
     }
 
     /**
