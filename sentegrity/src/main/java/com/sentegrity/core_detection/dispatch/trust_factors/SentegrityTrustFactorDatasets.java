@@ -99,6 +99,7 @@ public class SentegrityTrustFactorDatasets {
     private Boolean signatureOK = null;
     private Boolean notDisturbeMode = null;
     private Boolean onCall = null;
+    private Boolean orientationLock = null;
 
     private Set<String> pairedBTDevices;
     private Set<String> scannedBTDevices;
@@ -710,19 +711,27 @@ public class SentegrityTrustFactorDatasets {
         return null;
     }
 
+    /**
+     * Check if device is currently in orientation locked mode.
+     *
+     * @return {@code true} current state is offhook, or {@code false} if ringing or idle
+     */
     public Boolean hasOrientationLock() {
-        if (null == null) {
-            int orientationLock = Settings.System.getInt(context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, -1);
-            if (orientationLock == -1)
-                return null;
-            else if (orientationLock == 0)
-                return Boolean.FALSE;
-            else
-                return Boolean.TRUE;
+        if (orientationLock == null) {
+            int lock = Settings.System.getInt(context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, -1);
+            if (lock == -1)
+                return orientationLock = true;
+            else if (lock == 0)
+                return orientationLock = false;
         }
-        return null;
+        return orientationLock;
     }
 
+    /**
+     * Check if user is currently on call. Doesn't take incoming (ringing) call in account.
+     *
+     * @return {@code true} current state is offhook, or {@code false} if ringing or idle
+     */
     public Boolean isOnCall(){
         if(onCall == null) {
             if(!updateTelefonyManager()){
@@ -740,6 +749,11 @@ public class SentegrityTrustFactorDatasets {
         return onCall;
     }
 
+    /**
+     * Check if device is currently in do not disturb mode.
+     *
+     * @return {@code true} if device is set on silent or vibrate, or {@code false} if in normal mode
+     */
     public Boolean isNotDisturbMode() {
         if(notDisturbeMode == null) {
             if(!updateAudioManager()){
