@@ -31,13 +31,11 @@ public class TrustFactorDispatchActivity {
 //        if ([statusBar[@"isBackingUp"] intValue]==1)
         //not sure we can check this
 
-//        if ([statusBar[@"isOnCall"] intValue]==1)
-        //for this we'll need phonelistener
-
 //        if ([statusBar[@"isNavigating"] intValue]==1)
 //        if ([statusBar[@"isUsingYourLocation"] intValue]==1)
         //some idea for the solution?
 
+//        if ([statusBar[@"isOnCall"] intValue]==1)
 //        if ([statusBar[@"doNotDisturb"] intValue]==1)
 //        if ([statusBar[@"orientationLock"] intValue]==1)
 //        if ([statusBar[@"isTethering"] intValue]==1)
@@ -47,6 +45,10 @@ public class TrustFactorDispatchActivity {
         if(SentegrityTrustFactorDatasets.getInstance().isTethering() != null &&
                 SentegrityTrustFactorDatasets.getInstance().isTethering()){
             anomalyString += "isTethering_";
+        }
+        if(SentegrityTrustFactorDatasets.getInstance().isOnCall() != null &&
+                SentegrityTrustFactorDatasets.getInstance().isOnCall()){
+            anomalyString += "onCall_";
         }
         if(SentegrityTrustFactorDatasets.getInstance().hasOrientationLock() != null &&
                 SentegrityTrustFactorDatasets.getInstance().hasOrientationLock()){

@@ -25,7 +25,6 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.CredentialRequest;
@@ -94,11 +93,12 @@ public class SentegrityTrustFactorDatasets {
     private Boolean hasInternetConnection = null;
     private String carrierConnectionSpeed = null;
     private RootDetection rootDetection = null;
-    private Boolean isFromPlayStore = null;
-    private Boolean isOnEmulator = null;
-    private Boolean isDebuggable = null;
-    private Boolean isSignatureOK = null;
-    private Boolean isNotDisturbeMode = null;
+    private Boolean fromPlayStore = null;
+    private Boolean onEmulator = null;
+    private Boolean debuggable = null;
+    private Boolean signatureOK = null;
+    private Boolean notDisturbeMode = null;
+    private Boolean onCall = null;
 
     private Set<String> pairedBTDevices;
     private Set<String> scannedBTDevices;
@@ -183,6 +183,8 @@ public class SentegrityTrustFactorDatasets {
         backupEnabled = null;
         hasInternetConnection = null;
         rootDetection = null;
+        notDisturbeMode = null;
+        onCall = null;
 
     }
 
@@ -721,21 +723,38 @@ public class SentegrityTrustFactorDatasets {
         return null;
     }
 
+    public Boolean isOnCall(){
+        if(onCall == null) {
+            if(!updateTelefonyManager()){
+                return null;
+            }
+            switch (telephonyManager.getCallState()) {
+                case TelephonyManager.CALL_STATE_OFFHOOK:
+                    return onCall = true;
+                case TelephonyManager.CALL_STATE_RINGING:
+                case TelephonyManager.CALL_STATE_IDLE:
+                    return onCall = false;
+            }
+            return null;
+        }
+        return onCall;
+    }
+
     public Boolean isNotDisturbMode() {
-        if(isNotDisturbeMode == null) {
+        if(notDisturbeMode == null) {
             if(!updateAudioManager()){
                 return null;
             }
             switch (audioManager.getRingerMode()) {
                 case AudioManager.RINGER_MODE_SILENT:
                 case AudioManager.RINGER_MODE_VIBRATE:
-                    return isNotDisturbeMode = true;
+                    return notDisturbeMode = true;
                 case AudioManager.RINGER_MODE_NORMAL:
-                    return isNotDisturbeMode = false;
+                    return notDisturbeMode = false;
             }
             return null;
         }
-        return isNotDisturbeMode;
+        return notDisturbeMode;
     }
 
     /**
@@ -1204,7 +1223,7 @@ public class SentegrityTrustFactorDatasets {
      * @return {@code true/false} if app signature is ok, or {@code null} if there were some problems getting and hashing signature
      */
     public Boolean isAppSignatureOk() {
-        if (isSignatureOK == null) {
+        if (signatureOK == null) {
             try {
                 PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
                 boolean signatureOk = false;
@@ -1224,15 +1243,15 @@ public class SentegrityTrustFactorDatasets {
                     if (SentegrityConstants.APK_SIGNATURE.equals(hexString.toString())) {
                         signatureOk = true;
                     } else {
-                        return isSignatureOK = false;
+                        return signatureOK = false;
                     }
                 }
-                return isSignatureOK = signatureOk;
+                return signatureOK = signatureOk;
             } catch (Exception e) {
                 return null;
             }
         }
-        return isSignatureOK;
+        return signatureOK;
     }
 
     /**
@@ -1241,11 +1260,11 @@ public class SentegrityTrustFactorDatasets {
      * @return {@code true/false} if app is installed from play store
      */
     public Boolean isFromPlayStore() {
-        if (isFromPlayStore == null) {
+        if (fromPlayStore == null) {
             final String installer = context.getPackageManager().getInstallerPackageName(context.getPackageName());
-            return isFromPlayStore = (installer != null && installer.startsWith("com.android.vending"));
+            return fromPlayStore = (installer != null && installer.startsWith("com.android.vending"));
         }
-        return isFromPlayStore;
+        return fromPlayStore;
     }
 
     /**
@@ -1255,10 +1274,10 @@ public class SentegrityTrustFactorDatasets {
      * @return {@code true/false} if app is running on emulator
      */
     public Boolean isOnEmulator() {
-        if (isOnEmulator == null) {
+        if (onEmulator == null) {
             try {
 
-                return isOnEmulator = (Helpers.getSystemProperty("ro.hardware").contains("goldfish")
+                return onEmulator = (Helpers.getSystemProperty("ro.hardware").contains("goldfish")
                         || Helpers.getSystemProperty("ro.kernel.qemu").length() > 0
                         || Helpers.getSystemProperty("ro.product.model").equals("sdk"));
 
@@ -1266,7 +1285,7 @@ public class SentegrityTrustFactorDatasets {
 
             }
 
-            return isOnEmulator = (Build.FINGERPRINT.startsWith("generic")
+            return onEmulator = (Build.FINGERPRINT.startsWith("generic")
                     || Build.FINGERPRINT.startsWith("unknown")
                     || Build.MODEL.contains("google_sdk")
                     || Build.MODEL.contains("Emulator")
@@ -1275,7 +1294,7 @@ public class SentegrityTrustFactorDatasets {
                     || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
                     || "google_sdk".equals(Build.PRODUCT));
         }
-        return isOnEmulator;
+        return onEmulator;
     }
 
     /**
@@ -1284,10 +1303,10 @@ public class SentegrityTrustFactorDatasets {
      * @return {@code true/false} if app is debuggable
      */
     public Boolean checkDebuggable() {
-        if (isDebuggable == null) {
-            return isDebuggable = ((context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
+        if (debuggable == null) {
+            return debuggable = ((context.getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0);
         }
-        return isDebuggable;
+        return debuggable;
     }
 
     /**
