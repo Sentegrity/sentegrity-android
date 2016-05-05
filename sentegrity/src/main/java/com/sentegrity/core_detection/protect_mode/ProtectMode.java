@@ -28,7 +28,7 @@ public class ProtectMode {
             case 1:
             case 2:
             case 3:
-                if("user".equals(input.toLowerCase())){
+                if("user".equalsIgnoreCase(input)){
                     if(trustFactorsToWhiteList != null && trustFactorsToWhiteList.size() > 0){
                         if(!whitelistAttributingTrustFactorOutput()){
                             return false;
@@ -40,7 +40,7 @@ public class ProtectMode {
             case 4:
                 return false;
             case 5:
-                if("admin".equals(input.toLowerCase())){
+                if("admin".equalsIgnoreCase(input)){
                     if(trustFactorsToWhiteList != null && trustFactorsToWhiteList.size() > 0){
                         if(!whitelistAttributingTrustFactorOutput()){
                             return false;

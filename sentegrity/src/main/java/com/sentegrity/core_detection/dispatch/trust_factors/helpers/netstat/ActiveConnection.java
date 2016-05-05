@@ -11,8 +11,6 @@ public class ActiveConnection {
     public String localIp;
     public String localPort;
     public String remoteIp;
-    @Deprecated
-    public String remoteHost;
     public String remotePort;
     public String state;
     public boolean isLoopBack;
@@ -22,7 +20,7 @@ public class ActiveConnection {
     public int totalRX;
 
     public boolean isListening(){
-        return !TextUtils.isEmpty(state) && "listen".equals(state.toLowerCase());
+        return !TextUtils.isEmpty(state) && "listen".equalsIgnoreCase(state);
     }
 
     public boolean isLoopBack(){

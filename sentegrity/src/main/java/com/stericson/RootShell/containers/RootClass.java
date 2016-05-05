@@ -14,26 +14,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/* #ANNOTATIONS @SupportedAnnotationTypes("com.stericson.RootShell.containers.RootClass.Candidate") */
-/* #ANNOTATIONS @SupportedSourceVersion(SourceVersion.RELEASE_6) */
-public class RootClass /* #ANNOTATIONS extends AbstractProcessor */ {
+public class RootClass {
 
-    /* #ANNOTATIONS
-    @Override
-    public boolean process(Set<? extends TypeElement> typeElements, RoundEnvironment roundEnvironment) {
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "I was invoked!!!");
-
-        return false;
-    }
-    */
-
-    static String PATH_TO_DX = "/Users/Chris/Projects/android-sdk-macosx/build-tools/18.0.1/dx";
 
     enum READ_STATE {
         STARTING, FOUND_ANNOTATION;
     }
-
-    ;
 
     public RootClass(String[] args) throws ClassNotFoundException, NoSuchMethodException,
             IllegalAccessException, InvocationTargetException, InstantiationException {
@@ -51,12 +37,6 @@ public class RootClass /* #ANNOTATIONS extends AbstractProcessor */ {
         Constructor<?> classConstructor = classHandler.getConstructor(RootArgs.class);
         classConstructor.newInstance(actualArgs);
     }
-
-    public @interface Candidate {
-
-    }
-
-    ;
 
     public class RootArgs {
 
