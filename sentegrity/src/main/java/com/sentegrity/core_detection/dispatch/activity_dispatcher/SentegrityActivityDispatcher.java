@@ -40,6 +40,7 @@ import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.Magneti
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.PitchRollObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDetection;
 import com.stericson.RootShell.RootShell;
+import com.root.RootChecker;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -496,6 +497,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 Log.d("rootDetection", "BB: " + (System.currentTimeMillis() - start));
                 start = System.currentTimeMillis();
 
+                //RootChecker.isRooted() is another (maybe faster) way to check this
                 rootDetection.isRootAvailable = RootShell.isRootAvailable();
                 SentegrityTrustFactorDatasets.getInstance().setRootDetection(rootDetection);
 
