@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-@RootClass.Candidate
 public class NativeJavaClass
 {
 
