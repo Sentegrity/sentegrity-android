@@ -69,6 +69,6 @@ public class Helpers {
 
     public static String getSystemProperty(String name) throws Exception {
         Class systemPropertyClazz = Class.forName("android.os.SystemProperties");
-        return (String) systemPropertyClazz.getMethod("get", new Class[]{String.class}).invoke(systemPropertyClazz, new Object[]{name});
+        return (String) systemPropertyClazz.getMethod("get", new Class[]{String.class}).invoke(systemPropertyClazz, name);
     }
 }

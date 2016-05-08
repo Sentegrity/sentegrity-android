@@ -8,7 +8,7 @@ import com.sentegrity.android.R;
 /**
  * Created by dmestrov on 20/03/16.
  */
-public class InformationActivity extends MenuActivity {
+public abstract class InformationActivity extends MenuActivity {
 
     protected enum InfoType{
         TITLE, FAIL, SUCCESS

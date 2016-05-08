@@ -194,6 +194,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
      * Starts location listener.
      * Once we have location, we will stop collecting to preserve battery.
      */
+    @SuppressWarnings("ResourceType") //we checked for permissions before calling this method
     private void startLocationListener() {
         final LocationManager locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         LocationListener locationListener = new LocationListener() {

@@ -17,7 +17,7 @@ import java.util.MissingResourceException;
 /**
  * Created by dmestrov on 20/03/16.
  */
-public class MenuActivity extends Activity {
+public abstract class MenuActivity extends Activity {
 
     private DrawerLayout drawer;
 

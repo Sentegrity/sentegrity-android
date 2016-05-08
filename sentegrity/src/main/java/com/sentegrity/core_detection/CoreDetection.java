@@ -14,8 +14,6 @@ import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.multi.CompositeMultiplePermissionsListener;
-import com.karumi.dexter.listener.multi.DialogOnAnyDeniedMultiplePermissionsListener;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorStore;

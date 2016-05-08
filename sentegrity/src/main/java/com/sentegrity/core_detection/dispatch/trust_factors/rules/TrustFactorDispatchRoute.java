@@ -60,6 +60,7 @@ public class TrustFactorDispatchRoute {
             return output;
         }
 
+        //TODO add "tun0" to payload in policy
         payload.add("tun0");
         List<NetworkInterface> vpnInterfaces = new ArrayList<>();
         for (NetworkInterface networkInterface : interfaces) {
@@ -71,7 +72,6 @@ public class TrustFactorDispatchRoute {
             }
             for (Object vpnInterface : payload) {
                 String vpnIface = (String) vpnInterface;
-                //TODO add "tun0" to payload
                 if (networkInterface.getName().contains(vpnIface)) {
                     vpnInterfaces.add(networkInterface);
                     break;
