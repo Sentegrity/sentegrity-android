@@ -1,10 +1,12 @@
 package com.sentegrity.core_detection.dispatch.trust_factors.helpers;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Surface;
 import android.view.WindowManager;
 
+import com.sentegrity.android.activity.ActivitiesIntentService;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.AccelRadsObject;
@@ -48,22 +50,14 @@ public class SentegrityTrustFactorDatasetMotion {
         return avgDist;
     }
 
-    public static String getUserMovement(){
-        //TODO: return real movement
-        // fake random movement for testing purposes
-        int i = new Random().nextInt(5);
-        switch (i) {
-            case 0:
-                return "StandingStill";
-            case 1:
-                return "Walking";
-            case 2:
-                return "Running";
-            case 3:
-                return "ChangingOrientation";
-            default:
-                return "RotatingOrShaking";
-        }
+    public static String getUserMovement(Context context){
+        //TODO: we are returning last movement from activities list. this data can be at most 3minutes old.
+        //check if we should have some other sort of implementation based on device sensors
+
+        SharedPreferences sp = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
+
+        final int lastActivity = sp.getInt("lastActivity", -1);
+        return ActivitiesIntentService.getDetectedActivity(lastActivity);
     }
 
     public static String getOrientation(Context context){

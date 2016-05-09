@@ -625,7 +625,7 @@ public class SentegrityTrustFactorDatasets {
      */
     public String getUserMovement() {
         if (userMovement == null) {
-            return userMovement = SentegrityTrustFactorDatasetMotion.getUserMovement();
+            return userMovement = SentegrityTrustFactorDatasetMotion.getUserMovement(context);
         }
         return userMovement;
     }

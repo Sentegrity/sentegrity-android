@@ -79,7 +79,7 @@ public class ActivitiesIntentService extends IntentService {
         return activities;
     }
 
-    public String getDetectedActivity(int detectedActivityType) {
+    public static String getDetectedActivity(int detectedActivityType) {
         switch(detectedActivityType) {
             case DetectedActivity.IN_VEHICLE:
                 return "vehicle";
@@ -98,7 +98,7 @@ public class ActivitiesIntentService extends IntentService {
             case DetectedActivity.UNKNOWN:
                 return "unkown";
             default:
-                return "undefined: " + detectedActivityType;
+                return "undefined_" + detectedActivityType;
         }
     }
 
