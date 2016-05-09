@@ -13,21 +13,12 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
-import android.text.TextUtils;
 import android.util.Log;
 
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.MultiplePermissionsReport;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.multi.CompositeMultiplePermissionsListener;
-import com.karumi.dexter.listener.multi.DialogOnAnyDeniedMultiplePermissionsListener;
-import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.dispatch.activity_dispatcher.bluetooth.BTDeviceCallback;
 import com.sentegrity.core_detection.dispatch.activity_dispatcher.bluetooth.BTScanner;
@@ -39,8 +30,8 @@ import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.GyroRad
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.MagneticObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.PitchRollObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDetection;
+import com.sentegrity.core_detection.logger.Logger;
 import com.stericson.RootShell.RootShell;
-import com.root.RootChecker;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -449,7 +440,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         final SensorManager sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         Sensor light = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
         if (light == null) {
-            SentegrityTrustFactorDatasets.getInstance().setAmbientLightDNEstatus(DNEStatusCode.UNSUPPORTED);
+            SentegrityTrustFactorDatasets.getInstance().setAmbientLightDNEStatus(DNEStatusCode.UNSUPPORTED);
         } else {
             sensorManager.registerListener(new SensorEventListener() {
                 @Override
@@ -477,6 +468,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
      * @see RootShell
      */
     public void startRootCheck(){
+        final RootDetection rootDetection = new RootDetection();
         new Thread() {
             @Override
             public void run() {
@@ -484,25 +476,29 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 Log.d("rootDetection", "start");
                 Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 
-                RootDetection rootDetection = new RootDetection();
-
+                //takes around 0.1s
                 rootDetection.isAccessGiven = RootShell.isAccessGiven();
                 SentegrityTrustFactorDatasets.getInstance().setRootDetection(rootDetection);
 
-                Log.d("rootDetection", "access: " + (System.currentTimeMillis() - start));
+                //TODO: set this now, or only when completely over?
+                SentegrityTrustFactorDatasets.getInstance().setRootDetectionDNEStatus(DNEStatusCode.OK);
+
+                Logger.INFO("RootDetecion[access] " + (System.currentTimeMillis() - start));
                 start = System.currentTimeMillis();
 
+                //takes around 0.5s
                 rootDetection.isBusyBoxAvailable = RootShell.isBusyboxAvailable();
                 SentegrityTrustFactorDatasets.getInstance().setRootDetection(rootDetection);
 
-                Log.d("rootDetection", "BB: " + (System.currentTimeMillis() - start));
+                Logger.INFO("RootDetecion[BusyBox] " + (System.currentTimeMillis() - start));
                 start = System.currentTimeMillis();
 
                 //RootChecker.isRooted() is another (maybe faster) way to check this
+                //takes around 0.5s
                 rootDetection.isRootAvailable = RootShell.isRootAvailable();
                 SentegrityTrustFactorDatasets.getInstance().setRootDetection(rootDetection);
 
-                Log.d("rootDetection", "root: " + (System.currentTimeMillis() - start));
+                Logger.INFO("RootDetecion[root] " + (System.currentTimeMillis() - start));
             }
         }.start();
     }

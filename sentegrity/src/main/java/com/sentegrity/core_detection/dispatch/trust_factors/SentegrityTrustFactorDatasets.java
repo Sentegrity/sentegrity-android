@@ -116,7 +116,8 @@ public class SentegrityTrustFactorDatasets {
     private DNEStatusCode accelMotionDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode netstatDataDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode cellularSignalDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode ambientLightDNEstatus = DNEStatusCode.OK;
+    private DNEStatusCode ambientLightDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode rootDetectionDNEStatus = DNEStatusCode.OK;
 
     private List<MagneticObject> magneticHeading;
     private List<GyroRadsObject> gyroRads;
@@ -146,6 +147,7 @@ public class SentegrityTrustFactorDatasets {
         accelMotionDNEStatus = DNEStatusCode.OK;
         netstatDataDNEStatus = DNEStatusCode.OK;
         cellularSignalDNEStatus = DNEStatusCode.OK;
+        rootDetectionDNEStatus = DNEStatusCode.OK;
 
         //testMethod();
         updateWifiManager();
@@ -250,8 +252,12 @@ public class SentegrityTrustFactorDatasets {
         return netstatDataDNEStatus;
     }
 
-    public DNEStatusCode getAmbientLightDNEstatus() {
-        return ambientLightDNEstatus;
+    public DNEStatusCode getAmbientLightDNEStatus() {
+        return ambientLightDNEStatus;
+    }
+
+    public DNEStatusCode getRootDetectionDNEStatus() {
+        return rootDetectionDNEStatus;
     }
 
     public void setPairedBTDNEStatus(DNEStatusCode pairedBTDNEStatus) {
@@ -290,8 +296,12 @@ public class SentegrityTrustFactorDatasets {
         this.cellularSignalDNEStatus = cellularSignalDNEStatus;
     }
 
-    public void setAmbientLightDNEstatus(DNEStatusCode ambientLightDNEstatus) {
-        this.ambientLightDNEstatus = ambientLightDNEstatus;
+    public void setAmbientLightDNEStatus(DNEStatusCode ambientLightDNEStatus) {
+        this.ambientLightDNEStatus = ambientLightDNEStatus;
+    }
+
+    public void setRootDetectionDNEStatus(DNEStatusCode rootDetectionDNEStatus) {
+        this.rootDetectionDNEStatus = rootDetectionDNEStatus;
     }
 
     public void setScannedBTDevices(Set<String> scannedBTDevices) {
@@ -1196,7 +1206,7 @@ public class SentegrityTrustFactorDatasets {
      */
     public List<Integer> getAmbientLightData() {
         if (ambientLightData == null) {
-            if (getAmbientLightDNEstatus() == DNEStatusCode.EXPIRED) {
+            if (getAmbientLightDNEStatus() == DNEStatusCode.EXPIRED) {
                 return ambientLightData;
             }
 
@@ -1215,7 +1225,7 @@ public class SentegrityTrustFactorDatasets {
                 currentTime = System.currentTimeMillis();
             }
 
-            setAmbientLightDNEstatus(DNEStatusCode.EXPIRED);
+            setAmbientLightDNEStatus(DNEStatusCode.EXPIRED);
             return ambientLightData;
         }
         return ambientLightData;
@@ -1224,8 +1234,30 @@ public class SentegrityTrustFactorDatasets {
     /**
      * @return current root detection object that is populated from {@link SentegrityActivityDispatcher#startRootCheck()}
      */
-    //TODO: check how to implement this
     public RootDetection getRootDetection() {
+        if (rootDetection == null) {
+            if (getRootDetectionDNEStatus() == DNEStatusCode.EXPIRED) {
+                return rootDetection;
+            }
+
+            long startTime = System.currentTimeMillis();
+            long currentTime = startTime;
+            float waitTime = 100;
+
+            while ((currentTime - startTime) < waitTime) {
+                if (rootDetection != null)
+                    return rootDetection;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                }
+
+                currentTime = System.currentTimeMillis();
+            }
+
+            setRootDetectionDNEStatus(DNEStatusCode.EXPIRED);
+            return rootDetection;
+        }
         return rootDetection;
     }
 

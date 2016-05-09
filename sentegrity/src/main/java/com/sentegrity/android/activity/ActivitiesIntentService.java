@@ -56,6 +56,7 @@ public class ActivitiesIntentService extends IntentService {
             sp.edit().putInt("lastActivity", detectedActivities.get(0).getType()).apply();
 
 
+            //TODO: remove if not in debug
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
 
