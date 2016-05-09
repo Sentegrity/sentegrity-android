@@ -1,7 +1,7 @@
 {
   "policyID": 1,
   "appID": "default",
-  "revision": 10,
+  "revision": 12,
   "userThreshold": 75,
   "systemThreshold": 30,
   "minimumTransparentAuthEntropy": 2,
@@ -245,7 +245,7 @@
     {
       "id": 1,
       "notFoundIssueMessage": "Malicious filesystem artifacts",
-      "notFoundSuggestionMessage": "Reinstall operating system",
+      "notFoundSuggestionMessage": "Perform factory reset",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -348,7 +348,7 @@
     {
       "id": 3,
       "notFoundIssueMessage": "Malicious network services",
-      "notFoundSuggestionMessage": "Reinstall operating system",
+      "notFoundSuggestionMessage": "Perform factory reset",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -378,7 +378,7 @@
     {
       "id": 4,
       "notFoundIssueMessage": "Sandbox integrity violated",
-      "notFoundSuggestionMessage": "Reinstall operating system",
+      "notFoundSuggestionMessage": "Perform factory reset",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -434,7 +434,7 @@
     {
       "id": 6,
       "notFoundIssueMessage": "Outdated OS version",
-      "notFoundSuggestionMessage": "Upgrade OS",
+      "notFoundSuggestionMessage": "Update Operating System",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -462,7 +462,7 @@
     {
       "id": 7,
       "notFoundIssueMessage": "Filesystem integrity modified",
-      "notFoundSuggestionMessage": "Reinstall OS",
+      "notFoundSuggestionMessage": "Perform factory reset",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -520,7 +520,7 @@
     {
       "id": 9,
       "notFoundIssueMessage": "Large data transfers",
-      "notFoundSuggestionMessage": "",
+      "notFoundSuggestionMessage": "Reduce upload activity",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -551,7 +551,7 @@
     {
       "id": 10,
       "notFoundIssueMessage": "Unencrypted traffic",
-      "notFoundSuggestionMessage": "Close apps",
+      "notFoundSuggestionMessage": "Close other apps",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -580,7 +580,7 @@
     {
       "id": 11,
       "notFoundIssueMessage": "No connection",
-      "notFoundSuggestionMessage": "Connect to WiFi or cell",
+      "notFoundSuggestionMessage": "Connect to a network",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -636,7 +636,7 @@
     {
       "id": 13,
       "notFoundIssueMessage": "VPN connection",
-      "notFoundSuggestionMessage": "Disconnect VPN",
+      "notFoundSuggestionMessage": "Disconnect from VPN",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -665,7 +665,7 @@
     {
       "id": 14,
       "notFoundIssueMessage": "WiFi Hotspot",
-      "notFoundSuggestionMessage": "Disconnect WiFi",
+      "notFoundSuggestionMessage": "Disconnect from public WiFi",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -728,7 +728,7 @@
     {
       "id": 16,
       "notFoundIssueMessage": "Default WiFi",
-      "notFoundSuggestionMessage": "Disconnect WiFi",
+      "notFoundSuggestionMessage": "Disconnect from WiFi",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -755,8 +755,8 @@
     },
     {
       "id": 18,
-      "notFoundIssueMessage": "Unknown WiFi connection",
-      "notFoundSuggestionMessage": "Use familiar WiFi",
+      "notFoundIssueMessage": "Unknown WiFi SSID",
+      "notFoundSuggestionMessage": "Connect to familiar WiFi",
       "lowConfidenceIssueMessage": "Uncommon WiFi connection",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -785,9 +785,9 @@
     },
     {
       "id": 19,
-      "notFoundIssueMessage": "",
-      "notFoundSuggestionMessage": "",
-      "lowConfidenceIssueMessage": "Uncommon WiFi AP",
+      "notFoundIssueMessage": "Unknown WiFi BSSID",
+      "notFoundSuggestionMessage": "Connect to familiar WiFi",
+      "lowConfidenceIssueMessage": "Uncommon WiFi connection",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
       "classID": 5,
@@ -905,7 +905,7 @@
     {
       "id": 23,
       "notFoundIssueMessage": "Vulnerable operating system",
-      "notFoundSuggestionMessage": "Upgrade OS",
+      "notFoundSuggestionMessage": "Update Operating System",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -949,7 +949,7 @@
     {
       "id": 24,
       "notFoundIssueMessage": "Short uptime",
-      "notFoundSuggestionMessage": "",
+      "notFoundSuggestionMessage": "Wait after device reboot",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -979,7 +979,7 @@
     {
       "id": 25,
       "notFoundIssueMessage": "Backup enabled",
-      "notFoundSuggestionMessage": "Disable backip for Good",
+      "notFoundSuggestionMessage": "Disable device backup",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -1007,7 +1007,7 @@
     {
       "id": 26,
       "notFoundIssueMessage": "No passcode",
-      "notFoundSuggestionMessage": "Set device passcode",
+      "notFoundSuggestionMessage": "Set a device passcode",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -1035,7 +1035,7 @@
     {
       "id": 27,
       "notFoundIssueMessage": "Unknown access hour",
-      "notFoundSuggestionMessage": "Access device during normal hours",
+      "notFoundSuggestionMessage": "Access during normal hours",
       "lowConfidenceIssueMessage": "Uncommon access hour",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -1065,7 +1065,7 @@
     {
       "id": 28,
       "notFoundIssueMessage": "Unknown access day",
-      "notFoundSuggestionMessage": "Access device during normal days",
+      "notFoundSuggestionMessage": "Access during normal days",
       "lowConfidenceIssueMessage": "Uncommon access day",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -1093,7 +1093,7 @@
     {
       "id": 29,
       "notFoundIssueMessage": "USB connected",
-      "notFoundSuggestionMessage": "Unplug device",
+      "notFoundSuggestionMessage": "Unplug USB",
       "lowConfidenceIssueMessage": "",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -1152,7 +1152,7 @@
     {
       "id": 31,
       "notFoundIssueMessage": "Unknown battery state",
-      "notFoundSuggestionMessage": "",
+      "notFoundSuggestionMessage": "Connect device regularly",
       "lowConfidenceIssueMessage": "Uncommon battery state",
       "lowConfidenceSuggestionMessage": "",
       "revision": 1,
@@ -1179,10 +1179,10 @@
     },
     {
       "id": 32,
-      "notFoundIssueMessage": "Unknown device state",
-      "notFoundSuggestionMessage": "",
-      "lowConfidenceIssueMessage": "Uncommon device state",
-      "lowConfidenceSuggestionMessage": "",
+      "notFoundIssueMessage": "Unknown background activity",
+      "notFoundSuggestionMessage": "Close background activity",
+      "lowConfidenceIssueMessage": "Uncommon background activity",
+      "lowConfidenceSuggestionMessage": "Close background activity",
       "revision": 1,
       "classID": 5,
       "subClassID": 9,
@@ -1207,9 +1207,9 @@
     {
       "id": 33,
       "notFoundIssueMessage": "Unknown device orientation",
-      "notFoundSuggestionMessage": "",
+      "notFoundSuggestionMessage": "Hold device regularly",
       "lowConfidenceIssueMessage": "Uncommon device orientation",
-      "lowConfidenceSuggestionMessage": "",
+      "lowConfidenceSuggestionMessage": "Hold device regularly",
       "revision": 1,
       "classID": 5,
       "subClassID": 14,
@@ -1265,9 +1265,9 @@
     {
       "id": 35,
       "notFoundIssueMessage": "Unknown device grip",
-      "notFoundSuggestionMessage": "Hold device normally",
+      "notFoundSuggestionMessage": "Hold device regularly",
       "lowConfidenceIssueMessage": "Uncommon device grip",
-      "lowConfidenceSuggestionMessage": "",
+      "lowConfidenceSuggestionMessage": "Hold device regularly",
       "revision": 1,
       "classID": 5,
       "subClassID": 13,
@@ -1296,9 +1296,9 @@
     {
       "id": 36,
       "notFoundIssueMessage": "Unknown device movement",
-      "notFoundSuggestionMessage": "",
+      "notFoundSuggestionMessage": "Move device regularly",
       "lowConfidenceIssueMessage": "Uncommon device movement",
-      "lowConfidenceSuggestionMessage": "",
+      "lowConfidenceSuggestionMessage": "Move device regularly",
       "revision": 1,
       "classID": 5,
       "subClassID": 7,
@@ -1325,8 +1325,64 @@
     },
     {
       "id": 37,
+      "notFoundIssueMessage": "",
+      "notFoundSuggestionMessage": "Pair a Bluetooth device",
+      "lowConfidenceIssueMessage": "",
+      "lowConfidenceSuggestionMessage": "Use Bluetooth device frequently",
+      "revision": 1,
+      "classID": 5,
+      "subClassID": 8,
+      "name": "bluetooth classic paired",
+      "transparentEligible": 1,
+      "partialWeight": 0,
+      "weight": 50,
+      "learnMode": 0,
+      "learnTime": 0,
+      "learnAssertionCount": 0,
+      "learnRunCount": 0,
+      "decayMode": 1,
+      "decayMetric": 0.07,
+      "wipeOnUpdate": 0,
+      "dispatch": "Bluetooth",
+      "implementation": "connectedClassicDevice:",
+      "whitelistable": 1,
+      "privateAPI": 0,
+      "payload": [
+        
+      ]
+    },
+    {
+      "id": 38,
+      "notFoundIssueMessage": "",
+      "notFoundSuggestionMessage": "Pair a Bluetooth device",
+      "lowConfidenceIssueMessage": "",
+      "lowConfidenceSuggestionMessage": "Use Bluetooth device frequently",
+      "revision": 1,
+      "classID": 5,
+      "subClassID": 8,
+      "name": "bluetooth BLE paired",
+      "transparentEligible": 1,
+      "partialWeight": 0,
+      "weight": 50,
+      "learnMode": 0,
+      "learnTime": 0,
+      "learnAssertionCount": 0,
+      "learnRunCount": 0,
+      "decayMode": 1,
+      "decayMetric": 0.07,
+      "wipeOnUpdate": 0,
+      "dispatch": "Bluetooth",
+      "implementation": "connectedBLEDevice:",
+      "whitelistable": 1,
+      "privateAPI": 0,
+      "payload": [
+        
+      ]
+    },
+    {
+      "id": 39,
       "notFoundIssueMessage": "Unknown Area",
-      "notFoundSuggestionMessage": "",
+      "notFoundSuggestionMessage": "Access area frequently",
       "lowConfidenceIssueMessage": "Uncommon area",
       "lowConfidenceSuggestionMessage": "Access area frequently",
       "revision": 1,
@@ -1361,9 +1417,9 @@
       ]
     },
     {
-      "id": 38,
+      "id": 40,
       "notFoundIssueMessage": "Unknown location",
-      "notFoundSuggestionMessage": "",
+      "notFoundSuggestionMessage": "Access location frequently",
       "lowConfidenceIssueMessage": "Uncommon location",
       "lowConfidenceSuggestionMessage": "Access location frequently",
       "revision": 1,
@@ -1389,62 +1445,6 @@
         {
           "rounding": 2
         }
-      ]
-    },
-    {
-      "id": 39,
-      "notFoundIssueMessage": "",
-      "notFoundSuggestionMessage": "Pair a Bluetooth device",
-      "lowConfidenceIssueMessage": "",
-      "lowConfidenceSuggestionMessage": "",
-      "revision": 1,
-      "classID": 5,
-      "subClassID": 8,
-      "name": "bluetooth classic paired",
-      "transparentEligible": 1,
-      "partialWeight": 0,
-      "weight": 50,
-      "learnMode": 0,
-      "learnTime": 0,
-      "learnAssertionCount": 0,
-      "learnRunCount": 0,
-      "decayMode": 1,
-      "decayMetric": 0.07,
-      "wipeOnUpdate": 0,
-      "dispatch": "Bluetooth",
-      "implementation": "connectedClassicDevice:",
-      "whitelistable": 1,
-      "privateAPI": 0,
-      "payload": [
-        
-      ]
-    },
-    {
-      "id": 40,
-      "notFoundIssueMessage": "",
-      "notFoundSuggestionMessage": "Pair a Bluetooth device",
-      "lowConfidenceIssueMessage": "",
-      "lowConfidenceSuggestionMessage": "",
-      "revision": 1,
-      "classID": 5,
-      "subClassID": 8,
-      "name": "bluetooth BLE paired",
-      "transparentEligible": 1,
-      "partialWeight": 0,
-      "weight": 50,
-      "learnMode": 0,
-      "learnTime": 0,
-      "learnAssertionCount": 0,
-      "learnRunCount": 0,
-      "decayMode": 1,
-      "decayMetric": 0.07,
-      "wipeOnUpdate": 0,
-      "dispatch": "Bluetooth",
-      "implementation": "connectedBLEDevice:",
-      "whitelistable": 1,
-      "privateAPI": 0,
-      "payload": [
-        
       ]
     },
     {
@@ -1476,7 +1476,7 @@
       ]
     },
     {
-      "id": 41,
+      "id": 42,
       "notFoundIssueMessage": "Sandbox root violation",
       "notFoundSuggestionMessage": "Reinstall operating system",
       "lowConfidenceIssueMessage": "",
