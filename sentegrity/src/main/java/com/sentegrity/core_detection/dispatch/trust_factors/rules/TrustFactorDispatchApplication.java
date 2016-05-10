@@ -49,4 +49,79 @@ public class TrustFactorDispatchApplication {
         return new SentegrityTrustFactorOutput();
     }
 
+    //TODO: needs to be added to policy
+    public static SentegrityTrustFactorOutput maliciousApp(List<Object> payload) {
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        List<String> outputList = new ArrayList<>();
+
+        List<ApplicationInfo> userApps = SentegrityTrustFactorDatasets.getInstance().getInstalledAppInfo();
+
+        List<String> maliciousApps = SentegrityTrustFactorDatasets.getInstance().getMaliciousAppsList();
+
+        if (userApps == null || userApps.size() == 0) {
+            output.setStatusCode(DNEStatusCode.ERROR);
+            return output;
+        }
+
+        if (maliciousApps == null || maliciousApps.size() == 0) {
+            return output;
+        }
+
+        for (ApplicationInfo appInfo : userApps) {
+
+            for (String maliciousAppName : maliciousApps) {
+
+                if (maliciousAppName.equals(appInfo.packageName)) {
+
+                    if (!outputList.contains(appInfo.packageName)) {
+                        outputList.add(appInfo.packageName);
+                    }
+                }
+            }
+        }
+
+        output.setOutput(outputList);
+
+        return new SentegrityTrustFactorOutput();
+    }
+
+    //TODO: needs to be added to policy
+    public static SentegrityTrustFactorOutput highRiskApp(List<Object> payload) {
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        List<String> outputList = new ArrayList<>();
+
+        List<ApplicationInfo> userApps = SentegrityTrustFactorDatasets.getInstance().getInstalledAppInfo();
+
+        List<String> highRiskApps = SentegrityTrustFactorDatasets.getInstance().getHighRiskAppsList();
+
+        if (userApps == null || userApps.size() == 0) {
+            output.setStatusCode(DNEStatusCode.ERROR);
+            return output;
+        }
+
+        if (highRiskApps == null || highRiskApps.size() == 0) {
+            return output;
+        }
+
+        for (ApplicationInfo appInfo : userApps) {
+
+            for (String highRiskAppName : highRiskApps) {
+
+                if (highRiskAppName.equals(appInfo.packageName)) {
+
+                    if (!outputList.contains(appInfo.packageName)) {
+                        outputList.add(appInfo.packageName);
+                    }
+                }
+            }
+        }
+
+        output.setOutput(outputList);
+
+        return new SentegrityTrustFactorOutput();
+    }
+
+
 }

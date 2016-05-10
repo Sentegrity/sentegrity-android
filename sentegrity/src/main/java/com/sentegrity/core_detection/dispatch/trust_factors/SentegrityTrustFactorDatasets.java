@@ -1117,6 +1117,58 @@ public class SentegrityTrustFactorDatasets {
     }
 
     /**
+     * Collects malicious application list from internal application file.
+     *
+     * @return arraylist of malicious apps, or {@code null} if not available
+     */
+    public ArrayList<String> getMaliciousAppsList() {
+        try {
+            AssetManager mg = context.getResources().getAssets();
+
+            ArrayList<String> list = new ArrayList<>();
+            String line;
+            InputStream is = mg.open(SentegrityConstants.MALICIOUS_APP_LIST_FILE_NAME);
+            InputStreamReader inputReader = new InputStreamReader(is);
+            BufferedReader buffReader = new BufferedReader(inputReader);
+
+            while ((line = buffReader.readLine()) != null) {
+                list.add(line);
+            }
+            return list;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Collects high risk application list from internal application file.
+     *
+     * @return arraylist of high risk apps, or {@code null} if not available
+     */
+    public ArrayList<String> getHighRiskAppsList() {
+        try {
+            AssetManager mg = context.getResources().getAssets();
+
+            ArrayList<String> list = new ArrayList<>();
+            String line;
+            InputStream is = mg.open(SentegrityConstants.HIGH_RISK_APP_LIST_FILE_NAME);
+            InputStreamReader inputReader = new InputStreamReader(is);
+            BufferedReader buffReader = new BufferedReader(inputReader);
+
+            while ((line = buffReader.readLine()) != null) {
+                list.add(line);
+            }
+            return list;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
      * Collects SSID list from internal application file.
      *
      * @return arraylist of SSIDs, or {@code null} if not available
