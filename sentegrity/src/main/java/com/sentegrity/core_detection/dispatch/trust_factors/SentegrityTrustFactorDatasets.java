@@ -105,7 +105,7 @@ public class SentegrityTrustFactorDatasets {
     private Set<String> scannedBTDevices;
 
     private static SentegrityTrustFactorDatasets sInstance;
-    private final Context context;
+    public final Context context;
 
     private DNEStatusCode locationDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode pairedBTDNEStatus = DNEStatusCode.OK;
