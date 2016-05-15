@@ -27,14 +27,11 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.2.1'
     compile 'com.android.support:design:23.2.1'
     compile 'com.google.code.gson:gson:2.4'
-
     //compile 'com.google.android.gms:play-services-base:8.4.0'
     //compile 'com.google.android.gms:play-services-auth:8.4.0'
     compile 'com.google.android.gms:play-services:8.4.0'
-
-
     compile 'com.karumi:dexter:2.2.2'
-    compile "commons-io:commons-io:2.4"
-
+    compile 'commons-io:commons-io:2.4'
     compile 'com.jaredrummler:android-processes:1.0.8'
+    compile files('libs/cloudscan_sdk_2.0.3.jar')
 }

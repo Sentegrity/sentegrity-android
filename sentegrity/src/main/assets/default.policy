@@ -1500,7 +1500,67 @@
       "whitelistable": 0,
       "privateAPI": 0,
       "payload": [
-
+        
+      ]
+    },
+    {
+      "id": 1000,
+      "notFoundIssueMessage": "Malware detected",
+      "notFoundSuggestionMessage": "Reinstall device",
+      "lowConfidenceIssueMessage": "",
+      "lowConfidenceSuggestionMessage": "",
+      "revision": 1,
+      "classID": 1,
+      "subClassID": 3,
+      "name": "trustlook scan",
+      "transparentEligible": 0,
+      "partialWeight": 0,
+      "weight": 100,
+      "learnMode": 0,
+      "learnTime": 0,
+      "learnAssertionCount": 0,
+      "learnRunCount": 0,
+      "decayMode": 0,
+      "decayMetric": 0,
+      "wipeOnUpdate": 0,
+      "dispatch": "ApplicationSecurity",
+      "implementation": "trustLookScan:",
+      "whitelistable": 1,
+      "privateAPI": 0,
+      "payload": [
+        {
+          "onlineCheckDays": 7
+        }
+      ]
+    },
+    {
+      "id": 1001,
+      "notFoundIssueMessage": "Possible Malware detected",
+      "notFoundSuggestionMessage": "Reinstall device",
+      "lowConfidenceIssueMessage": "",
+      "lowConfidenceSuggestionMessage": "",
+      "revision": 1,
+      "classID": 2,
+      "subClassID": 3,
+      "name": "malware package name",
+      "transparentEligible": 0,
+      "partialWeight": 0,
+      "weight": 50,
+      "learnMode": 0,
+      "learnTime": 0,
+      "learnAssertionCount": 0,
+      "learnRunCount": 0,
+      "decayMode": 0,
+      "decayMetric": 0,
+      "wipeOnUpdate": 0,
+      "dispatch": "ApplicationSecurity",
+      "implementation": "malwarePackageName:",
+      "whitelistable": 1,
+      "privateAPI": 0,
+      "payload": [
+        {
+          
+        }
       ]
     }
   ]

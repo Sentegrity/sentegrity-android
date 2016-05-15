@@ -19,6 +19,7 @@ public class SentegrityConstants {
     public static final String APK_SIGNATURE = "2da2e47fc43442cfe3109a8a71885912";
     public static final String DEVICE_SALT_DEFAULT = "821057bac664ccbe58338360c0cd1c78";
     public static final String USER_SALT_DEFAULT = "a4a8eeb22881b5ccce006f60bb6f8aab";
+    public static final String TRUSTLOOK_CLIENT_ID = "0623f7917a1e2e09e7bcc700482392fba620e6a2a29200fbc6a92198";
 
     public static final int BLUETOOTH_SEARCH_TIME = 5000;
 }

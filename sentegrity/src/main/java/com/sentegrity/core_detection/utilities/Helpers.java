@@ -1,12 +1,20 @@
 package com.sentegrity.core_detection.utilities;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.wifi.WifiInfo;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.TextView;
+
+import com.trustlook.sdk.Constants;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by dmestrov on 23/03/16.
@@ -70,5 +78,26 @@ public class Helpers {
     public static String getSystemProperty(String name) throws Exception {
         Class systemPropertyClazz = Class.forName("android.os.SystemProperties");
         return (String) systemPropertyClazz.getMethod("get", new Class[]{String.class}).invoke(systemPropertyClazz, name);
+    }
+
+
+    public static List<PackageInfo> getLocalAppsPkgInfo(Context context) {
+        final int MAX_ATTEMPTS = 3;
+
+        for (int i = 0; i < MAX_ATTEMPTS; i++) {
+
+            try {
+                return context.getPackageManager().getInstalledPackages(
+                        PackageManager.GET_PERMISSIONS | PackageManager.GET_PROVIDERS);
+            } catch (RuntimeException re) {
+                // Just wait for cooling down
+                try {
+                    Thread.sleep(100);
+                } catch (Exception e) {
+
+                }
+            }
+        }
+        return new ArrayList<PackageInfo>();
     }
 }
