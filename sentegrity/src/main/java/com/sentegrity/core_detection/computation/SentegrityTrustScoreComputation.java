@@ -571,7 +571,7 @@ public class SentegrityTrustScoreComputation {
     }
 
     public static SentegrityTrustScoreComputation performTrustFactorComputation(SentegrityPolicy policy, List<SentegrityTrustFactorOutput> trustFactorOutputs) {
-        if (policy == null || policy.getPolicyID() < 0) {
+        if (policy == null || Integer.valueOf(policy.getPolicyID()) < 0) {
             SentegrityError error = SentegrityError.CORE_DETECTION_NO_POLICY_PROVIDED;
             error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
             error.setDetails(new ErrorDetails().setDescription("No policy provided").setFailureReason("Unable to set trust factors").setRecoverySuggestion("Try passing a valid policy to set trust factors"));

@@ -11,7 +11,7 @@ import java.util.List;
 public class SentegrityPolicy implements Serializable {
 
     @SerializedName("policyID")
-    private int policyID;
+    private String policyID;
 
     @SerializedName("appID")
     private String appID;
@@ -49,7 +49,30 @@ public class SentegrityPolicy implements Serializable {
     @SerializedName("trustFactors")
     private List<SentegrityTrustFactor> trustFactors;
 
-    public int getPolicyID() {
+
+    @SerializedName("transparentAuthDecayMetric")
+    private int transparentAuthDecayMetric;
+
+    @SerializedName("transparentAuthEnabled")
+    private int transparentAuthEnabled;
+
+    @SerializedName("minimumTransparentAuthEntropy")
+    private int minimumTransparentAuthEntropy;
+
+    @SerializedName("continueOnError")
+    private int continueOnError;
+
+    @SerializedName("allowPrivateAPIs")
+    private int allowPrivateAPIs;
+
+    @SerializedName("statusUploadRunFrequency")
+    private int statusUploadRunFrequency;
+
+    @SerializedName("statusUploadTimeFrequency")
+    private int statusUploadTimeFrequency;
+
+
+    public String getPolicyID() {
         return policyID;
     }
 
@@ -99,5 +122,33 @@ public class SentegrityPolicy implements Serializable {
 
     public List<SentegrityTrustFactor> getTrustFactors() {
         return trustFactors;
+    }
+
+    public int getTransparentAuthDecayMetric() {
+        return transparentAuthDecayMetric;
+    }
+
+    public int getTransparentAuthEnabled() {
+        return transparentAuthEnabled;
+    }
+
+    public int getMinimumTransparentAuthEntropy() {
+        return minimumTransparentAuthEntropy;
+    }
+
+    public int getContinueOnError() {
+        return continueOnError;
+    }
+
+    public int getAllowPrivateAPIs() {
+        return allowPrivateAPIs;
+    }
+
+    public int getStatusUploadRunFrequency() {
+        return statusUploadRunFrequency;
+    }
+
+    public int getStatusUploadTimeFrequency() {
+        return statusUploadTimeFrequency;
     }
 }
