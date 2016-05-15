@@ -6,6 +6,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -25,12 +26,15 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.CredentialRequest;
 import com.google.android.gms.auth.api.credentials.CredentialRequestResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
 import com.sentegrity.core_detection.dispatch.activity_dispatcher.SentegrityActivityDispatcher;
@@ -42,6 +46,9 @@ import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.PitchRo
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDetection;
 import com.sentegrity.core_detection.utilities.Helpers;
+import com.trustlook.sdk.cloudscan.CloudScanClient;
+import com.trustlook.sdk.data.PkgInfo;
+import com.trustlook.sdk.data.Region;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -118,6 +125,7 @@ public class SentegrityTrustFactorDatasets {
     private DNEStatusCode cellularSignalDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode ambientLightDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode rootDetectionDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode pkgListDNEStatus = DNEStatusCode.OK;
 
     private List<MagneticObject> magneticHeading;
     private List<GyroRadsObject> gyroRads;
@@ -127,12 +135,14 @@ public class SentegrityTrustFactorDatasets {
     private List<NetworkInterface> routeData;
     private List<ApplicationInfo> installedApps;
     private List<Integer> ambientLightData;
+    private List<PkgInfo> pkgInfoList;
 
     private WifiManager wifiManager;
     private TelephonyManager telephonyManager;
     private KeyguardManager keyguardManager;
     private ConnectivityManager connectivityManager;
     private AudioManager audioManager;
+    private CloudScanClient cloudScanClient;
 
     public SentegrityTrustFactorDatasets(Context context) {
         this.context = context;
@@ -148,12 +158,15 @@ public class SentegrityTrustFactorDatasets {
         netstatDataDNEStatus = DNEStatusCode.OK;
         cellularSignalDNEStatus = DNEStatusCode.OK;
         rootDetectionDNEStatus = DNEStatusCode.OK;
+        pkgListDNEStatus = DNEStatusCode.OK;
 
         //testMethod();
         updateWifiManager();
         updateTelefonyManager();
         updateKeyguardManager();
         updateConnectivityManager();
+        updateAudioManager();
+        cloudScanClient = null;
         this.runTime = -1;
 
         magneticHeading = null;
@@ -260,6 +273,10 @@ public class SentegrityTrustFactorDatasets {
         return rootDetectionDNEStatus;
     }
 
+    public DNEStatusCode getPkgListDNEStatus() {
+        return pkgListDNEStatus;
+    }
+
     public void setPairedBTDNEStatus(DNEStatusCode pairedBTDNEStatus) {
         this.pairedBTDNEStatus = pairedBTDNEStatus;
     }
@@ -304,6 +321,10 @@ public class SentegrityTrustFactorDatasets {
         this.rootDetectionDNEStatus = rootDetectionDNEStatus;
     }
 
+    public void setPkgListDNEStatus(DNEStatusCode pkgListDNEStatus){
+        this.pkgListDNEStatus = pkgListDNEStatus;
+    }
+
     public void setScannedBTDevices(Set<String> scannedBTDevices) {
         this.scannedBTDevices = scannedBTDevices;
     }
@@ -342,6 +363,10 @@ public class SentegrityTrustFactorDatasets {
 
     public void setAccelRads(List<AccelRadsObject> accelRads) {
         this.accelRads = accelRads;
+    }
+
+    public void setPkgInfoList(List<PkgInfo> pkgInfoList){
+        this.pkgInfoList = pkgInfoList;
     }
 
     public void setRootDetection(RootDetection rootDetection) {
@@ -742,9 +767,9 @@ public class SentegrityTrustFactorDatasets {
      *
      * @return {@code true} current state is offhook, or {@code false} if ringing or idle
      */
-    public Boolean isOnCall(){
-        if(onCall == null) {
-            if(!updateTelefonyManager()){
+    public Boolean isOnCall() {
+        if (onCall == null) {
+            if (!updateTelefonyManager()) {
                 return null;
             }
             switch (telephonyManager.getCallState()) {
@@ -765,8 +790,8 @@ public class SentegrityTrustFactorDatasets {
      * @return {@code true} if device is set on silent or vibrate, or {@code false} if in normal mode
      */
     public Boolean isNotDisturbMode() {
-        if(notDisturbeMode == null) {
-            if(!updateAudioManager()){
+        if (notDisturbeMode == null) {
+            if (!updateAudioManager()) {
                 return null;
             }
             switch (audioManager.getRingerMode()) {
@@ -1486,6 +1511,53 @@ public class SentegrityTrustFactorDatasets {
         if (audioManager != null) return true;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         return audioManager != null;
+    }
+
+    /**
+     * Creates Cloud Scan Client for TrustLook implementation (online antivirus check)
+     *
+     * @return cloudScanClient instance
+     */
+    public CloudScanClient getCloudScanClient(){
+        if(cloudScanClient == null) {
+            cloudScanClient = new CloudScanClient.Builder().setContext(SentegrityTrustFactorDatasets.getInstance().context)
+                    .setToken(SentegrityConstants.TRUSTLOOK_CLIENT_ID)
+                    .setRegion(Region.INTL)
+                    .setConnectionTimeout(6000)
+                    .setSocketTimeout(6500)
+                    .build();
+        }
+        return cloudScanClient;
+    }
+
+    /**
+     * Waits for TrustLook package info list
+     *
+     * @return list of package info data, {@code null} if expired or not available
+     */
+    public List<PkgInfo> getPkgInfoList() {
+        if (pkgInfoList == null || pkgInfoList.size() == 0) {
+            if (getPkgListDNEStatus() == DNEStatusCode.EXPIRED)
+                return pkgInfoList;
+
+            long startTime = System.currentTimeMillis();
+            long currentTime = startTime;
+            float waitTime = 100;
+
+            while ((currentTime - startTime) < waitTime) {
+                if (pkgInfoList != null && pkgInfoList.size() > 0)
+                    return pkgInfoList;
+                try {
+                    Thread.sleep(10);
+                } catch (InterruptedException e) {
+                }
+                currentTime = System.currentTimeMillis();
+            }
+
+            setPkgListDNEStatus(DNEStatusCode.NO_DATA);
+            return pkgInfoList;
+        }
+        return pkgInfoList;
     }
 
     /**

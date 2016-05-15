@@ -4,6 +4,8 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -19,6 +21,8 @@ import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.dispatch.activity_dispatcher.bluetooth.BTDeviceCallback;
 import com.sentegrity.core_detection.dispatch.activity_dispatcher.bluetooth.BTScanner;
@@ -31,7 +35,10 @@ import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.Magneti
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.PitchRollObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDetection;
 import com.sentegrity.core_detection.logger.Logger;
+import com.sentegrity.core_detection.utilities.Helpers;
 import com.stericson.RootShell.RootShell;
+import com.trustlook.sdk.cloudscan.CloudScanClient;
+import com.trustlook.sdk.data.PkgInfo;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -74,6 +81,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         startMotion();
         startCellularSignal();
         startRootCheck();
+        startPkgCollection();
     }
 
     /**
@@ -501,6 +509,52 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 Logger.INFO("RootDetecion[root] " + (System.currentTimeMillis() - start));
             }
         }.start();
+    }
+
+    /**
+     * Starts package collection for TrustLook scan
+     */
+    public void startPkgCollection(){
+
+        long current = System.currentTimeMillis();
+
+        CloudScanClient cloudScanClient = SentegrityTrustFactorDatasets.getInstance().getCloudScanClient();
+
+        List<PkgInfo> pkgInfoList = new ArrayList<>();
+        List<PkgInfo> cachedList = new ArrayList<>();
+
+        SharedPreferences sp = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        String cachedListJson = sp.getString("cachedList", null);
+
+        if(cachedListJson != null){
+            cachedList = new Gson().fromJson(cachedListJson, new TypeToken<List<PkgInfo>>(){}.getType());
+            Log.d("trustlook", "time: " + (System.currentTimeMillis() - current));
+        }
+
+        List<PackageInfo> packageInfoList = Helpers.getLocalAppsPkgInfo(SentegrityTrustFactorDatasets.getInstance().context);
+        for (PackageInfo pi : packageInfoList) {
+            if (pi != null && pi.applicationInfo != null) {
+                PkgInfo pkgInfo = null;
+                for(PkgInfo cachedInfo : cachedList){
+                    if(cachedInfo.getPkgName().equals(pi.packageName)){
+                        pkgInfo = cachedInfo;
+                        pkgInfoList.add(pkgInfo);
+                        break;
+                    }
+                }
+                if(pkgInfo == null) {
+                    pkgInfo = cloudScanClient.populatePkgInfo(pi.packageName, pi.applicationInfo.publicSourceDir);
+                    pkgInfoList.add(pkgInfo);
+                }
+            }
+        }
+
+        sp.edit().putString("cachedList", new Gson().toJson(pkgInfoList)).apply();
+
+        SentegrityTrustFactorDatasets.getInstance().setPkgListDNEStatus(DNEStatusCode.OK);
+        SentegrityTrustFactorDatasets.getInstance().setPkgInfoList(pkgInfoList);
+
+        Log.d("trustlook", "time: " + (System.currentTimeMillis() - current));
     }
 
     /**
