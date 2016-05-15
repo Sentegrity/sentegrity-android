@@ -21,7 +21,7 @@ public class SentegrityTrustFactorOutput {
     private List<SentegrityStoredAssertion> candidateAssertionObjectsForWhitelisting;
     private List<SentegrityStoredAssertion> candidateAssertionObjects;
 
-    private DNEStatusCode statusCode;
+    private int statusCode;
 
     private boolean matchFound;
     private boolean forComputation;
@@ -58,7 +58,7 @@ public class SentegrityTrustFactorOutput {
         this.candidateAssertionObjects = candidateAssertionObjects;
     }
 
-    public void setStatusCode(DNEStatusCode statusCode) {
+    public void setStatusCode(int statusCode) {
         this.statusCode = statusCode;
     }
 
@@ -106,7 +106,7 @@ public class SentegrityTrustFactorOutput {
         return candidateAssertionObjects != null ? candidateAssertionObjects : new ArrayList<SentegrityStoredAssertion>();
     }
 
-    public DNEStatusCode getStatusCode() {
+    public int getStatusCode() {
         return statusCode;
     }
 

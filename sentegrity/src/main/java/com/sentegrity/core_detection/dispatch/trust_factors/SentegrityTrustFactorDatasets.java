@@ -114,18 +114,18 @@ public class SentegrityTrustFactorDatasets {
     private static SentegrityTrustFactorDatasets sInstance;
     public final Context context;
 
-    private DNEStatusCode locationDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode pairedBTDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode scannedBTDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode gyroMotionDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode magneticHeadingDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode userMovementDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode accelMotionDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode netstatDataDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode cellularSignalDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode ambientLightDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode rootDetectionDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode pkgListDNEStatus = DNEStatusCode.OK;
+    private int locationDNEStatus = DNEStatusCode.OK;
+    private int pairedBTDNEStatus = DNEStatusCode.OK;
+    private int scannedBTDNEStatus = DNEStatusCode.OK;
+    private int gyroMotionDNEStatus = DNEStatusCode.OK;
+    private int magneticHeadingDNEStatus = DNEStatusCode.OK;
+    private int userMovementDNEStatus = DNEStatusCode.OK;
+    private int accelMotionDNEStatus = DNEStatusCode.OK;
+    private int netstatDataDNEStatus = DNEStatusCode.OK;
+    private int cellularSignalDNEStatus = DNEStatusCode.OK;
+    private int ambientLightDNEStatus = DNEStatusCode.OK;
+    private int rootDetectionDNEStatus = DNEStatusCode.OK;
+    private int pkgListDNEStatus = DNEStatusCode.OK;
 
     private List<MagneticObject> magneticHeading;
     private List<GyroRadsObject> gyroRads;
@@ -229,99 +229,99 @@ public class SentegrityTrustFactorDatasets {
         return runTime;
     }
 
-    public DNEStatusCode getLocationDNEStatus() {
+    public int getLocationDNEStatus() {
         return locationDNEStatus;
     }
 
-    public DNEStatusCode getCellularSignalDNEStatus() {
+    public int getCellularSignalDNEStatus() {
         return cellularSignalDNEStatus;
     }
 
-    public DNEStatusCode getPairedBTDNEStatus() {
+    public int getPairedBTDNEStatus() {
         return pairedBTDNEStatus;
     }
 
-    public DNEStatusCode getScannedBTDNEStatus() {
+    public int getScannedBTDNEStatus() {
         return scannedBTDNEStatus;
     }
 
-    public DNEStatusCode getUserMovementDNEStatus() {
+    public int getUserMovementDNEStatus() {
         return userMovementDNEStatus;
     }
 
-    public DNEStatusCode getGyroMotionDNEStatus() {
+    public int getGyroMotionDNEStatus() {
         return gyroMotionDNEStatus;
     }
 
-    public DNEStatusCode getMagneticHeadingDNEStatus() {
+    public int getMagneticHeadingDNEStatus() {
         return magneticHeadingDNEStatus;
     }
 
-    public DNEStatusCode getAccelMotionDNEStatus() {
+    public int getAccelMotionDNEStatus() {
         return accelMotionDNEStatus;
     }
 
-    public DNEStatusCode getNetstatDataDNEStatus() {
+    public int getNetstatDataDNEStatus() {
         return netstatDataDNEStatus;
     }
 
-    public DNEStatusCode getAmbientLightDNEStatus() {
+    public int getAmbientLightDNEStatus() {
         return ambientLightDNEStatus;
     }
 
-    public DNEStatusCode getRootDetectionDNEStatus() {
+    public int getRootDetectionDNEStatus() {
         return rootDetectionDNEStatus;
     }
 
-    public DNEStatusCode getPkgListDNEStatus() {
+    public int getPkgListDNEStatus() {
         return pkgListDNEStatus;
     }
 
-    public void setPairedBTDNEStatus(DNEStatusCode pairedBTDNEStatus) {
+    public void setPairedBTDNEStatus(int pairedBTDNEStatus) {
         this.pairedBTDNEStatus = pairedBTDNEStatus;
     }
 
-    public void setScannedBTDNEStatus(DNEStatusCode scannedBTDNEStatus) {
+    public void setScannedBTDNEStatus(int scannedBTDNEStatus) {
         this.scannedBTDNEStatus = scannedBTDNEStatus;
     }
 
-    public void setLocationDNEStatus(DNEStatusCode locationDNEStatus) {
+    public void setLocationDNEStatus(int locationDNEStatus) {
         this.locationDNEStatus = locationDNEStatus;
     }
 
-    public void setGyroMotionDNEStatus(DNEStatusCode gyroMotionDNEStatus) {
+    public void setGyroMotionDNEStatus(int gyroMotionDNEStatus) {
         this.gyroMotionDNEStatus = gyroMotionDNEStatus;
     }
 
-    public void setMagneticHeadingDNEStatus(DNEStatusCode magneticHeadingDNEStatus) {
+    public void setMagneticHeadingDNEStatus(int magneticHeadingDNEStatus) {
         this.magneticHeadingDNEStatus = magneticHeadingDNEStatus;
     }
 
-    public void setUserMovementDNEStatus(DNEStatusCode userMovementDNEStatus) {
+    public void setUserMovementDNEStatus(int userMovementDNEStatus) {
         this.userMovementDNEStatus = userMovementDNEStatus;
     }
 
-    public void setAccelMotionDNEStatus(DNEStatusCode accelMotionDNEStatus) {
+    public void setAccelMotionDNEStatus(int accelMotionDNEStatus) {
         this.accelMotionDNEStatus = accelMotionDNEStatus;
     }
 
-    public void setNetstatDataDNEStatus(DNEStatusCode netstatDataDNEStatus) {
+    public void setNetstatDataDNEStatus(int netstatDataDNEStatus) {
         this.netstatDataDNEStatus = netstatDataDNEStatus;
     }
 
-    public void setCellularSignalDNEStatus(DNEStatusCode cellularSignalDNEStatus) {
+    public void setCellularSignalDNEStatus(int cellularSignalDNEStatus) {
         this.cellularSignalDNEStatus = cellularSignalDNEStatus;
     }
 
-    public void setAmbientLightDNEStatus(DNEStatusCode ambientLightDNEStatus) {
+    public void setAmbientLightDNEStatus(int ambientLightDNEStatus) {
         this.ambientLightDNEStatus = ambientLightDNEStatus;
     }
 
-    public void setRootDetectionDNEStatus(DNEStatusCode rootDetectionDNEStatus) {
+    public void setRootDetectionDNEStatus(int rootDetectionDNEStatus) {
         this.rootDetectionDNEStatus = rootDetectionDNEStatus;
     }
 
-    public void setPkgListDNEStatus(DNEStatusCode pkgListDNEStatus){
+    public void setPkgListDNEStatus(int pkgListDNEStatus){
         this.pkgListDNEStatus = pkgListDNEStatus;
     }
 

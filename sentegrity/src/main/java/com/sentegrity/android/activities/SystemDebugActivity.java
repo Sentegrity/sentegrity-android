@@ -116,7 +116,7 @@ public class SystemDebugActivity extends DebugActivity {
         for(SentegrityTrustFactorOutput output : computationResult.getSystemTrustFactorsWithErrors()){
 
             systemTrustFactorsWithError += "--Name: " + output.getTrustFactor().getName().toUpperCase() + "\n"
-                    + "DNE: " + output.getStatusCode().getId() + " (" + output.getStatusCode() + ")" + "\n\n";
+                    + "DNE: " + output.getStatusCode() + " (" + output.getStatusCode() + ")" + "\n\n";
         }
 
         complete += systemTrustFactorsWithError;

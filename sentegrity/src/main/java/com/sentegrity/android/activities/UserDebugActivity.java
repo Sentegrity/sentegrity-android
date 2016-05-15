@@ -120,7 +120,7 @@ public class UserDebugActivity extends DebugActivity {
         for(SentegrityTrustFactorOutput output : computationResult.getUserTrustFactorsWithErrors()){
 
             userTrustFactorsWithError += "--Name: " + output.getTrustFactor().getName().toUpperCase() + "\n"
-                    + "DNE: " + output.getStatusCode().getId() + " (" + output.getStatusCode() + ")" + "\n\n";
+                    + "DNE: " + output.getStatusCode() + " (" + output.getStatusCode() + ")" + "\n\n";
         }
 
         complete += userTrustFactorsWithError;

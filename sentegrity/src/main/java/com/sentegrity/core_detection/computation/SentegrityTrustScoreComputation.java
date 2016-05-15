@@ -631,7 +631,7 @@ public class SentegrityTrustScoreComputation {
 
                 List<SentegrityTrustFactor> trustFactorsInSubClass = new ArrayList();
 
-                List<DNEStatusCode> subClassDNECodes = new ArrayList();
+                List<Integer> subClassDNECodes = new ArrayList();
 
                 subclassification.setTotalWeight(0);
 
@@ -977,31 +977,31 @@ public class SentegrityTrustScoreComputation {
 
     private static void addSuggestions(SentegrityClassification classification, SentegritySubclassification subclassification, List<String> suggestions, SentegrityTrustFactorOutput output) {
         switch (output.getStatusCode()) {
-            case UNAUTHORIZED:
+            case DNEStatusCode.UNAUTHORIZED:
                 if (!TextUtils.isEmpty(subclassification.getDneUnauthorized())
                         && !suggestions.contains(subclassification.getDneUnauthorized())) {
                     suggestions.add(subclassification.getDneUnauthorized());
                 }
                 break;
-            case DISABLED:
+            case DNEStatusCode.DISABLED:
                 if (!TextUtils.isEmpty(subclassification.getDneDisabled())
                         && !suggestions.contains(subclassification.getDneDisabled())) {
                     suggestions.add(subclassification.getDneDisabled());
                 }
                 break;
-            case EXPIRED:
+            case DNEStatusCode.EXPIRED:
                 if (!TextUtils.isEmpty(subclassification.getDneExpired())
                         && !suggestions.contains(subclassification.getDneExpired())) {
                     suggestions.add(subclassification.getDneExpired());
                 }
                 break;
-            case NO_DATA:
+            case DNEStatusCode.NO_DATA:
                 if (!TextUtils.isEmpty(subclassification.getDneNoData())
                         && !suggestions.contains(subclassification.getDneNoData())) {
                     suggestions.add(subclassification.getDneNoData());
                 }
                 break;
-            case INVALID:
+            case DNEStatusCode.INVALID:
                 if (!TextUtils.isEmpty(subclassification.getDneInvalid())
                         && !suggestions.contains(subclassification.getDneInvalid())) {
                     suggestions.add(subclassification.getDneInvalid());
@@ -1013,52 +1013,52 @@ public class SentegrityTrustScoreComputation {
     private static void addSuggestionAndCalculateWeight(SentegrityClassification classification, SentegritySubclassification subclassification, List<String> suggestions, SentegrityPolicy policy, SentegrityTrustFactorOutput output) {
         double penaltyMod;
         switch (output.getStatusCode()) {
-            case ERROR:
+            case DNEStatusCode.ERROR:
                 penaltyMod = policy.getDneModifiers().getError();
                 break;
-            case UNAUTHORIZED:
+            case DNEStatusCode.UNAUTHORIZED:
                 penaltyMod = policy.getDneModifiers().getUnauthorized();
                 if (!TextUtils.isEmpty(subclassification.getDneUnauthorized())
                         && !suggestions.contains(subclassification.getDneUnauthorized())) {
                     suggestions.add(subclassification.getDneUnauthorized());
                 }
                 break;
-            case UNSUPPORTED:
+            case DNEStatusCode.UNSUPPORTED:
                 penaltyMod = policy.getDneModifiers().getUnsupported();
                 if (!TextUtils.isEmpty(subclassification.getDneUnsupported())
                         && !suggestions.contains(subclassification.getDneUnsupported())) {
                     suggestions.add(subclassification.getDneUnsupported());
                 }
                 break;
-            case UNAVAILABLE:
+            case DNEStatusCode.UNAVAILABLE:
                 penaltyMod = policy.getDneModifiers().getUnavailable();
                 if (!TextUtils.isEmpty(subclassification.getDneUnavailable())
                         && !suggestions.contains(subclassification.getDneUnavailable())) {
                     suggestions.add(subclassification.getDneUnavailable());
                 }
                 break;
-            case DISABLED:
+            case DNEStatusCode.DISABLED:
                 penaltyMod = policy.getDneModifiers().getDisabled();
                 if (!TextUtils.isEmpty(subclassification.getDneDisabled())
                         && !suggestions.contains(subclassification.getDneDisabled())) {
                     suggestions.add(subclassification.getDneDisabled());
                 }
                 break;
-            case EXPIRED:
+            case DNEStatusCode.EXPIRED:
                 penaltyMod = policy.getDneModifiers().getExpired();
                 if (!TextUtils.isEmpty(subclassification.getDneExpired())
                         && !suggestions.contains(subclassification.getDneExpired())) {
                     suggestions.add(subclassification.getDneExpired());
                 }
                 break;
-            case NO_DATA:
+            case DNEStatusCode.NO_DATA:
                 penaltyMod = policy.getDneModifiers().getNoData();
                 if (!TextUtils.isEmpty(subclassification.getDneNoData())
                         && !suggestions.contains(subclassification.getDneNoData())) {
                     suggestions.add(subclassification.getDneNoData());
                 }
                 break;
-            case INVALID:
+            case DNEStatusCode.INVALID:
                 penaltyMod = policy.getDneModifiers().getInvalid();
                 if (!TextUtils.isEmpty(subclassification.getDneInvalid())
                         && !suggestions.contains(subclassification.getDneInvalid())) {
