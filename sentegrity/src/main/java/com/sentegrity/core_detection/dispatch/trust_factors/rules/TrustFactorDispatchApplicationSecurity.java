@@ -34,8 +34,7 @@ public class TrustFactorDispatchApplicationSecurity {
         if (scanResult.isSuccess()) {
             List<AppInfo> appInfoList;
             appInfoList = scanResult.getList();
-            for (AppInfo
-                    appInfo : appInfoList) {
+            for (AppInfo appInfo : appInfoList) {
                 if (appInfo.getScore() >= 8) {
                     //malware app
                     String category = appInfo.getCategory();
@@ -45,7 +44,7 @@ public class TrustFactorDispatchApplicationSecurity {
                     String category = appInfo.getCategory();
                     String virusName = appInfo.getVirusNameInCloud();
                 } else if (appInfo.getScore() == 6) {
-                    //non­aggressive risk app we should skip these ?
+                    //non­aggressive risk app, we should skip these ?
                     String category = appInfo.getCategory();
                     String virusName = appInfo.getVirusNameInCloud();
                 } else {
@@ -59,10 +58,10 @@ public class TrustFactorDispatchApplicationSecurity {
         }
 
         Log.d("trustLook", "time: " + (System.currentTimeMillis() - current));
-        return new SentegrityTrustFactorOutput();
+        return output;
     }
 
-    public static SentegrityTrustFactorOutput maliciousApp(List<Object> payload) {
+    public static SentegrityTrustFactorOutput malwarePackageName(List<Object> payload) {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         List<String> outputList = new ArrayList<>();
@@ -95,7 +94,7 @@ public class TrustFactorDispatchApplicationSecurity {
 
         output.setOutput(outputList);
 
-        return new SentegrityTrustFactorOutput();
+        return output;
     }
 
     //TODO: needs to be added to policy
@@ -133,6 +132,6 @@ public class TrustFactorDispatchApplicationSecurity {
 
         output.setOutput(outputList);
 
-        return new SentegrityTrustFactorOutput();
+        return output;
     }
 }

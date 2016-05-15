@@ -58,6 +58,6 @@ public class TrustFactorDispatchApplication {
         }
 
         output.setOutput(outputList);
-        return new SentegrityTrustFactorOutput();
+        return output;
     }
 }
