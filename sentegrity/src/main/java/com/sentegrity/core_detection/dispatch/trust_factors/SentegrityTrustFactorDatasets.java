@@ -1560,6 +1560,10 @@ public class SentegrityTrustFactorDatasets {
         return pkgInfoList;
     }
 
+    public SharedPreferences getSharedPrefs(){
+        return context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
+    }
+
     /**
      * Call on reloading login
      */

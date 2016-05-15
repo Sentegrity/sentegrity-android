@@ -236,7 +236,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
             Toast.makeText(this, "GoogleApiClient not yet connected", Toast.LENGTH_SHORT).show();
         } else {
             removeActivityUpdates();
-            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 1000 * 60 * 3, getActivityDetectionPendingIntent());
+            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 1000 * 90, getActivityDetectionPendingIntent());
         }
     }
 
