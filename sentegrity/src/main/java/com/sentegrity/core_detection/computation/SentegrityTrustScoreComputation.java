@@ -14,6 +14,7 @@ import com.sentegrity.core_detection.policy.SentegrityClassification;
 import com.sentegrity.core_detection.policy.SentegrityPolicy;
 import com.sentegrity.core_detection.policy.SentegritySubclassification;
 import com.sentegrity.core_detection.policy.SentegrityTrustFactor;
+import com.sentegrity.core_detection.startup.SentegrityTransparentAuthObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +78,22 @@ public class SentegrityTrustScoreComputation {
     private int systemSecurityScore;
     private int userAnomalyScore;
     private int userPolicyScore;
+
+    private int attributingClassID;
+    private int preAuthenticationAction;
+    private int postAuthenticationAction;
+    private int coreDetectionResult;
+    private int authenticationResult;
+    private String decryptedMasterKey;
+
+    private List<SentegrityTrustFactorOutput> transparentAuthenticationTrustFactorOutputs;
+    private int transparentAuthenticationAction;
+    private int entropyCount;
+    private boolean shouldAttemptTransparentAuthentication;
+    private boolean foundTransparentMatch;
+    private SentegrityTransparentAuthObject matchingTransparentAuthenticationObject;
+    private String candidateTransparentKey;
+    private String candidateTransparentKeyHashString;
 
     public SentegrityPolicy getPolicy() {
         return policy;
@@ -422,6 +439,117 @@ public class SentegrityTrustScoreComputation {
         this.transparentAuthenticationTrustFactors = transparentAuthenticationTrustFactors;
     }
 
+    public int getAttributingClassID() {
+        return attributingClassID;
+    }
+
+    public void setAttributingClassID(int attributingClassID) {
+        this.attributingClassID = attributingClassID;
+    }
+
+    public int getPreAuthenticationAction() {
+        return preAuthenticationAction;
+    }
+
+    public void setPreAuthenticationAction(int preAuthenticationAction) {
+        this.preAuthenticationAction = preAuthenticationAction;
+    }
+
+    public int getPostAuthenticationAction() {
+        return postAuthenticationAction;
+    }
+
+    public void setPostAuthenticationAction(int postAuthenticationAction) {
+        this.postAuthenticationAction = postAuthenticationAction;
+    }
+
+    public int getCoreDetectionResult() {
+        return coreDetectionResult;
+    }
+
+    public void setCoreDetectionResult(int coreDetectionResult) {
+        this.coreDetectionResult = coreDetectionResult;
+    }
+
+    public int getAuthenticationResult() {
+        return authenticationResult;
+    }
+
+    public void setAuthenticationResult(int authenticationResult) {
+        this.authenticationResult = authenticationResult;
+    }
+
+    public String getDecryptedMasterKey() {
+        return decryptedMasterKey;
+    }
+
+    public void setDecryptedMasterKey(String decryptedMasterKey) {
+        this.decryptedMasterKey = decryptedMasterKey;
+    }
+
+    public List<SentegrityTrustFactorOutput> getTransparentAuthenticationTrustFactorOutputs() {
+        return transparentAuthenticationTrustFactorOutputs;
+    }
+
+    public void setTransparentAuthenticationTrustFactorOutputs(List<SentegrityTrustFactorOutput> transparentAuthenticationTrustFactorOutputs) {
+        this.transparentAuthenticationTrustFactorOutputs = transparentAuthenticationTrustFactorOutputs;
+    }
+
+    public int getTransparentAuthenticationAction() {
+        return transparentAuthenticationAction;
+    }
+
+    public void setTransparentAuthenticationAction(int transparentAuthenticationAction) {
+        this.transparentAuthenticationAction = transparentAuthenticationAction;
+    }
+
+    public int getEntropyCount() {
+        return entropyCount;
+    }
+
+    public void setEntropyCount(int entropyCount) {
+        this.entropyCount = entropyCount;
+    }
+
+    public boolean isShouldAttemptTransparentAuthentication() {
+        return shouldAttemptTransparentAuthentication;
+    }
+
+    public void setShouldAttemptTransparentAuthentication(boolean shouldAttemptTransparentAuthentication) {
+        this.shouldAttemptTransparentAuthentication = shouldAttemptTransparentAuthentication;
+    }
+
+    public boolean isFoundTransparentMatch() {
+        return foundTransparentMatch;
+    }
+
+    public void setFoundTransparentMatch(boolean foundTransparentMatch) {
+        this.foundTransparentMatch = foundTransparentMatch;
+    }
+
+    public SentegrityTransparentAuthObject getMatchingTransparentAuthenticationObject() {
+        return matchingTransparentAuthenticationObject;
+    }
+
+    public void setMatchingTransparentAuthenticationObject(SentegrityTransparentAuthObject matchingTransparentAuthenticationObject) {
+        this.matchingTransparentAuthenticationObject = matchingTransparentAuthenticationObject;
+    }
+
+    public String getCandidateTransparentKey() {
+        return candidateTransparentKey;
+    }
+
+    public void setCandidateTransparentKey(String candidateTransparentKey) {
+        this.candidateTransparentKey = candidateTransparentKey;
+    }
+
+    public String getCandidateTransparentKeyHashString() {
+        return candidateTransparentKeyHashString;
+    }
+
+    public void setCandidateTransparentKeyHashString(String candidateTransparentKeyHashString) {
+        this.candidateTransparentKeyHashString = candidateTransparentKeyHashString;
+    }
 
     private static double weightPercentCalculate(SentegrityTrustFactorOutput trustFactorOutput) {
         SentegrityStoredAssertion highestStoredAssertion = trustFactorOutput.getStoredTrustFactor().getAssertions().get(0);
