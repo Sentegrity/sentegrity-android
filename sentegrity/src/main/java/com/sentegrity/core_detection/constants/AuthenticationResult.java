@@ -3,7 +3,7 @@ package com.sentegrity.core_detection.constants;
 /**
  * Created by dmestrov on 15/05/16.
  */
-public class AuthenticationResult {
+public final class AuthenticationResult {
     
     public static final int INCORRECT_LOGIN = 1;
     public static final int IRRECOVERABLE_ERROR = 2;

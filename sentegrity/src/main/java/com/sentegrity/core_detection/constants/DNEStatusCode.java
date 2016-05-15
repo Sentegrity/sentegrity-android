@@ -3,7 +3,7 @@ package com.sentegrity.core_detection.constants;
 /**
  * Created by dmestrov on 22/03/16.
  */
-public class DNEStatusCode{
+public final class DNEStatusCode{
 
     public static final int OK = 0;
     public static final int UNAUTHORIZED = 1;

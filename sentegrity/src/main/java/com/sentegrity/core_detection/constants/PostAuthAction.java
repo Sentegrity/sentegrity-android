@@ -3,7 +3,7 @@ package com.sentegrity.core_detection.constants;
 /**
  * Created by dmestrov on 15/05/16.
  */
-public class PostAuthAction {
+public final class PostAuthAction {
 
     public final static int WHITELIST_USER_ASSERTIONS = 1;
     public final static int WHITELIST_USER_AND_SYSTEM_ASSERTIONS = 2;
