@@ -140,6 +140,10 @@ public class SentegrityPolicy implements Serializable {
         return continueOnError;
     }
 
+    public boolean continueOnError() {
+        return continueOnError == 1;
+    }
+
     public int getAllowPrivateAPIs() {
         return allowPrivateAPIs;
     }
