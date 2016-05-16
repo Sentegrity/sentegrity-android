@@ -95,6 +95,9 @@ public class SentegrityTrustScoreComputation {
     private byte[] candidateTransparentKey;
     private String candidateTransparentKeyHashString;
 
+    private List<SentegrityTrustFactorOutput> userTrustFactorWhitelist;
+    private List<SentegrityTrustFactorOutput> systemTrustFactorWhitelist;
+
     public SentegrityPolicy getPolicy() {
         return policy;
     }
@@ -549,6 +552,22 @@ public class SentegrityTrustScoreComputation {
 
     public void setCandidateTransparentKeyHashString(String candidateTransparentKeyHashString) {
         this.candidateTransparentKeyHashString = candidateTransparentKeyHashString;
+    }
+
+    public List<SentegrityTrustFactorOutput> getUserTrustFactorWhitelist() {
+        return userTrustFactorWhitelist;
+    }
+
+    public void setUserTrustFactorWhitelist(List<SentegrityTrustFactorOutput> userTrustFactorWhitelist) {
+        this.userTrustFactorWhitelist = userTrustFactorWhitelist;
+    }
+
+    public List<SentegrityTrustFactorOutput> getSystemTrustFactorWhitelist() {
+        return systemTrustFactorWhitelist;
+    }
+
+    public void setSystemTrustFactorWhitelist(List<SentegrityTrustFactorOutput> systemTrustFactorWhitelist) {
+        this.systemTrustFactorWhitelist = systemTrustFactorWhitelist;
     }
 
     private static double weightPercentCalculate(SentegrityTrustFactorOutput trustFactorOutput) {

@@ -18,7 +18,7 @@ public class SentegrityCrypto {
 
     private static SentegrityCrypto sInstance;
 
-    public SentegrityCrypto getInstance(){
+    public static SentegrityCrypto getInstance(){
         if(sInstance == null){
             sInstance = new SentegrityCrypto();
         }
@@ -49,7 +49,7 @@ public class SentegrityCrypto {
         return derivedTransparentKey;
     }
 
-    public byte[] getUSerKeyForPassword(String password){
+    public byte[] getUserKeyForPassword(String password){
         SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupData();
 
         byte[] userKeySaltData = convertHexStringToData(startup.getUserKeySaltString());
@@ -213,7 +213,7 @@ public class SentegrityCrypto {
         return true;
     }
 
-    private byte[] generateSalt256() {
+    public byte[] generateSalt256() {
         String salt = "";
         Random r = new Random();
         for(int i = 0; i < 32; i++){
@@ -222,7 +222,7 @@ public class SentegrityCrypto {
         return salt.getBytes();
     }
 
-    private byte[] decryptString(String encryptedDataString, byte[] keyData, String saltString) {
+    public byte[] decryptString(String encryptedDataString, byte[] keyData, String saltString) {
         byte[] encryptedDataData = convertHexStringToData(encryptedDataString);
 
         if(encryptedDataData == null){
@@ -239,23 +239,23 @@ public class SentegrityCrypto {
         return null;
     }
 
-    private String encryptData(byte[] decryptedMasterKey, byte[] candidateTransparentKey, byte[] transparentKeymasterKeySaltData) {
+    public String encryptData(byte[] decryptedMasterKey, byte[] candidateTransparentKey, byte[] transparentKeymasterKeySaltData) {
         return null;
     }
 
-    private String createSHA1HashOfData(byte[] userKeyData) {
+    public String createSHA1HashOfData(byte[] userKeyData) {
         return null;
     }
 
-    private String convertDataToHexString(byte[] transparentKeymasterKeySaltData) {
+    public String convertDataToHexString(byte[] transparentKeymasterKeySaltData) {
         return null;
     }
 
-    private byte[] convertHexStringToData(String transparentAuthGlobalPBKDF2SaltString) {
+    public byte[] convertHexStringToData(String transparentAuthGlobalPBKDF2SaltString) {
         return null;
     }
 
-    private byte[] createPBKDF2Key(String output, byte[] transparentKeySaltData, int transparentRounds) {
+    public byte[] createPBKDF2Key(String output, byte[] transparentKeySaltData, int transparentRounds) {
         return null;
     }
 }
