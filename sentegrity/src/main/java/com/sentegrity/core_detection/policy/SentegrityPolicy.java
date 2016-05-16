@@ -51,7 +51,7 @@ public class SentegrityPolicy implements Serializable {
 
 
     @SerializedName("transparentAuthDecayMetric")
-    private int transparentAuthDecayMetric;
+    private float transparentAuthDecayMetric;
 
     @SerializedName("transparentAuthEnabled")
     private int transparentAuthEnabled;
@@ -124,7 +124,7 @@ public class SentegrityPolicy implements Serializable {
         return trustFactors;
     }
 
-    public int getTransparentAuthDecayMetric() {
+    public float getTransparentAuthDecayMetric() {
         return transparentAuthDecayMetric;
     }
 

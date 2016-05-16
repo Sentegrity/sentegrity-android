@@ -84,7 +84,7 @@ public class SentegrityTrustScoreComputation {
     private int postAuthenticationAction;
     private int coreDetectionResult;
     private int authenticationResult;
-    private String decryptedMasterKey;
+    private byte[] decryptedMasterKey;
 
     private List<SentegrityTrustFactorOutput> transparentAuthenticationTrustFactorOutputs;
     private int transparentAuthenticationAction;
@@ -92,7 +92,7 @@ public class SentegrityTrustScoreComputation {
     private boolean shouldAttemptTransparentAuthentication;
     private boolean foundTransparentMatch;
     private SentegrityTransparentAuthObject matchingTransparentAuthenticationObject;
-    private String candidateTransparentKey;
+    private byte[] candidateTransparentKey;
     private String candidateTransparentKeyHashString;
 
     public SentegrityPolicy getPolicy() {
@@ -479,11 +479,11 @@ public class SentegrityTrustScoreComputation {
         this.authenticationResult = authenticationResult;
     }
 
-    public String getDecryptedMasterKey() {
+    public byte[] getDecryptedMasterKey() {
         return decryptedMasterKey;
     }
 
-    public void setDecryptedMasterKey(String decryptedMasterKey) {
+    public void setDecryptedMasterKey(byte[] decryptedMasterKey) {
         this.decryptedMasterKey = decryptedMasterKey;
     }
 
@@ -535,11 +535,11 @@ public class SentegrityTrustScoreComputation {
         this.matchingTransparentAuthenticationObject = matchingTransparentAuthenticationObject;
     }
 
-    public String getCandidateTransparentKey() {
+    public byte[] getCandidateTransparentKey() {
         return candidateTransparentKey;
     }
 
-    public void setCandidateTransparentKey(String candidateTransparentKey) {
+    public void setCandidateTransparentKey(byte[] candidateTransparentKey) {
         this.candidateTransparentKey = candidateTransparentKey;
     }
 
