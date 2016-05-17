@@ -29,7 +29,7 @@ public class SentegrityBaselineAnalysis {
 
     public static List<SentegrityTrustFactorOutput> performBaselineAnalysis(List<SentegrityTrustFactorOutput> outputs, SentegrityPolicy policy) {
 
-        SentegrityAssertionStore assertionStore = SentegrityTrustFactorStore.getInstance().getAssertionStore(policy.getAppID());
+        SentegrityAssertionStore assertionStore = SentegrityTrustFactorStore.getInstance().getAssertionStore();
 
         if (assertionStore == null) {
             Logger.INFO("Local store did not exist. Creating blank");
@@ -196,7 +196,7 @@ public class SentegrityBaselineAnalysis {
         }
 
         /*SentegrityAssertionStore localStoreOutput = */
-        SentegrityTrustFactorStore.getInstance().setAssertionStore(assertionStore, policy.getAppID());
+        SentegrityTrustFactorStore.getInstance().setAssertionStore();
 
         /*if (localStoreOutput == null) {
             Logger.INFO("Failed to write store");

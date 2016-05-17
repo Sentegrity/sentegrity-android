@@ -1,6 +1,7 @@
 package com.sentegrity.core_detection.assertion_storage;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
@@ -21,6 +22,8 @@ public class SentegrityTrustFactorStore {
 
     private static SentegrityTrustFactorStore sInstance;
 
+    private static SentegrityAssertionStore currentStore;
+
     final private String storePath;
 
     public SentegrityTrustFactorStore(Context context) {
@@ -40,20 +43,48 @@ public class SentegrityTrustFactorStore {
     }
 
     public String getStorePath() {
-        return storePath;
+        return storePath + File.separator + SentegrityConstants.ASSERTION_STORE_FILENAME;
     }
 
-    public SentegrityAssertionStore setAssertionStore(SentegrityAssertionStore store, String appId){
-        String stringJson = new Gson().toJson(store);
+    public void resetAssertionStore(){
+        File f = new File(getStorePath());
 
-        File f = new File(storePath + "/" + appId + SentegrityConstants.STORE_FILETYPE);
+        if (!f.exists()) {
+            if(!f.delete()){
+                Logger.INFO("Assertion store file JSON cannot be deleted");
+            }
+        }
+        currentStore = null;
+    }
+
+    public SentegrityAssertionStore setAssertionStore(){
+
+        if(currentStore == null){
+            SentegrityError error = SentegrityError.INVALID_STARTUP_INSTANCE;
+            error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
+            error.setDetails(new ErrorDetails().setDescription("Setting assertion store file unsuccessful").setFailureReason("Assertion Store reference is invalid"));
+
+            Logger.INFO("Failed to Write Assertion Store", error);
+        }
+
+        String stringJson = new Gson().toJson(currentStore);
+
+        if(TextUtils.isEmpty(stringJson)) {
+            SentegrityError error = SentegrityError.INVALID_STARTUP_INSTANCE;
+            error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
+            error.setDetails(new ErrorDetails().setDescription("Setting assertion store file unsuccessful").setFailureReason("Assertion Store reference is invalid"));
+
+            Logger.INFO("Failed to Write Assertion Store", error);
+        }
+
+        File f = new File(getStorePath());
 
         try {
             if (!f.exists()) {
                 f.createNewFile();
             }
             FileUtils.write(f, stringJson);
-            return store;
+            return currentStore;
         } catch (IOException e) {
             SentegrityError error = SentegrityError.UNABLE_TO_WRITE_STORE;
             error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
@@ -65,28 +96,39 @@ public class SentegrityTrustFactorStore {
         return null;
     }
 
-    public SentegrityAssertionStore getAssertionStore(String appId){
-        File f = new File(storePath + "/" + appId + ".store");
+    public SentegrityAssertionStore getAssertionStore() {
 
-        if (!f.exists()) {
-            return null;
+        if (currentStore == null) {
+            File f = new File(getStorePath());
+
+            if (!f.exists()) {
+                currentStore = new SentegrityAssertionStore();
+                if(setAssertionStore() == null)
+                    return null;
+                return currentStore;
+            }
+
+            SentegrityAssertionStore assertionStore;
+            String assertionJson;
+            try {
+                assertionJson = FileUtils.readFileToString(f);
+                assertionStore = new Gson().fromJson(assertionJson, SentegrityAssertionStore.class);
+                if (assertionStore == null)
+                    return null;
+                else {
+                    currentStore = assertionStore;
+                    return currentStore;
+                }
+            } catch (IOException e) {
+                SentegrityError error = SentegrityError.INVALID_STARTUP_FILE;
+                error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
+                error.setDetails(new ErrorDetails().setDescription("Getting assertion file unsuccessful").setFailureReason("Assertion Store file is invalid"));
+
+                Logger.INFO("Failed to Read Assertion Store", error);
+            }
+        }else{
+            return currentStore;
         }
-
-        SentegrityAssertionStore assertionStore;
-        String assertionJson;
-        try {
-            assertionJson = FileUtils.readFileToString(f);
-            assertionStore = new Gson().fromJson(assertionJson, SentegrityAssertionStore.class);
-            if(assertionStore != null && appId.equals(assertionStore.getAppId()))
-                return assertionStore;
-        } catch (IOException e) {
-            SentegrityError error = SentegrityError.INVALID_STARTUP_FILE;
-            error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
-            error.setDetails(new ErrorDetails().setDescription("Getting assertion file unsuccessful").setFailureReason("Assertion Store file is invalid"));
-
-            Logger.INFO("Failed to Read Assertion Store", error);
-        }
-
         return null;
     }
 }

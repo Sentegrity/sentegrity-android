@@ -245,7 +245,7 @@ public class SentegrityLoginAction {
 
     private boolean whitelistAttributingTrustFactorOutputObjects(List<SentegrityTrustFactorOutput> trustFactorsToWhitelist) {
 
-        SentegrityAssertionStore localStore = SentegrityTrustFactorStore.getInstance().getAssertionStore("");
+        SentegrityAssertionStore localStore = SentegrityTrustFactorStore.getInstance().getAssertionStore();
 
         if(localStore == null){
             return false;
@@ -269,7 +269,7 @@ public class SentegrityLoginAction {
             }
         }
 
-        SentegrityTrustFactorStore.getInstance().setAssertionStore(localStore, "");
+        SentegrityTrustFactorStore.getInstance().setAssertionStore();
         return true;
     }
 }
