@@ -11,22 +11,22 @@ public class SentegritySubclassificationComputation {
 
     private List<SentegrityTrustFactor> trustFactors;
 
-    private int totalWeight;
+    private int score;
 
     public List getTrustFactors() {
         return trustFactors;
     }
 
-    public int getTotalWeight() {
-        return totalWeight;
+    public int getScore() {
+        return score;
     }
 
     public void setTrustFactors(List<SentegrityTrustFactor> trustFactors) {
         this.trustFactors = trustFactors;
     }
 
-    public void setTotalWeight(int totalWeight) {
-        this.totalWeight = totalWeight;
+    public void setScore(int score) {
+        this.score = score;
     }
 
 }

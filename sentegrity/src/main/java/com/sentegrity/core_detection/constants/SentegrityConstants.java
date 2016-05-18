@@ -10,7 +10,12 @@ public class SentegrityConstants {
 
     public static final String STORE_FILETYPE = ".store";
 
-    public static final String ASSERTION_STORE_FILENAME = "store";
+    public static final String ASSERTION_STORE_FILE_NAME = "store";
+
+    //public static final String CORE_DETECTION_BUNDLE = "PolicyBundle";
+    //public static final String CORE_DETECTION_BUNDLE_EXTENSTION = "bundle";
+    public static final String CORE_DETECTION_POLICY_FILE_NAME = "policy";
+
 
     public static final String HOTSPOT_SSID_LIST_FILE_NAME = "hotspot_ssids.list";
     public static final String OUI_LIST_FILE_NAME = "oui.list";

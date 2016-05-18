@@ -13,11 +13,14 @@ public class SentegrityStartup implements Serializable {
     @SerializedName("deviceSalt")
     private String deviceSalt;
 
+    @SerializedName("email")
+    private String email;
+
     @SerializedName("coreDetectionChecksum")
     private int coreDetectionChecksum;
 
     @SerializedName("runHistory")
-    private List<SentegrityHistory> runHistory;
+    private List<SentegrityHistoryObject> runHistoryObjects;
 
     @SerializedName("userSalt")
     private String userSalt;
@@ -27,7 +30,6 @@ public class SentegrityStartup implements Serializable {
 
     @SerializedName("lastOSVersion")
     private String lastOSVersion;
-
 
     @SerializedName("runCount")
     private int runCount;
@@ -63,44 +65,52 @@ public class SentegrityStartup implements Serializable {
         return deviceSalt;
     }
 
-    public int getCoreDetectionChecksum() {
-        return coreDetectionChecksum;
-    }
-
-    public List<SentegrityHistory> getRunHistory() {
-        return runHistory;
-    }
-
-    public String getUserSalt() {
-        return userSalt;
-    }
-
-    public String getLastState() {
-        return lastState;
-    }
-
-    public String getLastOSVersion() {
-        return lastOSVersion;
-    }
-
     public void setDeviceSalt(String deviceSalt) {
         this.deviceSalt = deviceSalt;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public int getCoreDetectionChecksum() {
+        return coreDetectionChecksum;
     }
 
     public void setCoreDetectionChecksum(int coreDetectionChecksum) {
         this.coreDetectionChecksum = coreDetectionChecksum;
     }
 
-    public void setRunHistory(List<SentegrityHistory> runHistory) {
-        this.runHistory = runHistory;
+    public List<SentegrityHistoryObject> getRunHistoryObjects() {
+        return runHistoryObjects;
+    }
+
+    public void setRunHistoryObjects(List<SentegrityHistoryObject> runHistoryObjects) {
+        this.runHistoryObjects = runHistoryObjects;
+    }
+
+    public String getUserSalt() {
+        return userSalt;
     }
 
     public void setUserSalt(String userSalt) {
         this.userSalt = userSalt;
     }
 
+    public String getLastState() {
+        return lastState;
+    }
+
     public void setLastState(String lastState) {
         this.lastState = lastState;
+    }
+
+    public String getLastOSVersion() {
+        return lastOSVersion;
     }
 
     public void setLastOSVersion(String lastOSVersion) {

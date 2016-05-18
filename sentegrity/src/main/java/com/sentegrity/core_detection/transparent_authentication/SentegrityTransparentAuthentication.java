@@ -9,6 +9,7 @@ import com.sentegrity.core_detection.constants.AttributingSubClass;
 import com.sentegrity.core_detection.constants.CoreDetectionResult;
 import com.sentegrity.core_detection.constants.PostAuthAction;
 import com.sentegrity.core_detection.constants.PreAuthAction;
+import com.sentegrity.core_detection.crypto.SentegrityCrypto;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
 import com.sentegrity.core_detection.policy.SentegrityPolicy;
 import com.sentegrity.core_detection.startup.SentegrityStartup;
@@ -63,7 +64,7 @@ public class SentegrityTransparentAuthentication {
         }
 
         boolean transparentKeyError = false;
-        //transparentKeyError = SentegrityCrypto.getTransparentKeyForTrustFactorOuptut();
+        computationResults.setCandidateTransparentKey(SentegrityCrypto.getInstance().getTransparentKeyForTrustFactorOutput(candidateTransparentAuthKeyRawOutputString));
 
         if(computationResults.getCandidateTransparentKey() == null){
             if(transparentKeyError){
@@ -78,7 +79,7 @@ public class SentegrityTransparentAuthentication {
         }
 
         boolean shaHashError = false;
-        //shaHashError = SentegrityCrypto.createSHA1HashOfData();
+        computationResults.setCandidateTransparentKeyHashString(SentegrityCrypto.getInstance().createSHA1HashOfData(computationResults.getCandidateTransparentKey()));
 
         if(computationResults.getCandidateTransparentKeyHashString() == null || computationResults.getCandidateTransparentKeyHashString().length() == 0){
             if(shaHashError){
@@ -134,7 +135,7 @@ public class SentegrityTransparentAuthentication {
         return computationResults;
     }
 
-    private List<SentegrityTransparentAuthObject> performMetricBasedDecay(List<SentegrityTransparentAuthObject> currentTransparentAuthKeyObjects, SentegrityPolicy policy) {
+    public List<SentegrityTransparentAuthObject> performMetricBasedDecay(List<SentegrityTransparentAuthObject> currentTransparentAuthKeyObjects, SentegrityPolicy policy) {
         final double secondsInDay = 86400.0;
         double daysSinceCreation = 0.0;
         double hitsPerDay = 0.0;
@@ -160,7 +161,7 @@ public class SentegrityTransparentAuthentication {
         return transparentAuthObjectsToKeep;
     }
 
-    private boolean analyzeEligibleTransparentAuthObjects(SentegrityTrustScoreComputation computationResults, SentegrityPolicy policy){
+    public boolean analyzeEligibleTransparentAuthObjects(SentegrityTrustScoreComputation computationResults, SentegrityPolicy policy){
 
         List<SentegrityTrustFactorOutput> transparentAuthObjectsToKeep = new ArrayList<>();
         List<SentegrityTrustFactorOutput> transparentAuthHighEntropyObjects = new ArrayList<>();

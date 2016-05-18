@@ -258,4 +258,10 @@ public class SentegrityCrypto {
     public byte[] createPBKDF2Key(String output, byte[] transparentKeySaltData, int transparentRounds) {
         return null;
     }
+
+    public int benchmarkPBKDF2UsingExampleString(String example, int timeMillis){
+        return new Random().nextInt(10);
+    }
+
+
 }

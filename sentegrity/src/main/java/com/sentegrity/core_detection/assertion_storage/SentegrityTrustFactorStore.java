@@ -43,7 +43,7 @@ public class SentegrityTrustFactorStore {
     }
 
     public String getStorePath() {
-        return storePath + File.separator + SentegrityConstants.ASSERTION_STORE_FILENAME;
+        return storePath + File.separator + SentegrityConstants.ASSERTION_STORE_FILE_NAME;
     }
 
     public void resetAssertionStore(){

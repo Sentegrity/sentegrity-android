@@ -39,6 +39,12 @@ public class SentegrityTrustFactor implements Serializable {
     @SerializedName("name")
     private String name;
 
+    @SerializedName("transparentEligible")
+    private int transparentEligible;
+
+    @SerializedName("highEntropyAuthenticator")
+    private int highEntropyAuthenticator;
+
     @SerializedName("partialWeight")
     private int partialWeight;
 
@@ -178,6 +184,22 @@ public class SentegrityTrustFactor implements Serializable {
 
     public List<Object> getPayload() {
         return payload;
+    }
+
+    public int getTransparentEligible() {
+        return transparentEligible;
+    }
+
+    public int getHighEntropyAuthenticator() {
+        return highEntropyAuthenticator;
+    }
+
+    public int getWipeOnUpdate() {
+        return wipeOnUpdate;
+    }
+
+    public int getWhitelistable() {
+        return whitelistable;
     }
 
     public String generateClassName(String packageName){

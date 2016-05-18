@@ -42,23 +42,21 @@ public class SentegrityTrustScoreComputation {
     private boolean systemTrusted;
     private int systemGUIIconID;
     private String systemGUIIconText;
-    private List<String> systemGUIIssues;
-    private List<String> systemGUISuggestions;
-    private List<String> systemGUIAnalysis;
+    private List<String> systemIssues;
+    private List<String> systemSuggestions;
+    private List<String> systemAnalysisResults;
 
     private int userScore;
     private boolean userTrusted;
     private int userGUIIconID;
     private String userGUIIconText;
-    private List<String> userGUIIssues;
-    private List<String> userGUISuggestions;
-    private List<String> userGUIAuthenticators;
-    private List<String> userGUIAnalysis;
+    private List<String> userIssues;
+    private List<String> userSuggestions;
+    private List<String> userDynamicTwoFactors;
+    private List<String> userAnalysisResults;
 
     private int deviceScore;
     private boolean deviceTrusted;
-    private int protectModeClassID;
-    private int protectModeAction;
 
     private List<SentegrityTrustFactorOutput> protectModeWhitelist;
     private List<SentegrityTrustFactorOutput> protectModeUserWhitelist;
@@ -210,16 +208,16 @@ public class SentegrityTrustScoreComputation {
         return systemGUIIconText;
     }
 
-    public List<String> getSystemGUIIssues() {
-        return systemGUIIssues;
+    public List<String> getSystemIssues() {
+        return systemIssues;
     }
 
-    public List<String> getSystemGUISuggestions() {
-        return systemGUISuggestions;
+    public List<String> getSystemSuggestions() {
+        return systemSuggestions;
     }
 
-    public List<String> getSystemGUIAnalysis() {
-        return systemGUIAnalysis;
+    public List<String> getSystemAnalysisResults() {
+        return systemAnalysisResults;
     }
 
     public int getUserScore() {
@@ -238,20 +236,20 @@ public class SentegrityTrustScoreComputation {
         return userGUIIconText;
     }
 
-    public List<String> getUserGUIIssues() {
-        return userGUIIssues;
+    public List<String> getUserIssues() {
+        return userIssues;
     }
 
-    public List<String> getUserGUISuggestions() {
-        return userGUISuggestions;
+    public List<String> getUserSuggestions() {
+        return userSuggestions;
     }
 
-    public List<String> getUserGUIAuthenticators() {
-        return userGUIAuthenticators;
+    public List<String> getUserDynamicTwoFactors() {
+        return userDynamicTwoFactors;
     }
 
-    public List<String> getUserGUIAnalysis() {
-        return userGUIAnalysis;
+    public List<String> getUserAnalysisResults() {
+        return userAnalysisResults;
     }
 
     public boolean isAttemptTransparentAuthentication() {
@@ -264,14 +262,6 @@ public class SentegrityTrustScoreComputation {
 
     public boolean isDeviceTrusted() {
         return deviceTrusted;
-    }
-
-    public int getProtectModeClassID() {
-        return protectModeClassID;
-    }
-
-    public int getProtectModeAction() {
-        return protectModeAction;
     }
 
     public List<SentegrityTrustFactorOutput> getProtectModeWhitelist() {
@@ -362,16 +352,16 @@ public class SentegrityTrustScoreComputation {
         this.systemGUIIconText = systemGUIIconText;
     }
 
-    public void setSystemGUIIssues(List<String> systemGUIIssues) {
-        this.systemGUIIssues = systemGUIIssues;
+    public void setSystemIssues(List<String> systemIssues) {
+        this.systemIssues = systemIssues;
     }
 
-    public void setSystemGUISuggestions(List<String> systemGUISuggestions) {
-        this.systemGUISuggestions = systemGUISuggestions;
+    public void setSystemSuggestions(List<String> systemSuggestions) {
+        this.systemSuggestions = systemSuggestions;
     }
 
-    public void setSystemGUIAnalysis(List<String> systemGUIAnalysis) {
-        this.systemGUIAnalysis = systemGUIAnalysis;
+    public void setSystemAnalysisResults(List<String> systemAnalysisResults) {
+        this.systemAnalysisResults = systemAnalysisResults;
     }
 
     public void setUserScore(int userScore) {
@@ -390,20 +380,20 @@ public class SentegrityTrustScoreComputation {
         this.userGUIIconText = userGUIIconText;
     }
 
-    public void setUserGUIIssues(List<String> userGUIIssues) {
-        this.userGUIIssues = userGUIIssues;
+    public void setUserIssues(List<String> userIssues) {
+        this.userIssues = userIssues;
     }
 
-    public void setUserGUISuggestions(List<String> userGUISuggestions) {
-        this.userGUISuggestions = userGUISuggestions;
+    public void setUserSuggestions(List<String> userSuggestions) {
+        this.userSuggestions = userSuggestions;
     }
 
-    public void setUserGUIAuthenticators(List<String> userGUIAuthenticators) {
-        this.userGUIAuthenticators = userGUIAuthenticators;
+    public void setUserDynamicTwoFactors(List<String> userDynamicTwoFactors) {
+        this.userDynamicTwoFactors = userDynamicTwoFactors;
     }
 
-    public void setUserGUIAnalysis(List<String> userGUIAnalysis) {
-        this.userGUIAnalysis = userGUIAnalysis;
+    public void setUserAnalysisResults(List<String> userAnalysisResults) {
+        this.userAnalysisResults = userAnalysisResults;
     }
 
     public void setAttemptTransparentAuthentication(boolean attemptTransparentAuthentication) {
@@ -416,14 +406,6 @@ public class SentegrityTrustScoreComputation {
 
     public void setDeviceTrusted(boolean deviceTrusted) {
         this.deviceTrusted = deviceTrusted;
-    }
-
-    public void setProtectModeClassID(int protectModeClassID) {
-        this.protectModeClassID = protectModeClassID;
-    }
-
-    public void setProtectModeAction(int protectModeAction) {
-        this.protectModeAction = protectModeAction;
     }
 
     public void setProtectModeWhitelist(List<SentegrityTrustFactorOutput> protectModeWhitelist) {
@@ -644,6 +626,7 @@ public class SentegrityTrustScoreComputation {
             List<String> statusInClass = new ArrayList();
             List<String> issuesInClass = new ArrayList();
             List<String> suggestionsInClass = new ArrayList();
+            List<String> dynamicTwoFactorsInClass = new ArrayList();
 
 
             for (SentegritySubclassification subclassification : policy.getSubclassifications()) {
@@ -652,7 +635,7 @@ public class SentegrityTrustScoreComputation {
 
                 List<Integer> subClassDNECodes = new ArrayList();
 
-                subclassification.setTotalWeight(0);
+                subclassification.setScore(0);
 
                 boolean subClassContainsTrustFactor = false;
                 boolean subClassAnalysisIsIncomplete = false;
@@ -676,14 +659,14 @@ public class SentegrityTrustScoreComputation {
                                 if (trustFactorOutput.isMatchFound()) {
                                     //User anomaly
                                     if (classification.getComputationMethod() == 1) {
-                                        trustFactorsForTransparentAuthInClass.add(trustFactorOutput);
+                                        //trustFactorsForTransparentAuthInClass.add(trustFactorOutput);
                                         trustFactorsAttributingToScoreInClass.add(trustFactorOutput);
 
                                         if (trustFactorOutput.getTrustFactor().getPartialWeight() == 1) {
                                             double percent = weightPercentCalculate(trustFactorOutput);
 
                                             int partialWeight = (int) (percent * trustFactorOutput.getTrustFactor().getWeight());
-                                            subclassification.setTotalWeight(subclassification.getTotalWeight() + partialWeight);
+                                            subclassification.setScore(subclassification.getScore() + partialWeight);
 
                                             trustFactorOutput.setAppliedWeight(partialWeight);
                                             trustFactorOutput.setPercentAppliedWeight(percent);
@@ -704,9 +687,40 @@ public class SentegrityTrustScoreComputation {
 
                                             }
 
+                                            if (trustFactorOutput.getTrustFactor().getTransparentEligible() == 1) {
+                                                if (partialWeight >= trustFactorOutput.getTrustFactor().getWeight() * 0.25) {
+                                                    trustFactorsForTransparentAuthInClass.add(trustFactorOutput);
+
+                                                    if (trustFactorOutput.getTrustFactor().getSubclassificationID() == 2
+                                                            || trustFactorOutput.getTrustFactor().getSubclassificationID() == 8) {
+                                                        String name = trustFactorOutput.getTrustFactor().getDispatch() + " authentication";
+
+                                                        if (!dynamicTwoFactorsInClass.contains(name)) {
+                                                            dynamicTwoFactorsInClass.add(name);
+                                                        }
+                                                    }
+
+                                                }
+                                            }
+
 
                                         } else {
-                                            subclassification.setTotalWeight(subclassification.getTotalWeight() + trustFactorOutput.getTrustFactor().getWeight());
+
+                                            if (trustFactorOutput.getTrustFactor().getTransparentEligible() == 1) {
+                                                trustFactorsForTransparentAuthInClass.add(trustFactorOutput);
+
+                                                if (trustFactorOutput.getTrustFactor().getSubclassificationID() == 2
+                                                        || trustFactorOutput.getTrustFactor().getSubclassificationID() == 8) {
+                                                    String name = trustFactorOutput.getTrustFactor().getDispatch() + " authentication";
+
+                                                    if (!dynamicTwoFactorsInClass.contains(name)) {
+                                                        dynamicTwoFactorsInClass.add(name);
+                                                    }
+                                                }
+                                            }
+
+
+                                            subclassification.setScore(subclassification.getScore() + trustFactorOutput.getTrustFactor().getWeight());
 
                                             trustFactorOutput.setAppliedWeight(trustFactorOutput.getTrustFactor().getWeight());
                                             trustFactorOutput.setPercentAppliedWeight(1);
@@ -718,7 +732,9 @@ public class SentegrityTrustScoreComputation {
 
                                 } else {
 
-                                    trustFactorsToWhitelistInClass.add(trustFactorOutput);
+                                    if(trustFactorOutput.getTrustFactor().isWhitelistable()) {
+                                        trustFactorsToWhitelistInClass.add(trustFactorOutput);
+                                    }
 
                                     // System classification and user policy
                                     if (classification.getComputationMethod() == 0) {
@@ -729,14 +745,14 @@ public class SentegrityTrustScoreComputation {
 
                                             double percent = weightPercentCalculate(trustFactorOutput);
                                             int partialWeight = (int) (percent * trustFactorOutput.getTrustFactor().getWeight());
-                                            subclassification.setTotalWeight(subclassification.getTotalWeight() + partialWeight);
+                                            subclassification.setScore(subclassification.getScore() + partialWeight);
 
                                             trustFactorOutput.setAppliedWeight(partialWeight);
                                             trustFactorOutput.setPercentAppliedWeight(percent);
 
 
                                         } else {
-                                            subclassification.setTotalWeight(subclassification.getTotalWeight() + trustFactorOutput.getTrustFactor().getWeight());
+                                            subclassification.setScore(subclassification.getScore() + trustFactorOutput.getTrustFactor().getWeight());
 
                                             trustFactorOutput.setAppliedWeight(trustFactorOutput.getTrustFactor().getWeight());
                                             trustFactorOutput.setPercentAppliedWeight(1);
@@ -810,7 +826,7 @@ public class SentegrityTrustScoreComputation {
                         }
                     }
 
-                    classification.setScore(classification.getScore() + subclassification.getTotalWeight());
+                    classification.setScore(classification.getScore() + subclassification.getScore() * subclassification.getWeight());
 
                     subclassification.setTrustFactors(trustFactorsInSubClass);
                     subClassesInClass.add(subclassification);
@@ -829,6 +845,7 @@ public class SentegrityTrustScoreComputation {
             classification.setStatus(statusInClass);
             classification.setIssues(issuesInClass);
             classification.setSuggestions(suggestionsInClass);
+            classification.setDynamicTwoFactors(dynamicTwoFactorsInClass);
 
             classification.setTrustFactorsNotLearned(trustFactorsNotLearnedInClass);
             classification.setTrustFactorsTriggered(trustFactorsAttributingToScoreInClass);
@@ -846,8 +863,8 @@ public class SentegrityTrustScoreComputation {
 
         List<String> userIssues = new ArrayList<>();
         List<String> userSuggestions = new ArrayList<>();
-        List<String> userAuthenticators = new ArrayList<>();
         List<String> userSubClassStatuses = new ArrayList<>();
+        List<String> userDynamicTwoFactors = new ArrayList<>();
 
         List<SentegrityTrustFactorOutput> systemTrustFactorsAttributingToScore = new ArrayList<>();
         List<SentegrityTrustFactorOutput> systemTrustFactorsNotLearned = new ArrayList<>();
@@ -861,7 +878,7 @@ public class SentegrityTrustScoreComputation {
         List<SentegrityTrustFactor> userAllTrustFactors = new ArrayList<>();
         List<SentegrityTrustFactorOutput> userTrustFactorsToWhitelist = new ArrayList<>();
 
-        List<SentegrityTrustFactorOutput> userTrustFactorsForTransparentAuthentication = new ArrayList<>();
+        List<SentegrityTrustFactorOutput> allTrustFactorsForTransparentAuthentication = new ArrayList<>();
 
         int systemTrustScoreSum = 0;
         int userTrustScoreSum = 0;
@@ -911,6 +928,8 @@ public class SentegrityTrustScoreComputation {
                 systemAllTrustFactors.addAll(classification.getTrustFactors());
 
                 systemTrustFactorsToWhitelist.addAll(classification.getTrustFactorsToWhitelist());
+
+                allTrustFactorsForTransparentAuthentication.addAll(classification.getTrustFactorsForTransparentAuthentication());
             } else {
                 userTrustScoreSum = userTrustScoreSum + classification.getScore();
 
@@ -934,7 +953,7 @@ public class SentegrityTrustScoreComputation {
                 userIssues.addAll(classification.getIssues());
                 userSuggestions.addAll(classification.getSuggestions());
                 userSubClassStatuses.addAll(classification.getStatus());
-                userAuthenticators.addAll(classification.getAuthenticators());
+                userDynamicTwoFactors.addAll(classification.getAuthenticators());
 
                 userTrustFactorsAttributingToScore.addAll(classification.getTrustFactorsTriggered());
                 userTrustFactorsNotLearned.addAll(classification.getTrustFactorsNotLearned());
@@ -943,23 +962,23 @@ public class SentegrityTrustScoreComputation {
 
                 userTrustFactorsToWhitelist.addAll(classification.getTrustFactorsToWhitelist());
 
-                userTrustFactorsForTransparentAuthentication.addAll(classification.getTrustFactorsForTransparentAuthentication());
+                allTrustFactorsForTransparentAuthentication.addAll(classification.getTrustFactorsForTransparentAuthentication());
             }
         }
 
-        computationResult.setSystemGUIIssues(systemIssues);
-        computationResult.setSystemGUISuggestions(systemSuggestions);
-        computationResult.setSystemGUIAnalysis(systemSubClassStatuses);
+        computationResult.setSystemIssues(systemIssues);
+        computationResult.setSystemSuggestions(systemSuggestions);
+        computationResult.setSystemAnalysisResults(systemSubClassStatuses);
 
-        computationResult.setUserGUIIssues(userIssues);
-        computationResult.setUserGUISuggestions(userSuggestions);
-        computationResult.setUserGUIAnalysis(userSubClassStatuses);
-        computationResult.setUserGUIAuthenticators(userAuthenticators);
+        computationResult.setUserIssues(userIssues);
+        computationResult.setUserSuggestions(userSuggestions);
+        computationResult.setUserAnalysisResults(userSubClassStatuses);
+        computationResult.setUserDynamicTwoFactors(userDynamicTwoFactors);
 
-        computationResult.setTransparentAuthenticationTrustFactors(userTrustFactorsForTransparentAuthentication);
+        computationResult.setTransparentAuthenticationTrustFactorOutputs(allTrustFactorsForTransparentAuthentication);
 
-        computationResult.setProtectModeUserWhitelist(userTrustFactorsToWhitelist);
-        computationResult.setProtectModeSystemWhitelist(systemTrustFactorsToWhitelist);
+        computationResult.setUserTrustFactorWhitelist(userTrustFactorsToWhitelist);
+        computationResult.setSystemTrustFactorWhitelist(systemTrustFactorsToWhitelist);
 
 
         //Debug data
@@ -1091,7 +1110,7 @@ public class SentegrityTrustScoreComputation {
 
         int weight = (int) (output.getTrustFactor().getWeight() * penaltyMod);
 
-        subclassification.setTotalWeight(subclassification.getTotalWeight() + weight);
+        subclassification.setScore(subclassification.getScore() + weight);
 
         output.setAppliedWeight(weight);
 
