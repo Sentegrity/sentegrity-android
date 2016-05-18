@@ -68,7 +68,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
         progressDialog.show();
 
         final SentegrityPolicy policy = CoreDetection.getInstance().parsePolicy("default.policy");
-        CoreDetection.getInstance().performCoreDetection(policy, new CoreDetectionCallback() {
+        CoreDetection.getInstance().performCoreDetection(new CoreDetectionCallback() {
             @Override
             public void onFinish(final SentegrityTrustScoreComputation computationResult, SentegrityError error, boolean success) {
                 if (success) {

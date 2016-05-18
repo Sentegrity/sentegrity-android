@@ -5,6 +5,7 @@ package com.sentegrity.core_detection.constants;
  */
 public class SentegrityConstants {
 
+    public static final String UNIQUE_DEVICE_ID = "1234567890";
 
     public static final String STARTUP_FILE_NAME = "startup";
 

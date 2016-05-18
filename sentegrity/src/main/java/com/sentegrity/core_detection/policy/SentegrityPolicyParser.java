@@ -196,4 +196,7 @@ public class SentegrityPolicyParser {
         return null;
     }
 
+    public void setCurrentPolicy(SentegrityPolicy currentPolicy) {
+        this.currentPolicy = currentPolicy;
+    }
 }
