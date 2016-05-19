@@ -30,7 +30,7 @@ public class SentegrityCrypto {
             return null;
         }
 
-        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupData();
+        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupStore();
 
         byte[] transparentKeySaltData = convertHexStringToData(startup.getTransparentAuthGlobalPBKDF2SaltString());
 
@@ -50,7 +50,7 @@ public class SentegrityCrypto {
     }
 
     public byte[] getUserKeyForPassword(String password){
-        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupData();
+        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupStore();
 
         byte[] userKeySaltData = convertHexStringToData(startup.getUserKeySaltString());
 
@@ -71,7 +71,7 @@ public class SentegrityCrypto {
 
     public byte[] decryptMasterKeyUsingUserKey(byte[] userPBKDF2Key){
 
-        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupData();
+        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupStore();
 
         if(startup == null){
             return null;
@@ -140,7 +140,7 @@ public class SentegrityCrypto {
     public String provisionNewUserKeyAndCreateMasterKeyWithPassword(String userPassword){
         String newMasterKeyString;
 
-        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupData();
+        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupStore();
 
         if(startup == null){
             return null;
@@ -180,7 +180,7 @@ public class SentegrityCrypto {
     }
 
     public boolean updateUserKeyForExistingMasterKeyWithPassword(String userPassword, byte[] masterKey){
-        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupData();
+        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupStore();
 
         if(startup == null){
             return false;

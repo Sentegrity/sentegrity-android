@@ -46,7 +46,7 @@ public class SentegrityTransparentAuthentication {
             return computationResults;
         }
 
-        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupData();
+        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupStore();
 
         if(startup == null){
             computationResults.setCoreDetectionResult(CoreDetectionResult.TRANSPARENT_AUTH_ERROR);

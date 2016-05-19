@@ -46,34 +46,34 @@ public class UserInfoActivity extends InformationActivity {
         }
 
 
-        if(computationResult.getUserGUIAuthenticators() != null && computationResult.getUserGUIAuthenticators().size() > 0){
-            infoHolder.addView(createInfo("Authenticators", InfoType.TITLE));
+        if(computationResult.getUserDynamicTwoFactors() != null && computationResult.getUserDynamicTwoFactors().size() > 0){
+            infoHolder.addView(createInfo("Two factors", InfoType.TITLE));
 
-            for(String authenticator : computationResult.getUserGUIAuthenticators()){
+            for(String authenticator : computationResult.getUserDynamicTwoFactors()){
                 infoHolder.addView(createInfo(authenticator, InfoType.FAIL));
             }
             infoHolder.addView(createInfo("", InfoType.TITLE));
         }
-        if(computationResult.getUserGUIIssues() != null && computationResult.getUserGUIIssues().size() > 0){
+        if(computationResult.getUserIssues() != null && computationResult.getUserIssues().size() > 0){
             infoHolder.addView(createInfo("Issues", InfoType.TITLE));
 
-            for(String issue : computationResult.getUserGUIIssues()){
+            for(String issue : computationResult.getUserIssues()){
                 infoHolder.addView(createInfo(issue, InfoType.FAIL));
             }
             infoHolder.addView(createInfo("", InfoType.TITLE));
         }
-        if(computationResult.getUserGUISuggestions() != null && computationResult.getUserGUISuggestions().size() > 0){
+        if(computationResult.getUserSuggestions() != null && computationResult.getUserSuggestions().size() > 0){
             infoHolder.addView(createInfo("Suggestion", InfoType.TITLE));
 
-            for(String suggestion : computationResult.getUserGUISuggestions()){
+            for(String suggestion : computationResult.getUserSuggestions()) {
                 infoHolder.addView(createInfo(suggestion, InfoType.SUCCESS));
             }
             infoHolder.addView(createInfo("", InfoType.TITLE));
         }
-        if(computationResult.getUserGUIAnalysis() != null && computationResult.getUserGUIAnalysis().size() > 0){
+        if(computationResult.getUserAnalysisResults() != null && computationResult.getUserAnalysisResults().size() > 0){
             infoHolder.addView(createInfo("Analysis", InfoType.TITLE));
 
-            for(String analysis : computationResult.getUserGUIAnalysis()){
+            for(String analysis : computationResult.getUserAnalysisResults()){
                 infoHolder.addView(createInfo(analysis, analysis.contains("complete") ? InfoType.SUCCESS : InfoType.FAIL));
             }
             infoHolder.addView(createInfo("", InfoType.TITLE));

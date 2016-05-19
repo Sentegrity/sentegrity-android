@@ -64,6 +64,7 @@ public class CoreDetection {
     private CoreDetection(Context context) {
         this.context = context;
         keyValueStorage = new KeyValueStorage(context.getSharedPreferences(STORAGE_NAME, STORAGE_MODE));
+        reset();
     }
 
     public static CoreDetection getInstance() {
@@ -78,9 +79,6 @@ public class CoreDetection {
         if (sInstance == null) {
             sInstance = new CoreDetection(context);
             Dexter.initialize(context);
-            SentegrityTrustFactorStore.initialize(context);
-            SentegrityStartupStore.initialize(context);
-            SentegrityTrustFactorDatasets.initialize(context);
 
             //sInstance.startCoreDetectionActivities();
         } else {
@@ -371,6 +369,7 @@ public class CoreDetection {
         SentegrityTrustFactorStore.initialize(context);
         SentegrityStartupStore.initialize(context);
         SentegrityTrustFactorDatasets.initialize(context);
+        SentegrityPolicyParser.initialize(context);
 
         //startCoreDetectionActivities();
     }

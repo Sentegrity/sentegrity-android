@@ -1,6 +1,7 @@
 package com.sentegrity.core_detection.login_action;
 
 import android.hardware.fingerprint.FingerprintManager;
+import android.text.TextUtils;
 
 import com.sentegrity.core_detection.CoreDetection;
 import com.sentegrity.core_detection.assertion_storage.SentegrityAssertionStore;
@@ -70,7 +71,7 @@ public class SentegrityLoginAction {
         } else if (computationResults.getPreAuthenticationAction() == PreAuthAction.PROMPT_USER_FOR_PASSWORD
                 || computationResults.getPreAuthenticationAction() == PreAuthAction.PROMPT_USER_FOR_PASSWORD_AND_WARN) {
 
-            SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupData();
+            SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupStore();
 
             if (startup == null) {
 
@@ -198,7 +199,7 @@ public class SentegrityLoginAction {
                     return false;
                 }
 
-                SentegrityStartup startup1 = SentegrityStartupStore.getInstance().getStartupData();
+                SentegrityStartup startup1 = SentegrityStartupStore.getInstance().getStartupStore();
 
                 if(startup1 == null){
                     return false;
@@ -220,7 +221,7 @@ public class SentegrityLoginAction {
                     return false;
                 }
 
-                SentegrityStartup startup2 = SentegrityStartupStore.getInstance().getStartupData();
+                SentegrityStartup startup2 = SentegrityStartupStore.getInstance().getStartupStore();
 
                 if(startup2 == null){
                     return false;

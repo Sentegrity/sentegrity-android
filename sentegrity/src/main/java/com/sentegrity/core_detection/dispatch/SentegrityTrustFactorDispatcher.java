@@ -28,7 +28,7 @@ public class SentegrityTrustFactorDispatcher {
         long startTime = System.currentTimeMillis();
         SentegrityStartupStore.getInstance().setCurrentState("Performing TrustFactor Analysis");
 
-        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupData();
+        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupStore();
 
         List<SentegrityTrustFactorOutput> trustFactorOutputs = new ArrayList<>();
 
@@ -75,7 +75,7 @@ public class SentegrityTrustFactorDispatcher {
 
         output.setTrustFactor(trustFactor);
         if(output.getOutput() != null && output.getOutput().size() > 0){
-            output.setAssertionObjectsFromOutputWithDeviceSalt(startup.getDeviceSalt());
+            output.setAssertionObjectsFromOutputWithDeviceSalt();
         }
 
         return output;
