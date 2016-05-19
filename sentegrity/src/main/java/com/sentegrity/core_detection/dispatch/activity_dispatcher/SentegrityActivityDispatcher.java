@@ -19,6 +19,7 @@ import android.support.v4.app.ActivityCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -536,7 +537,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
             if (pi != null && pi.applicationInfo != null) {
                 PkgInfo pkgInfo = null;
                 for(PkgInfo cachedInfo : cachedList){
-                    if(cachedInfo.getPkgName().equals(pi.packageName)){
+                    if(TextUtils.equals(cachedInfo.getPkgName(), pi.packageName)){
                         pkgInfo = cachedInfo;
                         pkgInfoList.add(pkgInfo);
                         break;

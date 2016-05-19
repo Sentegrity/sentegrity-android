@@ -788,7 +788,7 @@ public class SentegrityTrustScoreComputation {
                                     addSuggestions(classification, subclassification, suggestionsInClass, trustFactorOutput);
                                 } else if (classification.getComputationMethod() == 0) {
 
-                                    if (classification.getType() != 0 && !("wifi").equals(subclassification.getName())) {
+                                    if (classification.getType() != 0 && !TextUtils.equals(("wifi"), subclassification.getName())) {
                                         addSuggestionAndCalculateWeight(classification, subclassification, suggestionsInClass, policy, trustFactorOutput);
                                     }
 

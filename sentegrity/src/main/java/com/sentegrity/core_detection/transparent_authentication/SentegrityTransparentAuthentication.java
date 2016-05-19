@@ -1,6 +1,7 @@
 package com.sentegrity.core_detection.transparent_authentication;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.sentegrity.core_detection.CoreDetection;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
@@ -101,7 +102,7 @@ public class SentegrityTransparentAuthentication {
 
             for(SentegrityTransparentAuthObject storedTransparentAuthObject : decayedTransparentAuthKeyObjects){
 
-                if(storedTransparentAuthObject.getTransparentKeyPBKDF2HashString().equals(computationResults.getCandidateTransparentKeyHashString())) {
+                if(TextUtils.equals(storedTransparentAuthObject.getTransparentKeyPBKDF2HashString(), computationResults.getCandidateTransparentKeyHashString())) {
                     computationResults.setFoundTransparentMatch(true);
 
                     int origHitCount = storedTransparentAuthObject.getHitCount();

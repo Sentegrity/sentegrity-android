@@ -84,7 +84,7 @@ public class SentegrityTrustFactorDatasetRoute {
 
             if (list.length != 8)
                 continue;
-            if ("Destination".equals(list[0]) || "Iface".equals(list[7]))
+            if (TextUtils.equals("Destination", list[0]) || TextUtils.equals("Iface", list[7]))
                 continue;
 
 //            list[0] --> Destination
@@ -112,7 +112,10 @@ public class SentegrityTrustFactorDatasetRoute {
     private static boolean isDefault(String destination) {
         if (TextUtils.isEmpty(destination))
             return false;
-        if ("default".equals(destination) || "0.0.0.0".equals(destination) || "::/0".equals(destination) || "*".equals(destination))
+        if (TextUtils.equals("default", destination)
+                || TextUtils.equals("0.0.0.0", destination)
+                || TextUtils.equals("::/0", destination)
+                || TextUtils.equals("*", destination))
             return true;
         return false;
     }

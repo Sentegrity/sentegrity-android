@@ -3,6 +3,7 @@ package com.sentegrity.core_detection.utilities;
 import android.content.Context;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 
 import java.util.Random;
 
@@ -25,7 +26,7 @@ public class DeviceID {
         }
 
         // if the saved value was incorrect
-        if (mID.equals("0")) {
+        if (TextUtils.equals(mID, "0")) {
             // generate a new ID
             mID = generateID(context);
 
@@ -47,7 +48,7 @@ public class DeviceID {
         String deviceId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
 
         // in case known problems are occured
-        if ("9774d56d682e549c".equals(deviceId) || deviceId == null) {
+        if (TextUtils.equals("9774d56d682e549c", deviceId) || deviceId == null) {
 
             // get a unique deviceID like IMEI for GSM or ESN for CDMA phones
             deviceId = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();

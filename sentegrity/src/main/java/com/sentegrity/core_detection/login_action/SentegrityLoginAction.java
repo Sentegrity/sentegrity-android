@@ -89,7 +89,7 @@ public class SentegrityLoginAction {
 
             String storedUserKeyHash = startup.getUserKeyHash();
 
-            if (candidateUserHashKey.equals(storedUserKeyHash)) {
+            if (TextUtils.equals(candidateUserHashKey, storedUserKeyHash)) {
 
                 computationResults.setDecryptedMasterKey(SentegrityCrypto.getInstance().decryptMasterKeyUsingUserKey(userKey));
 

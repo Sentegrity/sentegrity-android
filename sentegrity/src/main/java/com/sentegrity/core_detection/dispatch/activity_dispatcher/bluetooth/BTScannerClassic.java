@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
+import android.text.TextUtils;
 
 import com.sentegrity.core_detection.constants.SentegrityConstants;
 
@@ -22,7 +23,7 @@ public class BTScannerClassic {
             public void onReceive(final Context context, Intent intent) {
                 String action = intent.getAction();
 
-                if (BluetoothDevice.ACTION_NAME_CHANGED.equals(action)) {
+                if (TextUtils.equals(BluetoothDevice.ACTION_NAME_CHANGED, action)) {
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                     callback.onDeviceUpdate(device);
                 }

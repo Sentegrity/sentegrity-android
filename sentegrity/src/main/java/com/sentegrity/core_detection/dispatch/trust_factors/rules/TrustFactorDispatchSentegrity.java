@@ -79,10 +79,10 @@ public class TrustFactorDispatchSentegrity {
         }
 
         for(ApplicationInfo applicationInfo : userApps) {
-            if(applicationInfo.packageName.equals("de.robv.android.xposed.installer")) {
+            if(TextUtils.equals(applicationInfo.packageName, "de.robv.android.xposed.installer")) {
                 tamper += "XPOSED_FOUND_";
             }
-            if(applicationInfo.packageName.equals("com.saurik.substrate")) {
+            if(TextUtils.equals(applicationInfo.packageName, "com.saurik.substrate")) {
                 tamper += "SUBSTRATE_FOUND_";
             }
         }
@@ -93,22 +93,22 @@ public class TrustFactorDispatchSentegrity {
         catch(Exception e) {
             int zygoteInitCallCount = 0;
             for(StackTraceElement stackTraceElement : e.getStackTrace()) {
-                if(stackTraceElement.getClassName().equals("com.android.internal.os.ZygoteInit")) {
+                if(TextUtils.equals(stackTraceElement.getClassName(), "com.android.internal.os.ZygoteInit")) {
                     zygoteInitCallCount++;
                     if(zygoteInitCallCount == 2) {
                         tamper += "SUBSTRATE_ACTIVE_";
                     }
                 }
-                if(stackTraceElement.getClassName().equals("com.saurik.substrate.MS$2") &&
-                        stackTraceElement.getMethodName().equals("invoked")) {
+                if(TextUtils.equals(stackTraceElement.getClassName(), "com.saurik.substrate.MS$2") &&
+                        TextUtils.equals(stackTraceElement.getMethodName(), "invoked")) {
                     tamper += "SUBSTRATE_HOOK_FOUND_";
                 }
-                if(stackTraceElement.getClassName().equals("de.robv.android.xposed.XposedBridge") &&
-                        stackTraceElement.getMethodName().equals("main")) {
+                if(TextUtils.equals(stackTraceElement.getClassName(), "de.robv.android.xposed.XposedBridge") &&
+                        TextUtils.equals(stackTraceElement.getMethodName(), "main")) {
                     tamper += "XPOSED_ACTIVE_";
                 }
-                if(stackTraceElement.getClassName().equals("de.robv.android.xposed.XposedBridge") &&
-                        stackTraceElement.getMethodName().equals("handleHookedMethod")) {
+                if(TextUtils.equals(stackTraceElement.getClassName(), "de.robv.android.xposed.XposedBridge") &&
+                        TextUtils.equals(stackTraceElement.getMethodName(), "handleHookedMethod")) {
                     tamper += "XPOSED_HOOK_FOUND_";
                 }
 
@@ -116,7 +116,7 @@ public class TrustFactorDispatchSentegrity {
         }
 
         for (ApplicationInfo applicationInfo : userApps) {
-            if (applicationInfo.processName.equals("com.android.sentegrity")) {
+            if (TextUtils.equals(applicationInfo.processName, "com.android.sentegrity")) {
                 Set<String> classes = new HashSet();
                 DexFile dex;
                 try {

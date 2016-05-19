@@ -1,5 +1,6 @@
 package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.internal.LinkedTreeMap;
@@ -24,7 +25,7 @@ public class TrustFactorDispatchMotion {
 
         String orientation = SentegrityTrustFactorDatasets.getInstance().getDeviceOrientation();
 
-        if("Face_Down".equals(orientation) || "unknown".equals(orientation)){
+        if(TextUtils.equals("Face_Down", orientation) || TextUtils.equals("unknown", orientation)){
             output.setStatusCode(DNEStatusCode.INVALID);
             return output;
         }

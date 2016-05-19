@@ -55,7 +55,7 @@ public class TrustFactorDispatchPower {
 
         String state = SentegrityTrustFactorDatasets.getInstance().getBatteryState();
 
-        if ("usbPlugged".equals(state)) {
+        if (TextUtils.equals("usbPlugged", state)) {
             outputList.add(state);
         }
         /*if ("pluggedFull".equals(state)) {
@@ -79,7 +79,7 @@ public class TrustFactorDispatchPower {
 
         String state = SentegrityTrustFactorDatasets.getInstance().getBatteryState();
 
-        if (TextUtils.isEmpty(state) || "unknown".equals(state)) {
+        if (TextUtils.isEmpty(state) || TextUtils.equals("unknown", state)) {
             output.setStatusCode(DNEStatusCode.UNAVAILABLE);
             return output;
         }

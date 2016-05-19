@@ -3,6 +3,7 @@ package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.gson.internal.LinkedTreeMap;
@@ -126,7 +127,7 @@ public class TrustFactorDispatchApplicationSecurity {
 
             for (String maliciousAppName : maliciousApps) {
 
-                if (maliciousAppName.equals(appInfo.packageName)) {
+                if (TextUtils.equals(maliciousAppName, appInfo.packageName)) {
 
                     if (!outputList.contains(appInfo.packageName)) {
                         outputList.add(appInfo.packageName);
@@ -164,7 +165,7 @@ public class TrustFactorDispatchApplicationSecurity {
 
             for (String highRiskAppName : highRiskApps) {
 
-                if (highRiskAppName.equals(appInfo.packageName)) {
+                if (TextUtils.equals(highRiskAppName, appInfo.packageName)) {
 
                     if (!outputList.contains(appInfo.packageName)) {
                         outputList.add(appInfo.packageName);

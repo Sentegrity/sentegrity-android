@@ -1,6 +1,7 @@
 package com.sentegrity.core_detection.baseline_analysis;
 
 import android.os.Build;
+import android.text.TextUtils;
 
 import com.sentegrity.core_detection.assertion_storage.SentegrityAssertionStore;
 import com.sentegrity.core_detection.assertion_storage.SentegrityStoredAssertion;
@@ -53,7 +54,7 @@ public class SentegrityBaselineAnalysis {
 
         boolean shouldWipeData = false;
 
-        if (!startup.getLastOSVersion().equals(Build.VERSION.RELEASE)) {
+        if (!TextUtils.equals(startup.getLastOSVersion(), Build.VERSION.RELEASE)) {
             shouldWipeData = true;
 
             startup.setLastOSVersion(Build.VERSION.RELEASE);
@@ -309,7 +310,7 @@ public class SentegrityBaselineAnalysis {
                 foundMatch = false;
 
                 for (SentegrityStoredAssertion stored : output.getStoredTrustFactor().getAssertions()) {
-                    if (candidate.getHash().equals(stored.getHash())) {
+                    if (TextUtils.equals(candidate.getHash(), stored.getHash())) {
                         foundMatch = true;
 
                         matchingAssertion = stored;
@@ -340,7 +341,7 @@ public class SentegrityBaselineAnalysis {
             currentCandidateMatch = false;
 
             for (SentegrityStoredAssertion stored : output.getStoredTrustFactor().getAssertions()) {
-                if (candidate.getHash().equals(stored.getHash())) {
+                if (TextUtils.equals(candidate.getHash(), stored.getHash())) {
                     startHitCount = stored.getHitCount();
                     newHitCount = startHitCount + 1;
                     stored.setHitCount(newHitCount);

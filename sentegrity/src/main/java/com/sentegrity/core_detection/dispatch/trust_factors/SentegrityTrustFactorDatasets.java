@@ -536,7 +536,7 @@ public class SentegrityTrustFactorDatasets {
             final WifiInfo wifiInfo = getWifiInfo();
 
             for (WifiConfiguration configuration : wifiManager.getConfiguredNetworks()) {
-                if (wifiInfo.getBSSID().equals(configuration.BSSID)) {
+                if (TextUtils.equals(wifiInfo.getBSSID(), configuration.BSSID)) {
                     boolean unencrypted = false;
                     if (configuration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_PSK)) {
                         unencrypted = true;
@@ -1363,7 +1363,7 @@ public class SentegrityTrustFactorDatasets {
                         hexString.append(hex);
                     }
 
-                    if (SentegrityConstants.APK_SIGNATURE.equals(hexString.toString())) {
+                    if (TextUtils.equals(SentegrityConstants.APK_SIGNATURE, hexString.toString())) {
                         signatureOk = true;
                     } else {
                         return signatureOK = false;
@@ -1402,7 +1402,7 @@ public class SentegrityTrustFactorDatasets {
 
                 return onEmulator = (Helpers.getSystemProperty("ro.hardware").contains("goldfish")
                         || Helpers.getSystemProperty("ro.kernel.qemu").length() > 0
-                        || Helpers.getSystemProperty("ro.product.model").equals("sdk"));
+                        || TextUtils.equals(Helpers.getSystemProperty("ro.product.model"), "sdk"));
 
             } catch (Exception e) {
 
@@ -1415,7 +1415,7 @@ public class SentegrityTrustFactorDatasets {
                     || Build.MODEL.contains("Android SDK built for x86")
                     || Build.MANUFACTURER.contains("Genymotion")
                     || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
-                    || "google_sdk".equals(Build.PRODUCT));
+                    || TextUtils.equals("google_sdk", Build.PRODUCT));
         }
         return onEmulator;
     }
