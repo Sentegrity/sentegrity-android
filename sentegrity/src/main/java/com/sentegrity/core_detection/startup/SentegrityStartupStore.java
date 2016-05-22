@@ -31,7 +31,7 @@ public class SentegrityStartupStore {
 
     private static SentegrityStartupStore sInstance;
 
-    private static SentegrityStartup currentStartupStore;
+    private SentegrityStartup currentStartupStore;
 
     private final Context context;
     private final String storePath;
@@ -66,7 +66,7 @@ public class SentegrityStartupStore {
     public void resetStartupStore(){
         File f = new File(getStorePath());
 
-        if (!f.exists()) {
+        if (f.exists()) {
             if(!f.delete()){
                 Logger.INFO("Assertion store file JSON cannot be deleted");
             }
@@ -212,10 +212,10 @@ public class SentegrityStartupStore {
         currentStartupStore = startup;
 
         byte[] deviceSaltData = SentegrityCrypto.getInstance().generateSalt256();
-        currentStartupStore.setDeviceSalt(SentegrityCrypto.getInstance().convertDataToHexString(deviceSaltData));
+        currentStartupStore.setDeviceSaltString(SentegrityCrypto.getInstance().convertDataToHexString(deviceSaltData));
 
         byte[] userKeySaltData = SentegrityCrypto.getInstance().generateSalt256();
-        currentStartupStore.setUserSalt(SentegrityCrypto.getInstance().convertDataToHexString(userKeySaltData));
+        currentStartupStore.setUserKeySaltString(SentegrityCrypto.getInstance().convertDataToHexString(userKeySaltData));
 
         byte[] transparentAuthGlobalPBKDF2Salt = SentegrityCrypto.getInstance().generateSalt256();
         currentStartupStore.setTransparentAuthGlobalPBKDF2SaltString(SentegrityCrypto.getInstance().convertDataToHexString(transparentAuthGlobalPBKDF2Salt));
@@ -259,5 +259,9 @@ public class SentegrityStartupStore {
         currentStartupStore.setEmail(email);
 
         setStartupStore();
+    }
+
+    public void setCurrentStartupStore(SentegrityStartup currentStartupStore) {
+        this.currentStartupStore = currentStartupStore;
     }
 }

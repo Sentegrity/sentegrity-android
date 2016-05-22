@@ -145,7 +145,7 @@ public class SentegrityTrustFactorOutput {
         for(String trustFactorOutput : getOutput()){
             SentegrityStoredAssertion assertion = new SentegrityStoredAssertion();
 
-            String hash = Helpers.getSHA1Hash(getTrustFactor().getID() + SentegrityConstants.UNIQUE_DEVICE_ID + startup.getDeviceSalt() + trustFactorOutput) + "-" + trustFactorOutput;
+            String hash = Helpers.getSHA1Hash(getTrustFactor().getID() + SentegrityConstants.UNIQUE_DEVICE_ID + startup.getDeviceSaltString() + trustFactorOutput) + "-" + trustFactorOutput;
 
             assertion.setHash(hash);
             assertion.setLastTime(System.currentTimeMillis());

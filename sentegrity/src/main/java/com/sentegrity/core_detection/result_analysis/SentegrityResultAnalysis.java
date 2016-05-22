@@ -17,18 +17,18 @@ public class SentegrityResultAnalysis {
         computationResults.setDeviceTrusted(true);
         computationResults.setUserTrusted(true);
         computationResults.setSystemTrusted(true);
-        computationResults.setAttemptTransparentAuthentication(true);
+        computationResults.setShouldAttemptTransparentAuthentication(true);
 
 
         if (computationResults.getSystemScore() < policy.getSystemThreshold()) {
             computationResults.setSystemTrusted(false);
             computationResults.setDeviceTrusted(false);
-            computationResults.setAttemptTransparentAuthentication(false);
+            computationResults.setShouldAttemptTransparentAuthentication(false);
         }
         if (computationResults.getUserScore() < policy.getUserThreshold()) {
             computationResults.setUserTrusted(false);
             computationResults.setDeviceTrusted(false);
-            computationResults.setAttemptTransparentAuthentication(false);
+            computationResults.setShouldAttemptTransparentAuthentication(false);
         }
 
         if (computationResults.isShouldAttemptTransparentAuthentication()) {

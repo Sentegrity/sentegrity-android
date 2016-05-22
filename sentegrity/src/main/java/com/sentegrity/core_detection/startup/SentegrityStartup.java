@@ -10,26 +10,20 @@ import java.util.List;
  */
 public class SentegrityStartup implements Serializable {
 
-    @SerializedName("deviceSalt")
-    private String deviceSalt;
+    @SerializedName("deviceSaltString")
+    private String deviceSaltString;
 
     @SerializedName("email")
     private String email;
-
-    @SerializedName("coreDetectionChecksum")
-    private int coreDetectionChecksum;
-
-    @SerializedName("runHistory")
-    private List<SentegrityHistoryObject> runHistoryObjects;
-
-    @SerializedName("userSalt")
-    private String userSalt;
 
     @SerializedName("lastState")
     private String lastState;
 
     @SerializedName("lastOSVersion")
     private String lastOSVersion;
+
+    @SerializedName("runHistory")
+    private List<SentegrityHistoryObject> runHistoryObjects;
 
     @SerializedName("runCount")
     private int runCount;
@@ -61,14 +55,6 @@ public class SentegrityStartup implements Serializable {
     @SerializedName("userKeyEncryptedMasterKeyBlobString")
     private String userKeyEncryptedMasterKeyBlobString;
 
-    public String getDeviceSalt() {
-        return deviceSalt;
-    }
-
-    public void setDeviceSalt(String deviceSalt) {
-        this.deviceSalt = deviceSalt;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -77,28 +63,12 @@ public class SentegrityStartup implements Serializable {
         this.email = email;
     }
 
-    public int getCoreDetectionChecksum() {
-        return coreDetectionChecksum;
-    }
-
-    public void setCoreDetectionChecksum(int coreDetectionChecksum) {
-        this.coreDetectionChecksum = coreDetectionChecksum;
-    }
-
     public List<SentegrityHistoryObject> getRunHistoryObjects() {
         return runHistoryObjects;
     }
 
     public void setRunHistoryObjects(List<SentegrityHistoryObject> runHistoryObjects) {
         this.runHistoryObjects = runHistoryObjects;
-    }
-
-    public String getUserSalt() {
-        return userSalt;
-    }
-
-    public void setUserSalt(String userSalt) {
-        this.userSalt = userSalt;
     }
 
     public String getLastState() {
@@ -195,5 +165,13 @@ public class SentegrityStartup implements Serializable {
 
     public void setUserKeyEncryptedMasterKeyBlobString(String userKeyEncryptedMasterKeyBlobString) {
         this.userKeyEncryptedMasterKeyBlobString = userKeyEncryptedMasterKeyBlobString;
+    }
+
+    public String getDeviceSaltString() {
+        return deviceSaltString;
+    }
+
+    public void setDeviceSaltString(String deviceSaltString) {
+        this.deviceSaltString = deviceSaltString;
     }
 }

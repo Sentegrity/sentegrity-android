@@ -8,14 +8,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.ActivityRecognition;
@@ -24,13 +22,15 @@ import com.sentegrity.android.activity.ActivitiesIntentService;
 import com.sentegrity.core_detection.CoreDetection;
 import com.sentegrity.core_detection.CoreDetectionCallback;
 import com.sentegrity.core_detection.computation.SentegrityTrustScoreComputation;
+import com.sentegrity.core_detection.constants.AuthenticationResult;
+import com.sentegrity.core_detection.constants.PostAuthAction;
+import com.sentegrity.core_detection.constants.PreAuthAction;
 import com.sentegrity.core_detection.logger.SentegrityError;
 import com.sentegrity.core_detection.login_action.SentegrityLoginAction;
 import com.sentegrity.core_detection.login_action.SentegrityLoginResponseObject;
-import com.sentegrity.core_detection.policy.SentegrityPolicy;
-import com.sentegrity.core_detection.protect_mode.ProtectMode;
-import com.sentegrity.core_detection.constants.*;
 import com.sentegrity.core_detection.startup.SentegrityStartupStore;
+
+import java.io.File;
 
 public class LoginActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -72,7 +72,12 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
         progressDialog.setMessage("Mobile Security Posture");
         progressDialog.show();
 
-        final SentegrityPolicy policy = CoreDetection.getInstance().parsePolicy("default.policy");
+        File f = new File(SentegrityStartupStore.getInstance().getStorePath());
+        if(!f.exists()){
+            String dummyPass = "asdf";
+            String masterKey = SentegrityStartupStore.getInstance().createNewStartupFileWithUserPassword(dummyPass);
+        }
+
         CoreDetection.getInstance().performCoreDetection(new CoreDetectionCallback() {
             @Override
             public void onFinish(final SentegrityTrustScoreComputation computationResult, SentegrityError error, boolean success) {

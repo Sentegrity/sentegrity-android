@@ -49,7 +49,7 @@ public class SentegrityTrustFactorStore {
     public void resetAssertionStore(){
         File f = new File(getStorePath());
 
-        if (!f.exists()) {
+        if (f.exists()) {
             if(!f.delete()){
                 Logger.INFO("Assertion store file JSON cannot be deleted");
             }

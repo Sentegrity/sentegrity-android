@@ -10,6 +10,8 @@ import android.view.View;
 
 import com.sentegrity.android.R;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorStore;
+import com.sentegrity.core_detection.startup.SentegrityStartup;
+import com.sentegrity.core_detection.startup.SentegrityStartupStore;
 
 import java.io.File;
 import java.util.MissingResourceException;
@@ -80,14 +82,11 @@ public abstract class MenuActivity extends Activity {
         dialogBuilder.setPositiveButton("Reset", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                File f = new File(SentegrityTrustFactorStore.getInstance().getStorePath());
-                if(!f.exists())
-                    return;
-                for(File file : f.listFiles()){
-                    if(file.getName().endsWith(".store")){
-                        file.delete();
-                    }
-                }
+                //TODO: is this correct way to do this? set empty startup store? who'll and how set the password
+                SentegrityStartupStore.getInstance().resetStartupStore();
+                //SentegrityStartupStore.getInstance().setCurrentStartupStore(new SentegrityStartup());
+                //SentegrityStartupStore.getInstance().setStartupStore();
+                SentegrityTrustFactorStore.getInstance().resetAssertionStore();
             }
         });
         dialogBuilder.setNegativeButton("Cancel", null);

@@ -63,8 +63,6 @@ public class SentegrityTrustScoreComputation {
     private List<SentegrityTrustFactorOutput> protectModeSystemWhitelist;
     private List<SentegrityTrustFactorOutput> transparentAuthenticationTrustFactors;
 
-    private boolean attemptTransparentAuthentication;
-
     private SentegrityClassification systemBreachClass;
     private SentegrityClassification systemPolicyClass;
     private SentegrityClassification systemSecurityClass;
@@ -252,10 +250,6 @@ public class SentegrityTrustScoreComputation {
         return userAnalysisResults;
     }
 
-    public boolean isAttemptTransparentAuthentication() {
-        return attemptTransparentAuthentication;
-    }
-
     public int getDeviceScore() {
         return deviceScore;
     }
@@ -394,10 +388,6 @@ public class SentegrityTrustScoreComputation {
 
     public void setUserAnalysisResults(List<String> userAnalysisResults) {
         this.userAnalysisResults = userAnalysisResults;
-    }
-
-    public void setAttemptTransparentAuthentication(boolean attemptTransparentAuthentication) {
-        this.attemptTransparentAuthentication = attemptTransparentAuthentication;
     }
 
     public void setDeviceScore(int deviceScore) {
