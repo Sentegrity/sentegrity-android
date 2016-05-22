@@ -33,6 +33,10 @@ public abstract class MenuActivity extends Activity {
         if(userDebug != null)
             userDebug.setOnClickListener(listener);
 
+        View transparentDebug = findViewById(R.id.transparent_debug);
+        if(transparentDebug != null)
+            transparentDebug.setOnClickListener(listener);
+
         View systemDebug = findViewById(R.id.system_debug);
         if(systemDebug != null)
             systemDebug.setOnClickListener(listener);
@@ -57,6 +61,9 @@ public abstract class MenuActivity extends Activity {
             switch (v.getId()){
                 case R.id.user_debug:
                     startActivity(new Intent(MenuActivity.this, UserDebugActivity.class));
+                    break;
+                case R.id.transparent_debug:
+                    startActivity(new Intent(MenuActivity.this, TransparentDebugActivity.class));
                     break;
                 case R.id.system_debug:
                     startActivity(new Intent(MenuActivity.this, SystemDebugActivity.class));

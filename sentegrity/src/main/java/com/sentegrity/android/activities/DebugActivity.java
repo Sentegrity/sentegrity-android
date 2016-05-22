@@ -23,7 +23,7 @@ public abstract class DebugActivity extends Activity implements View.OnClickList
 
         TextView activityTitle = (TextView) findViewById(R.id.activity_title);
         if(activityTitle != null)
-            activityTitle.setText(getAcivityTitle());
+            activityTitle.setText(getActivityTitle());
 
         TextView debugInfo = (TextView) findViewById(R.id.debug_data);
         if(debugInfo != null)
@@ -34,7 +34,7 @@ public abstract class DebugActivity extends Activity implements View.OnClickList
             close.setOnClickListener(this);
     }
 
-    protected abstract String getAcivityTitle();
+    protected abstract String getActivityTitle();
     protected abstract String getDebugInfo();
 
     @Override

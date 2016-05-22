@@ -47,10 +47,10 @@ public class UserInfoActivity extends InformationActivity {
 
 
         if(computationResult.getUserDynamicTwoFactors() != null && computationResult.getUserDynamicTwoFactors().size() > 0){
-            infoHolder.addView(createInfo("Two factors", InfoType.TITLE));
+            infoHolder.addView(createInfo("Dynamic Two factor", InfoType.TITLE));
 
             for(String authenticator : computationResult.getUserDynamicTwoFactors()){
-                infoHolder.addView(createInfo(authenticator, InfoType.FAIL));
+                infoHolder.addView(createInfo(authenticator, InfoType.SUCCESS));
             }
             infoHolder.addView(createInfo("", InfoType.TITLE));
         }

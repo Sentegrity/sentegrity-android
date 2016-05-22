@@ -16,7 +16,7 @@ public class ScoreDebugActivity extends DebugActivity {
     }
 
     @Override
-    protected String getAcivityTitle() {
+    protected String getActivityTitle() {
         return "Computation Debug";
     }
 

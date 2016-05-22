@@ -18,7 +18,7 @@ public class UserDebugActivity extends DebugActivity {
     }
 
     @Override
-    protected String getAcivityTitle() {
+    protected String getActivityTitle() {
         return "User Debug";
     }
 

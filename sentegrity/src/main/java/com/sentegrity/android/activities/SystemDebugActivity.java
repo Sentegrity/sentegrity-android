@@ -18,7 +18,7 @@ public class SystemDebugActivity extends DebugActivity {
     }
 
     @Override
-    protected String getAcivityTitle() {
+    protected String getActivityTitle() {
         return "System Debug";
     }
 
