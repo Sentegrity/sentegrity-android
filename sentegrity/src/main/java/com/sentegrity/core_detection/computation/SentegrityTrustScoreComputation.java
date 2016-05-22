@@ -58,11 +58,6 @@ public class SentegrityTrustScoreComputation {
     private int deviceScore;
     private boolean deviceTrusted;
 
-    private List<SentegrityTrustFactorOutput> protectModeWhitelist;
-    private List<SentegrityTrustFactorOutput> protectModeUserWhitelist;
-    private List<SentegrityTrustFactorOutput> protectModeSystemWhitelist;
-    private List<SentegrityTrustFactorOutput> transparentAuthenticationTrustFactors;
-
     private SentegrityClassification systemBreachClass;
     private SentegrityClassification systemPolicyClass;
     private SentegrityClassification systemSecurityClass;
@@ -258,22 +253,6 @@ public class SentegrityTrustScoreComputation {
         return deviceTrusted;
     }
 
-    public List<SentegrityTrustFactorOutput> getProtectModeWhitelist() {
-        return protectModeWhitelist != null ? protectModeWhitelist : (protectModeWhitelist = new ArrayList<>());
-    }
-
-    public List<SentegrityTrustFactorOutput> getProtectModeUserWhitelist() {
-        return protectModeUserWhitelist;
-    }
-
-    public List<SentegrityTrustFactorOutput> getProtectModeSystemWhitelist() {
-        return protectModeSystemWhitelist;
-    }
-
-    public List<SentegrityTrustFactorOutput> getTransparentAuthenticationTrustFactors() {
-        return transparentAuthenticationTrustFactors;
-    }
-
     public void setPolicy(SentegrityPolicy policy) {
         this.policy = policy;
     }
@@ -396,22 +375,6 @@ public class SentegrityTrustScoreComputation {
 
     public void setDeviceTrusted(boolean deviceTrusted) {
         this.deviceTrusted = deviceTrusted;
-    }
-
-    public void setProtectModeWhitelist(List<SentegrityTrustFactorOutput> protectModeWhitelist) {
-        this.protectModeWhitelist = protectModeWhitelist;
-    }
-
-    public void setProtectModeUserWhitelist(List<SentegrityTrustFactorOutput> protectModeUserWhitelist) {
-        this.protectModeUserWhitelist = protectModeUserWhitelist;
-    }
-
-    public void setProtectModeSystemWhitelist(List<SentegrityTrustFactorOutput> protectModeSystemWhitelist) {
-        this.protectModeSystemWhitelist = protectModeSystemWhitelist;
-    }
-
-    public void setTransparentAuthenticationTrustFactors(List<SentegrityTrustFactorOutput> transparentAuthenticationTrustFactors) {
-        this.transparentAuthenticationTrustFactors = transparentAuthenticationTrustFactors;
     }
 
     public int getAttributingClassID() {

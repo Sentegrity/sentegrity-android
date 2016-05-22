@@ -59,7 +59,7 @@ public class UserDebugActivity extends DebugActivity {
 
         String userTrustFactorsToWhitelist = "\nTrustFactors To Whitelist\n+++++++++++++++++++++++++++\n";
 
-        for(SentegrityTrustFactorOutput output : computationResult.getProtectModeUserWhitelist()){
+        for(SentegrityTrustFactorOutput output : computationResult.getUserTrustFactorWhitelist()){
             String storedAssertions = "";
             String currentAssertions = "";
 
@@ -90,7 +90,7 @@ public class UserDebugActivity extends DebugActivity {
 
         String userTrustFactorsNotLearned = "\nTrustFactors Not Learned\n+++++++++++++++++++++++++++\n";
 
-        for(SentegrityTrustFactorOutput output : computationResult.getProtectModeUserWhitelist()){
+        for(SentegrityTrustFactorOutput output : computationResult.getUserTrustFactorsNotLearned()){
             String storedAssertions = "";
             String currentAssertions = "";
 
@@ -127,7 +127,7 @@ public class UserDebugActivity extends DebugActivity {
 
         String userTrustFactorsForTransparentAuth = "\nTrustFactors For Transparent Auth\n+++++++++++++++++++++++++++\n";
 
-        for(SentegrityTrustFactorOutput output : computationResult.getTransparentAuthenticationTrustFactors()){
+        for(SentegrityTrustFactorOutput output : computationResult.getTransparentAuthenticationTrustFactorOutputs()){
             String currentAssertions = "";
 
             for(SentegrityStoredAssertion currentAssertion : output.getCandidateAssertionObjects()){

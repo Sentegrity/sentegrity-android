@@ -59,7 +59,7 @@ public class SystemDebugActivity extends DebugActivity {
 
         String systemTrustFactorsToWhitelist = "\nTrustFactors To Whitelist\n+++++++++++++++++++++++++++\n";
 
-        for(SentegrityTrustFactorOutput output : computationResult.getProtectModeSystemWhitelist()){
+        for(SentegrityTrustFactorOutput output : computationResult.getSystemTrustFactorWhitelist()){
             String storedAssertions = "";
             String currentAssertions = "";
 
