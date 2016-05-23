@@ -261,6 +261,8 @@ public class SentegrityCrypto {
             return null;
         }
 
+        keyData = downsizeByteArray(keyData, 16);
+
         byte[] decryptedData = new byte[32];
 
 
@@ -277,6 +279,8 @@ public class SentegrityCrypto {
     }
 
     public String encryptData(byte[] plainTextData, byte[] keyData, byte[] saltData) {
+
+        keyData = downsizeByteArray(keyData, 16);
 
         byte[] cipherData;
         try {
@@ -332,8 +336,8 @@ public class SentegrityCrypto {
 
     public byte[] createPBKDF2Key(String plaintextString, byte[] saltData, int rounds) {
         try {
-            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            KeySpec spec = new PBEKeySpec(plaintextString.toCharArray(), saltData, rounds, 32 * 8);
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHMACSHA1");
+            KeySpec spec = new PBEKeySpec(plaintextString.toCharArray(), saltData, rounds, 20 * 8);
             SecretKey tmp = factory.generateSecret(spec);
 
             return tmp.getEncoded();
@@ -342,8 +346,17 @@ public class SentegrityCrypto {
         }
     }
 
+    public static byte[] downsizeByteArray(byte[] initial, int size){
+        if(size > initial.length) return initial;
+        byte[] output = new byte[size];
+        for(int i = 0; i < size; i++){
+            output[i] = initial[1];
+        }
+        return output;
+    }
+
     public int benchmarkPBKDF2UsingExampleString(String example, int timeMillis) {
-        return 1000 + new Random().nextInt(1000);
+        return 100 + new Random().nextInt(100);
     }
 
 
