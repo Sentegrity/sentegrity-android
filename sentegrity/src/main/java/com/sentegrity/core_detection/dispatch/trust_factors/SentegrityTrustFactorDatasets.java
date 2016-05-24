@@ -44,6 +44,7 @@ import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.Acti
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDetection;
 import com.sentegrity.core_detection.utilities.Helpers;
 import com.trustlook.sdk.cloudscan.CloudScanClient;
+import com.trustlook.sdk.data.AppInfo;
 import com.trustlook.sdk.data.PkgInfo;
 import com.trustlook.sdk.data.Region;
 
@@ -122,7 +123,7 @@ public class SentegrityTrustFactorDatasets {
     private DNEStatusCode cellularSignalDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode ambientLightDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode rootDetectionDNEStatus = DNEStatusCode.OK;
-    private DNEStatusCode pkgListDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode trustLookBadPkgListDNEStatus = DNEStatusCode.OK;
 
     private List<MagneticObject> magneticHeading;
     private List<GyroRadsObject> gyroRads;
@@ -132,14 +133,13 @@ public class SentegrityTrustFactorDatasets {
     private List<NetworkInterface> routeData;
     private List<ApplicationInfo> installedApps;
     private List<Integer> ambientLightData;
-    private List<PkgInfo> pkgInfoList;
+    private List<AppInfo> trustLookBadPkgList;
 
     private WifiManager wifiManager;
     private TelephonyManager telephonyManager;
     private KeyguardManager keyguardManager;
     private ConnectivityManager connectivityManager;
     private AudioManager audioManager;
-    private CloudScanClient cloudScanClient;
 
     public SentegrityTrustFactorDatasets(Context context) {
         this.context = context;
@@ -155,7 +155,7 @@ public class SentegrityTrustFactorDatasets {
         netstatDataDNEStatus = DNEStatusCode.OK;
         cellularSignalDNEStatus = DNEStatusCode.OK;
         rootDetectionDNEStatus = DNEStatusCode.OK;
-        pkgListDNEStatus = DNEStatusCode.OK;
+        trustLookBadPkgListDNEStatus = DNEStatusCode.OK;
 
         //testMethod();
         updateWifiManager();
@@ -163,7 +163,6 @@ public class SentegrityTrustFactorDatasets {
         updateKeyguardManager();
         updateConnectivityManager();
         updateAudioManager();
-        cloudScanClient = null;
         this.runTime = -1;
 
         magneticHeading = null;
@@ -173,6 +172,7 @@ public class SentegrityTrustFactorDatasets {
         netstatData = null;
         routeData = null;
         ambientLightData = null;
+        trustLookBadPkgList = null;
 
         pairedBTDevices = null;
         scannedBTDevices = null;
@@ -270,8 +270,8 @@ public class SentegrityTrustFactorDatasets {
         return rootDetectionDNEStatus;
     }
 
-    public DNEStatusCode getPkgListDNEStatus() {
-        return pkgListDNEStatus;
+    public DNEStatusCode getTrustLookBadPkgListDNEStatus() {
+        return trustLookBadPkgListDNEStatus;
     }
 
     public void setPairedBTDNEStatus(DNEStatusCode pairedBTDNEStatus) {
@@ -318,8 +318,8 @@ public class SentegrityTrustFactorDatasets {
         this.rootDetectionDNEStatus = rootDetectionDNEStatus;
     }
 
-    public void setPkgListDNEStatus(DNEStatusCode pkgListDNEStatus){
-        this.pkgListDNEStatus = pkgListDNEStatus;
+    public void setTrustLookBadPkgListDNEStatus(DNEStatusCode trustLookBadPkgListDNEStatus){
+        this.trustLookBadPkgListDNEStatus = trustLookBadPkgListDNEStatus;
     }
 
     public void setScannedBTDevices(Set<String> scannedBTDevices) {
@@ -362,8 +362,8 @@ public class SentegrityTrustFactorDatasets {
         this.accelRads = accelRads;
     }
 
-    public void setPkgInfoList(List<PkgInfo> pkgInfoList){
-        this.pkgInfoList = pkgInfoList;
+    public void setTrustLookBadPkgList(List<AppInfo> trustLookBadPkgList){
+        this.trustLookBadPkgList = trustLookBadPkgList;
     }
 
     public void setRootDetection(RootDetection rootDetection) {
@@ -1511,50 +1511,34 @@ public class SentegrityTrustFactorDatasets {
     }
 
     /**
-     * Creates Cloud Scan Client for TrustLook implementation (online antivirus check)
+     * Waits for TrustLook bad package AppInfo list
+     * This list can be empty
      *
-     * @return cloudScanClient instance
+     * @return list of App info data, {@code null} if expired or not available
      */
-    public CloudScanClient getCloudScanClient(){
-        if(cloudScanClient == null) {
-            cloudScanClient = new CloudScanClient.Builder().setContext(SentegrityTrustFactorDatasets.getInstance().context)
-                    .setToken(SentegrityConstants.TRUSTLOOK_CLIENT_ID)
-                    .setRegion(Region.INTL)
-                    .setConnectionTimeout(6000)
-                    .setSocketTimeout(6500)
-                    .build();
-        }
-        return cloudScanClient;
-    }
-
-    /**
-     * Waits for TrustLook package info list
-     *
-     * @return list of package info data, {@code null} if expired or not available
-     */
-    public List<PkgInfo> getPkgInfoList() {
-        if (pkgInfoList == null || pkgInfoList.size() == 0) {
-            if (getPkgListDNEStatus() == DNEStatusCode.EXPIRED)
-                return pkgInfoList;
+    public List<AppInfo> getTrustLookBadPkgList() {
+        if (trustLookBadPkgList == null) {
+            if (getTrustLookBadPkgListDNEStatus() == DNEStatusCode.EXPIRED)
+                return trustLookBadPkgList;
 
             long startTime = System.currentTimeMillis();
             long currentTime = startTime;
-            float waitTime = 100;
+            float waitTime = 2000;
 
             while ((currentTime - startTime) < waitTime) {
-                if (pkgInfoList != null && pkgInfoList.size() > 0)
-                    return pkgInfoList;
+                if (trustLookBadPkgList != null)
+                    return trustLookBadPkgList;
                 try {
-                    Thread.sleep(10);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                 }
                 currentTime = System.currentTimeMillis();
             }
 
-            setPkgListDNEStatus(DNEStatusCode.NO_DATA);
-            return pkgInfoList;
+            setTrustLookBadPkgListDNEStatus(DNEStatusCode.NO_DATA);
+            return trustLookBadPkgList;
         }
-        return pkgInfoList;
+        return trustLookBadPkgList;
     }
 
     public SharedPreferences getSharedPrefs(){

@@ -1,8 +1,10 @@
 package com.sentegrity.android.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.view.Gravity;
@@ -10,6 +12,7 @@ import android.view.View;
 
 import com.sentegrity.android.R;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorStore;
+import com.trustlook.sdk.cloudscan.CloudScanClient;
 
 import java.io.File;
 import java.util.MissingResourceException;
@@ -88,6 +91,12 @@ public abstract class MenuActivity extends Activity {
                         file.delete();
                     }
                 }
+
+                //we'll also reset all the trustlook cache
+                SharedPreferences sp = getSharedPreferences("prefs", Context.MODE_PRIVATE);
+                sp.edit().putString("cachedList", "[]").apply();
+                sp.edit().putString("cachedBadApps", "[]").apply();
+                new CloudScanClient.Builder().setContext(getBaseContext()).build().clearAppInfoCache();
             }
         });
         dialogBuilder.setNegativeButton("Cancel", null);
