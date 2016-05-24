@@ -25,6 +25,7 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
+import com.sentegrity.core_detection.constants.SentegrityConstants;
 import com.sentegrity.core_detection.dispatch.activity_dispatcher.bluetooth.BTDeviceCallback;
 import com.sentegrity.core_detection.dispatch.activity_dispatcher.bluetooth.BTScanner;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
@@ -39,7 +40,9 @@ import com.sentegrity.core_detection.logger.Logger;
 import com.sentegrity.core_detection.utilities.Helpers;
 import com.stericson.RootShell.RootShell;
 import com.trustlook.sdk.cloudscan.CloudScanClient;
-import com.trustlook.sdk.data.PkgInfo;
+import com.trustlook.sdk.cloudscan.ScanResult;
+import com.trustlook.sdk.data.*;
+import com.trustlook.sdk.data.Error;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -55,9 +58,10 @@ import java.util.Set;
 public class SentegrityActivityDispatcher implements BTDeviceCallback {
 
     private Context context;
+    private CloudScanClient cloudScanClient;
 
-    public SentegrityActivityDispatcher(Context context){
-        if(context == null){
+    public SentegrityActivityDispatcher(Context context) {
+        if (context == null) {
             throw new IllegalArgumentException("we need that context here!");
         }
         this.context = context;
@@ -127,6 +131,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
      * Start searching for nearby bluetooth devices.
      * Bluetooth status code will be {@link DNEStatusCode#UNSUPPORTED} if there is
      * no bluetooth adapter or {@link DNEStatusCode#DISABLED} if bluetooth is disabled.
+     *
      * @see BTScanner Bluetooth Scanner
      */
     public void startBluetooth() {
@@ -138,7 +143,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
             SentegrityTrustFactorDatasets.getInstance().setPairedBTDNEStatus(DNEStatusCode.UNSUPPORTED);
             SentegrityTrustFactorDatasets.getInstance().setScannedBTDNEStatus(DNEStatusCode.UNSUPPORTED);
             return;
-        }else if(!BluetoothAdapter.getDefaultAdapter().isEnabled()){
+        } else if (!BluetoothAdapter.getDefaultAdapter().isEnabled()) {
             SentegrityTrustFactorDatasets.getInstance().setScannedBTDNEStatus(DNEStatusCode.DISABLED);
             SentegrityTrustFactorDatasets.getInstance().setPairedBTDNEStatus(DNEStatusCode.DISABLED);
             return;
@@ -310,7 +315,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                         accels = null;
 
                         //first values can come as 0.0, 0.0, 0.0 --> we don't need those
-                        if(values[0] == 0 && values[1] == 0 && values[2] == 0)
+                        if (values[0] == 0 && values[1] == 0 && values[2] == 0)
                             return;
 
                         PitchRollObject object = new PitchRollObject(values);
@@ -474,9 +479,10 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
     /**
      * Starts root check.
      * It will check if root access is given to the app, if busy box is available or if there's root available on the device.
+     *
      * @see RootShell
      */
-    public void startRootCheck(){
+    public void startRootCheck() {
         final RootDetection rootDetection = new RootDetection();
         new Thread() {
             @Override
@@ -515,47 +521,130 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
     /**
      * Starts package collection for TrustLook scan
      */
-    public void startPkgCollection(){
+    public void startPkgCollection() {
+        new Thread() {
+            @Override
+            public void run() {
+                Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
 
-        long current = System.currentTimeMillis();
+                long current = System.currentTimeMillis();
 
-        CloudScanClient cloudScanClient = SentegrityTrustFactorDatasets.getInstance().getCloudScanClient();
+                List<PkgInfo> listToCheck = new ArrayList<>();
+                List<PkgInfo> currentCachedList = new ArrayList<>();
+                List<PkgInfo> newCheckedList = new ArrayList<>();
+                List<AppInfo> cachedBadApps = new ArrayList<>();
+                List<AppInfo> newBadApps = new ArrayList<>();
 
-        List<PkgInfo> pkgInfoList = new ArrayList<>();
-        List<PkgInfo> cachedList = new ArrayList<>();
+                SharedPreferences sp = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
+                String cachedListJson = sp.getString("cachedList", null);
+                String cachedBadAppsJson = sp.getString("cachedBadApps", null);
 
-        SharedPreferences sp = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
-        String cachedListJson = sp.getString("cachedList", null);
+                if (cachedListJson != null) {
+                    currentCachedList = new Gson().fromJson(cachedListJson, new TypeToken<List<PkgInfo>>() {
+                    }.getType());
+                }
+                if (!TextUtils.isEmpty(cachedBadAppsJson)) {
+                    cachedBadApps = new Gson().fromJson(cachedBadAppsJson, new TypeToken<List<AppInfo>>() {
+                    }.getType());
+                }
 
-        if(cachedListJson != null){
-            cachedList = new Gson().fromJson(cachedListJson, new TypeToken<List<PkgInfo>>(){}.getType());
-            Log.d("trustlook", "time: " + (System.currentTimeMillis() - current));
-        }
+                List<PackageInfo> packageInfoList = Helpers.getLocalAppsPkgInfo(SentegrityTrustFactorDatasets.getInstance().context);
+                for (PackageInfo pi : packageInfoList) {
+                    if (pi != null && pi.applicationInfo != null) {
+                        PkgInfo pkgInfo = null;
+                        for (PkgInfo cachedInfo : currentCachedList) {
+                            if (TextUtils.equals(cachedInfo.getPkgName(), pi.packageName)) {
+                                pkgInfo = cachedInfo;
+                                //we'll not add cached data, since we already checked it
+                                //pkgInfoList.add(pkgInfo);
 
-        List<PackageInfo> packageInfoList = Helpers.getLocalAppsPkgInfo(SentegrityTrustFactorDatasets.getInstance().context);
-        for (PackageInfo pi : packageInfoList) {
-            if (pi != null && pi.applicationInfo != null) {
-                PkgInfo pkgInfo = null;
-                for(PkgInfo cachedInfo : cachedList){
-                    if(TextUtils.equals(cachedInfo.getPkgName(), pi.packageName)){
-                        pkgInfo = cachedInfo;
-                        pkgInfoList.add(pkgInfo);
-                        break;
+                                //we'll create new list to get rid of removed apps
+                                newCheckedList.add(pkgInfo);
+                                break;
+                            }
+                        }
+                        if (pkgInfo == null) {
+                            pkgInfo = getCloudScanClient().populatePkgInfo(pi.packageName, pi.applicationInfo.publicSourceDir);
+                            listToCheck.add(pkgInfo);
+                        } else if (cachedBadApps.size() > 0) {
+                            //we're going through known (cached) bad apps, and updating new list in case any of them was removed
+                            for (AppInfo appInfo : cachedBadApps) {
+                                if (TextUtils.equals(appInfo.getMd5(), pkgInfo.getMd5())) {
+                                    newBadApps.add(appInfo);
+                                }
+                            }
+                        }
                     }
                 }
-                if(pkgInfo == null) {
-                    pkgInfo = cloudScanClient.populatePkgInfo(pi.packageName, pi.applicationInfo.publicSourceDir);
-                    pkgInfoList.add(pkgInfo);
+
+                //we'll do online scan only if there's been new apps since last online check
+                if (listToCheck.size() > 0) {
+                    ScanResult onlineResult = null;
+
+                    onlineResult = getCloudScanClient().cloudScan(listToCheck);
+
+                    if (onlineResult.isSuccess()) {
+                        List<AppInfo> appInfoList;
+                        appInfoList = onlineResult.getList();
+                        for (AppInfo appInfo : appInfoList) {
+                            if (appInfo.getScore() >= 8) {
+                                //malware app
+                                newBadApps.add(appInfo);
+                            } else if (appInfo.getScore() == 7) {
+                                //high risk app
+                                newBadApps.add(appInfo);
+                            } else if (appInfo.getScore() == 6) {
+                                //non­aggressive risk app, we should skip these ?
+                                //newBadApps.add(appInfo);
+                            } else {
+                                //if score is in [0,5]
+                                //the app is safe
+                            }
+                        }
+                        newCheckedList.addAll(listToCheck);
+                    } else {
+                        //TODO: handle different error codes (maybe UNAVAILABLE if no internet?)
+                        int errorCode = onlineResult.getError();
+                        if(errorCode == Error.NETWORK_ERROR){
+
+                        }
+                        SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgListDNEStatus(DNEStatusCode.ERROR);
+
+                        sp.edit().putString("cachedList", new Gson().toJson(newCheckedList)).apply();
+                        sp.edit().putString("cachedBadApps", new Gson().toJson(newBadApps)).apply();
+
+                        Log.d("trustlook", "time: " + (System.currentTimeMillis() - current));
+                        return;
+                    }
+
                 }
+
+                sp.edit().putString("cachedList", new Gson().toJson(newCheckedList)).apply();
+                sp.edit().putString("cachedBadApps", new Gson().toJson(newBadApps)).apply();
+
+                SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgListDNEStatus(DNEStatusCode.OK);
+                SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgList(newBadApps);
+
+                Log.d("trustlook", "time: " + (System.currentTimeMillis() - current));
             }
+        }.start();
+    }
+
+    /**
+     * Creates Cloud Scan Client for TrustLook implementation (online antivirus check)
+     *
+     * @return cloudScanClient instance
+     */
+    public CloudScanClient getCloudScanClient() {
+        if (cloudScanClient == null) {
+            cloudScanClient = new CloudScanClient.Builder().setContext(SentegrityTrustFactorDatasets.getInstance().context)
+                    .setToken(SentegrityConstants.TRUSTLOOK_CLIENT_ID)
+                    .setRegion(Region.INTL)
+                    .setConnectionTimeout(2000)
+                    .setSocketTimeout(2000)
+                    .build();
         }
-
-        sp.edit().putString("cachedList", new Gson().toJson(pkgInfoList)).apply();
-
-        SentegrityTrustFactorDatasets.getInstance().setPkgListDNEStatus(DNEStatusCode.OK);
-        SentegrityTrustFactorDatasets.getInstance().setPkgInfoList(pkgInfoList);
-
-        Log.d("trustlook", "time: " + (System.currentTimeMillis() - current));
+        return cloudScanClient;
     }
 
     /**

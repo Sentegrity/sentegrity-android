@@ -87,8 +87,7 @@ public class Helpers {
         for (int i = 0; i < MAX_ATTEMPTS; i++) {
 
             try {
-                return context.getPackageManager().getInstalledPackages(
-                        PackageManager.GET_PERMISSIONS | PackageManager.GET_PROVIDERS);
+                return context.getPackageManager().getInstalledPackages(0);
             } catch (RuntimeException re) {
                 // Just wait for cooling down
                 try {

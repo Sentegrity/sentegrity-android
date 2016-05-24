@@ -34,74 +34,30 @@ public class TrustFactorDispatchApplicationSecurity {
 
         List<String> outputList = new ArrayList<>();
 
-        long current = System.currentTimeMillis();
-
-        if (SentegrityTrustFactorDatasets.getInstance().getPkgListDNEStatus() != DNEStatusCode.OK &&
-                SentegrityTrustFactorDatasets.getInstance().getPkgListDNEStatus() != DNEStatusCode.EXPIRED) {
-            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getPkgListDNEStatus());
+        if (SentegrityTrustFactorDatasets.getInstance().getTrustLookBadPkgListDNEStatus() != DNEStatusCode.OK &&
+                SentegrityTrustFactorDatasets.getInstance().getTrustLookBadPkgListDNEStatus() != DNEStatusCode.EXPIRED) {
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getTrustLookBadPkgListDNEStatus());
             return output;
         }
 
-        List<PkgInfo> list = SentegrityTrustFactorDatasets.getInstance().getPkgInfoList();
+        List<AppInfo> list = SentegrityTrustFactorDatasets.getInstance().getTrustLookBadPkgList();
 
-        if (SentegrityTrustFactorDatasets.getInstance().getPkgListDNEStatus() != DNEStatusCode.OK) {
-            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getPkgListDNEStatus());
+        if (SentegrityTrustFactorDatasets.getInstance().getTrustLookBadPkgListDNEStatus() != DNEStatusCode.OK) {
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getTrustLookBadPkgListDNEStatus());
             return output;
         }
 
-        if (list == null || list.size() == 0) {
+        if (list == null) {
             output.setStatusCode(DNEStatusCode.ERROR);
             return output;
         }
 
-        ScanResult scanResult = null;
-        long lastOnlineCheck = 0;
-
-        int onlineCheckDays = (int) (double) ((LinkedTreeMap) payload.get(0)).get("onlineCheckDays");
-
-        SharedPreferences sp = SentegrityTrustFactorDatasets.getInstance().getSharedPrefs();
-
-        lastOnlineCheck = sp.getLong("lastOnlineCheck", 0);
-
-        //TODO: on online check we should only check for new apps, not all
-        if((System.currentTimeMillis() - lastOnlineCheck) > (onlineCheckDays * MILLISECONDS_IN_DAY)) {
-            //we should run online check now, since there's been more than "onlineCheckDays" days from last online check
-            scanResult = SentegrityTrustFactorDatasets.getInstance().getCloudScanClient().cloudScan(list);
-            sp.edit().putLong("lastOnlineCheck", System.currentTimeMillis()).apply();
-        }else{
-            //still not enough time, only do local scan
-            scanResult = SentegrityTrustFactorDatasets.getInstance().getCloudScanClient().cacheCheck(list);
-        }
-
-        if (scanResult.isSuccess()) {
-            List<AppInfo> appInfoList;
-            appInfoList = scanResult.getList();
-            for (AppInfo appInfo : appInfoList) {
-                if (appInfo.getScore() >= 8) {
-                    //malware app
-                    outputList.add(appInfo.getPackageName());
-                } else if (appInfo.getScore() == 7) {
-                    //high risk app
-                    outputList.add(appInfo.getPackageName());
-                } else if (appInfo.getScore() == 6) {
-                    //non­aggressive risk app, we should skip these ?
-                    //outputList.add(appInfo.getPackageName());
-                } else {
-                    //if score is in [0,5]
-                    //the app is safe
-                }
-            }
-        } else {
-            //TODO: handle different error codes (maybe UNAVAILABLE if no internet?)
-            int errorCode = scanResult.getError();
-
-            output.setStatusCode(DNEStatusCode.ERROR);
-            return output;
+        for(AppInfo appInfo : list){
+            outputList.add(appInfo.getPackageName() + "_" + appInfo.getMd5());
         }
 
         output.setOutput(outputList);
 
-        Log.d("trustLook", "time: " + (System.currentTimeMillis() - current));
         return output;
     }
 
