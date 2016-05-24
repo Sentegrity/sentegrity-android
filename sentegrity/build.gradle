@@ -19,9 +19,6 @@ android {
     }
 
     useLibrary 'org.apache.http.legacy'
-    /*defaultConfig {
-        multiDexEnabled true
-    }*/
 }
 
 dependencies {
@@ -34,6 +31,7 @@ dependencies {
     //compile 'com.google.android.gms:play-services-auth:8.4.0'
     //compile 'com.google.android.gms:play-services:8.4.0'
     compile 'com.google.android.gms:play-services-location:9.0.0'
+    compile 'com.google.android.gms:play-services-auth:9.0.0'
     compile 'com.karumi:dexter:2.2.2'
     compile 'commons-io:commons-io:2.4'
     compile 'com.jaredrummler:android-processes:1.0.8'
