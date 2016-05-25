@@ -85,17 +85,16 @@ public class SentegrityStartupStore {
     }
 
     public void setStartupDataWithComputationResults(SentegrityTrustScoreComputation computationResults){
-        SentegrityStartup startup = currentStartupStore;
-
-        if(startup == null){
+        if(currentStartupStore == null){
             SentegrityError error = SentegrityError.INVALID_STARTUP_INSTANCE;
             error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
             error.setDetails(new ErrorDetails().setDescription("Failed to get startup file").setFailureReason("No startup file received").setRecoverySuggestion("Try validating startup file"));
 
             Logger.INFO("Failed to get Startup file", error);
-        }
 
-        startup = new SentegrityStartup();
+            //TODO: return?
+            //return;
+        }
 
         SentegrityHistoryObject runHistoryObject = new SentegrityHistoryObject();
 
@@ -116,12 +115,12 @@ public class SentegrityStartupStore {
         runHistoryObject.setSystemAnalysisResults(computationResults.getSystemAnalysisResults());
         runHistoryObject.setUserAnalysisResults(computationResults.getUserAnalysisResults());
 
-        if(startup.getRunHistoryObjects() == null || startup.getRunHistoryObjects().size() < 1){
+        if(currentStartupStore.getRunHistoryObjects() == null || currentStartupStore.getRunHistoryObjects().size() < 1){
             List<SentegrityHistoryObject> objectList = new ArrayList<>();
             objectList.add(runHistoryObject);
-            startup.setRunHistoryObjects(objectList);
+            currentStartupStore.setRunHistoryObjects(objectList);
         }else{
-            startup.getRunHistoryObjects().add(runHistoryObject);
+            currentStartupStore.getRunHistoryObjects().add(runHistoryObject);
         }
 
         if(!setStartupStore()){
