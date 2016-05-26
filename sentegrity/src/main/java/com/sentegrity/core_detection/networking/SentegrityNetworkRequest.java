@@ -1,5 +1,7 @@
 package com.sentegrity.core_detection.networking;
 
+import android.text.TextUtils;
+
 import com.google.gson.annotations.SerializedName;
 import com.sentegrity.core_detection.policy.SentegrityPolicy;
 import com.sentegrity.core_detection.startup.SentegrityHistoryObject;
@@ -28,7 +30,10 @@ public class SentegrityNetworkRequest {
     private List<SentegrityHistoryObject> runHistoryObjects;
 
     public SentegrityNetworkRequest(SentegrityStartup startup, SentegrityPolicy policy){
-        this.email = "jason@sentegrity.com";//startup.getEmail();
+        if(TextUtils.isEmpty(startup.getEmail()))
+            this.email = "";
+        else
+            this.email = "jason@sentegrity.com";//startup.getEmail();
         this.deviceSalt = startup.getDeviceSaltString();
         this.policyID = policy.getPolicyID();
         this.policyRevision = policy.getRevision() + "";

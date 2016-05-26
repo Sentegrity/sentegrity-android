@@ -1,6 +1,7 @@
 package com.sentegrity.core_detection.networking;
 
 import com.google.gson.annotations.SerializedName;
+import com.sentegrity.core_detection.policy.SentegrityPolicy;
 
 /**
  * Created by dmestrov on 24/05/16.
@@ -8,10 +9,16 @@ import com.google.gson.annotations.SerializedName;
 public class SentegrityNetworkResponse {
 
     @SerializedName("data")
-    private Object data;
+    private Data data;
 
     @SerializedName("system")
     private System system;
+
+    public SentegrityPolicy getPolicy(){
+        if(data == null)
+            return null;
+        return data.newPolicy;
+    }
 
     public class System{
         @SerializedName("metadata")
@@ -22,5 +29,10 @@ public class SentegrityNetworkResponse {
 
         @SerializedName("developer")
         private String developer;
+    }
+
+    public class Data{
+        @SerializedName("newPolicy")
+        private SentegrityPolicy newPolicy;
     }
 }
