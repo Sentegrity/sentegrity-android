@@ -25,7 +25,15 @@ public class SentegrityNetworkResponse {
         private String metadata;
 
         @SerializedName("error")
-        private String error;
+        private Error error;
+    }
+
+    public class Error{
+        @SerializedName("code")
+        private int code;
+
+        @SerializedName("message")
+        private String message;
 
         @SerializedName("developer")
         private String developer;
