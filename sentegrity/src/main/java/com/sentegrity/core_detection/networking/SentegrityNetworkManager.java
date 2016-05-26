@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * Created by dmestrov on 24/05/16.
  */
-public class SentegrityNetworkingManager {
+public class SentegrityNetworkManager {
 
     public static void upload(final RunHistoryCallback callback, Context context){
 
@@ -90,12 +90,12 @@ public class SentegrityNetworkingManager {
                 SentegrityPolicy newPolicy = responseObject.getPolicy();
 
                 if(newPolicy != null){
-                    if(!SentegrityPolicyParser.getInstance().saveNewPolicy(newPolicy)){
+                    /*if(!SentegrityPolicyParser.getInstance().saveNewPolicy(newPolicy)){
                         if(callback != null){
                             callback.onFinish(false, true, false);
                         }
                         return;
-                    }
+                    }*/
 
 
                     if(callback != null){

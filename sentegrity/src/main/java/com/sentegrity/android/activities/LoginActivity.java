@@ -29,7 +29,7 @@ import com.sentegrity.core_detection.logger.SentegrityError;
 import com.sentegrity.core_detection.login_action.SentegrityLoginAction;
 import com.sentegrity.core_detection.login_action.SentegrityLoginResponseObject;
 import com.sentegrity.core_detection.networking.RunHistoryCallback;
-import com.sentegrity.core_detection.networking.SentegrityNetworkingManager;
+import com.sentegrity.core_detection.networking.SentegrityNetworkManager;
 import com.sentegrity.core_detection.startup.SentegrityStartupStore;
 
 import java.io.File;
@@ -74,21 +74,20 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
         progressDialog.setMessage("Mobile Security Posture");
         progressDialog.show();
 
-        SentegrityNetworkingManager.upload(new RunHistoryCallback() {
+        SentegrityNetworkManager.upload(new RunHistoryCallback() {
             @Override
             public void onFinish(boolean successfullyExecuted, boolean successfullyUploaded, boolean newPolicyDownloaded) {
-                if(!successfullyExecuted){
+                if (!successfullyExecuted) {
                     //error: unable to run network manager
                 }
                 if (successfullyUploaded) {
-                    if(!SentegrityStartupStore.getInstance().setStartupStore()){
+                    if (!SentegrityStartupStore.getInstance().setStartupStore()) {
                         //error: unable to update startup store
-                    }
-                    else{
+                    } else {
                         //network manager: successfully uploaded runHistoryObjects
                     }
                 }
-                if(newPolicyDownloaded){
+                if (newPolicyDownloaded) {
                     //network manager: new policy downloaded and stored for the next run
                 }
             }
