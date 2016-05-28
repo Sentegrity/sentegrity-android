@@ -151,9 +151,10 @@ public class SentegrityLoginAction {
         switch (computationResults.getPostAuthenticationAction()){
             case PostAuthAction.WHITELIST_USER_ASSERTIONS:
                 trustFactorsToWhitelist = new ArrayList<>();
-                trustFactorsToWhitelist.addAll(computationResults.getUserTrustFactorWhitelist());
+                if(computationResults.getUserTrustFactorWhitelist() != null)
+                    trustFactorsToWhitelist.addAll(computationResults.getUserTrustFactorWhitelist());
 
-                if(trustFactorsToWhitelist != null && trustFactorsToWhitelist.size() > 0){
+                if(trustFactorsToWhitelist.size() > 0){
                     if(!whitelistAttributingTrustFactorOutputObjects(trustFactorsToWhitelist)){
                         return false;
                     }
@@ -162,8 +163,10 @@ public class SentegrityLoginAction {
 
             case PostAuthAction.WHITELIST_USER_AND_SYSTEM_ASSERTIONS:
                 trustFactorsToWhitelist = new ArrayList<>();
-                trustFactorsToWhitelist.addAll(computationResults.getUserTrustFactorWhitelist());
-                trustFactorsToWhitelist.addAll(computationResults.getSystemTrustFactorWhitelist());
+                if(computationResults.getUserTrustFactorWhitelist() != null)
+                    trustFactorsToWhitelist.addAll(computationResults.getUserTrustFactorWhitelist());
+                if(computationResults.getSystemTrustFactorWhitelist() != null)
+                    trustFactorsToWhitelist.addAll(computationResults.getSystemTrustFactorWhitelist());
 
                 if(trustFactorsToWhitelist.size() > 0){
                     if(!whitelistAttributingTrustFactorOutputObjects(trustFactorsToWhitelist)){
@@ -174,7 +177,8 @@ public class SentegrityLoginAction {
 
             case PostAuthAction.WHITELIST_SYSTEM_ASSERTIONS:
                 trustFactorsToWhitelist = new ArrayList<>();
-                trustFactorsToWhitelist.addAll(computationResults.getSystemTrustFactorWhitelist());
+                if(computationResults.getSystemTrustFactorWhitelist() != null)
+                    trustFactorsToWhitelist.addAll(computationResults.getSystemTrustFactorWhitelist());
 
                 if(trustFactorsToWhitelist.size() > 0){
                     if(!whitelistAttributingTrustFactorOutputObjects(trustFactorsToWhitelist)){
@@ -185,7 +189,8 @@ public class SentegrityLoginAction {
 
             case PostAuthAction.WHITELIST_USER_ASSERTIONS_CREATE_TRANSPARENT_KEY:
                 trustFactorsToWhitelist = new ArrayList<>();
-                trustFactorsToWhitelist.addAll(computationResults.getUserTrustFactorWhitelist());
+                if(computationResults.getUserTrustFactorWhitelist() != null)
+                    trustFactorsToWhitelist.addAll(computationResults.getUserTrustFactorWhitelist());
 
                 if(trustFactorsToWhitelist.size() > 0){
                     if(!whitelistAttributingTrustFactorOutputObjects(trustFactorsToWhitelist)){
