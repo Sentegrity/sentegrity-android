@@ -74,7 +74,8 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
         progressDialog.setMessage("Mobile Security Posture");
         progressDialog.show();
 
-        SentegrityNetworkManager.upload(new RunHistoryCallback() {
+        //removed history objects upload for now
+        /*SentegrityNetworkManager.upload(new RunHistoryCallback() {
             @Override
             public void onFinish(boolean successfullyExecuted, boolean successfullyUploaded, boolean newPolicyDownloaded) {
                 if (!successfullyExecuted) {
@@ -91,7 +92,7 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                     //network manager: new policy downloaded and stored for the next run
                 }
             }
-        }, this);
+        }, this);*/
 
         File f = new File(SentegrityStartupStore.getInstance().getStorePath());
         if(!f.exists()){
