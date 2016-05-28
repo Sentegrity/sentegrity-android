@@ -62,13 +62,13 @@ public class SentegrityNetworkManager {
 
         final List<SentegrityHistoryObject> runHistoryObjects = currentStartup.getRunHistoryObjects();
 
-        SentegrityNetworkRequest networkRequest = new SentegrityNetworkRequest(currentStartup, currentPolicy);
+        SentegrityCheckinRequest networkRequest = new SentegrityCheckinRequest(currentStartup, currentPolicy);
 
-        SentegrityHTTPSessionManager.postData(context, networkRequest, new NetworkCallback() {
+        SentegrityRestClient.postData(context, networkRequest, new NetworkCallback() {
             @Override
             public void onFinish(boolean success, String response) {
-                if(!success){
-                    if(callback != null){
+                if (!success) {
+                    if (callback != null) {
                         callback.onFinish(false, false, false);
                     }
                     return;
@@ -79,9 +79,9 @@ public class SentegrityNetworkManager {
 
                 removeOldRunHistoryObjects(runHistoryObjects, currentStartup);
 
-                SentegrityNetworkResponse responseObject = new Gson().fromJson(response, SentegrityNetworkResponse.class);
-                if(responseObject == null){
-                    if(callback != null){
+                SentegrityCheckinResponse responseObject = new Gson().fromJson(response, SentegrityCheckinResponse.class);
+                if (responseObject == null) {
+                    if (callback != null) {
                         callback.onFinish(false, false, false);
                     }
                     return;
@@ -89,7 +89,8 @@ public class SentegrityNetworkManager {
 
                 SentegrityPolicy newPolicy = responseObject.getPolicy();
 
-                if(newPolicy != null){
+                if (newPolicy != null) {
+                    //TODO: enable save policy when we start getting real android policies
                     /*if(!SentegrityPolicyParser.getInstance().saveNewPolicy(newPolicy)){
                         if(callback != null){
                             callback.onFinish(false, true, false);
@@ -98,15 +99,15 @@ public class SentegrityNetworkManager {
                     }*/
 
 
-                    if(callback != null){
-                        if(newPolicy.getAllowPrivateAPIs() == 1){
+                    if (callback != null) {
+                        if (newPolicy.getAllowPrivateAPIs() == 1) {
                             //TODO: allow apis? standard user defaults?
                             //allow private APIs
                         }
                         callback.onFinish(true, true, true);
                     }
-                }else{
-                    if(callback != null){
+                } else {
+                    if (callback != null) {
                         callback.onFinish(true, true, false);
                     }
                 }

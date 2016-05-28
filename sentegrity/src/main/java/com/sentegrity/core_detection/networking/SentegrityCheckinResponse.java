@@ -6,7 +6,7 @@ import com.sentegrity.core_detection.policy.SentegrityPolicy;
 /**
  * Created by dmestrov on 24/05/16.
  */
-public class SentegrityNetworkResponse {
+public class SentegrityCheckinResponse {
 
     @SerializedName("data")
     private Data data;

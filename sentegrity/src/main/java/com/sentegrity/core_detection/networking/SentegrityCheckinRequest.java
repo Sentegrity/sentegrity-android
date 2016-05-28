@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by dmestrov on 24/05/16.
  */
-public class SentegrityNetworkRequest {
+public class SentegrityCheckinRequest {
 
     @SerializedName("email")
     private String email;
@@ -29,11 +29,13 @@ public class SentegrityNetworkRequest {
     @SerializedName("runHistoryObjects")
     private List<SentegrityHistoryObject> runHistoryObjects;
 
-    public SentegrityNetworkRequest(SentegrityStartup startup, SentegrityPolicy policy){
+    public SentegrityCheckinRequest(SentegrityStartup startup, SentegrityPolicy policy){
+        //TODO: remove this
         if(TextUtils.isEmpty(startup.getEmail()))
             this.email = "";
         else
             this.email = "jason@sentegrity.com";//startup.getEmail();
+
         this.deviceSalt = startup.getDeviceSaltString();
         this.policyID = policy.getPolicyID();
         this.policyRevision = policy.getRevision() + "";

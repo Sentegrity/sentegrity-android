@@ -17,9 +17,11 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 /**
  * Created by dmestrov on 24/05/16.
  */
-public class SentegrityHTTPSessionManager {
+public class SentegrityRestClient {
 
     private static final String CONTENT_TYPE = "application/json";
+    private static final String URL = "https://cloud.sentegrity.com/app_dev.php/";
+
     private static AsyncHttpClient client;
 
     private static void initClient(Context context) {
@@ -29,19 +31,6 @@ public class SentegrityHTTPSessionManager {
                 client.setConnectTimeout(10000);
                 client.setResponseTimeout(10000);
                 client.setMaxRetriesAndTimeout(5, 1000);
-
-                /*final KeyStore keyStore;
-                keyStore = KeyStore.getInstance("BKS");
-
-                final InputStream inputStream = context.getResources().openRawResource(R.raw.certs);
-
-                keyStore.load(inputStream, context.getString(R.string.store_pass).toCharArray());
-
-                String algorithm = TrustManagerFactory.getDefaultAlgorithm();
-                TrustManagerFactory tmf = TrustManagerFactory.getInstance(algorithm);
-                tmf.init(keyStore);
-                SSLContext sslContext = SSLContext.getInstance("TLS");
-                sslContext.init(null, tmf.getTrustManagers(), null);*/
 
                 client.setSSLSocketFactory(getSSLSocketFactory(context));
 
@@ -53,6 +42,22 @@ public class SentegrityHTTPSessionManager {
     }
 
     private static SSLSocketFactory getSSLSocketFactory(Context context) {
+
+        /*
+        update when async http gets updated
+        final KeyStore keyStore;
+        keyStore = KeyStore.getInstance("BKS");
+
+        final InputStream inputStream = context.getResources().openRawResource(R.raw.certs);
+
+        keyStore.load(inputStream, context.getString(R.string.store_pass).toCharArray());
+
+        String algorithm = TrustManagerFactory.getDefaultAlgorithm();
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(algorithm);
+        tmf.init(keyStore);
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, tmf.getTrustManagers(), null);*/
+
         SSLSocketFactory ret = null;
         try {
             final KeyStore ks = KeyStore.getInstance("BKS");
@@ -74,7 +79,7 @@ public class SentegrityHTTPSessionManager {
             initClient(context);
 
             StringEntity entity = new StringEntity(new Gson().toJson(object));
-            client.post(context, getUrl(), entity, CONTENT_TYPE, new TextHttpResponseHandler() {
+            client.post(context, getUrlForService("checkin"), entity, CONTENT_TYPE, new TextHttpResponseHandler() {
                 @Override
                 public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                     callback.onFinish(false, null);
@@ -86,35 +91,12 @@ public class SentegrityHTTPSessionManager {
                 }
             });
 
-
-            /*OutputStreamWriter outputStreamWriter = new OutputStreamWriter(urlConnection.getOutputStream());
-            outputStreamWriter.write(jsonObject.toString());
-            outputStreamWriter.flush();
-
-            StringBuilder sb = new StringBuilder();
-            int HttpResult = urlConnection.getResponseCode();
-            if (HttpResult == HttpURLConnection.HTTP_OK) {
-                BufferedReader br = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), "utf-8"));
-                String line = null;
-                while ((line = br.readLine()) != null) {
-                    sb.append(line + "\n");
-                }
-                br.close();
-
-                System.out.println("" + sb.toString());
-            } else {
-                System.out.println(urlConnection.getResponseMessage());
-            }
-
-            outputStreamWriter.close();
-            inputStream.close();*/
-
         } catch (Exception ex) {
         } finally {
         }
     }
 
-    private static String getUrl(){
-        return "https://cloud.sentegrity.com/app_dev.php/checkin";
+    private static String getUrlForService(String service) {
+        return URL + service;
     }
 }
