@@ -32,7 +32,6 @@ import com.sentegrity.core_detection.result_analysis.SentegrityResultAnalysis;
 import com.sentegrity.core_detection.startup.SentegrityStartup;
 import com.sentegrity.core_detection.startup.SentegrityStartupStore;
 import com.sentegrity.core_detection.transparent_authentication.SentegrityTransparentAuthentication;
-import com.sentegrity.core_detection.utilities.KeyValueStorage;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,26 +43,18 @@ import java.util.List;
  */
 public class CoreDetection {
 
-    private static final String STORAGE_NAME = "CoreDetection";
-    private static final int STORAGE_MODE = Context.MODE_PRIVATE;
-
     private final Context context;
 
     private static CoreDetection sInstance;
-
-    private SentegrityPolicy currentPolicy;
 
     private SentegrityTrustScoreComputation computationResult;
 
     private CoreDetectionCallback coreDetectionCallback;
 
-    private KeyValueStorage keyValueStorage;
-
     private SentegrityActivityDispatcher activityDispatcher;
 
     private CoreDetection(Context context) {
         this.context = context;
-        keyValueStorage = new KeyValueStorage(context.getSharedPreferences(STORAGE_NAME, STORAGE_MODE));
         reset();
     }
 
@@ -84,10 +75,6 @@ public class CoreDetection {
         } else {
             Log.d("coreDetection", "Core Detection has already been initialized");
         }
-    }
-
-    public KeyValueStorage getKeyValueStorage() {
-        return keyValueStorage;
     }
 
     public SentegrityPolicy parsePolicy(String policyName) {
@@ -218,9 +205,9 @@ public class CoreDetection {
                     error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No startup file received").setRecoverySuggestion("Try validating the startup file"));
 
                     Logger.INFO("Perform Core Detection Unsuccessful", error);
+                }else {
+                    startup.setRunCount(startup.getRunCount() + 1);
                 }
-
-                startup.setRunCount(startup.getRunCount() + 1);
 
                 SentegrityStartupStore.getInstance().setCurrentState("Starting Core Detection");
 

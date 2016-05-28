@@ -640,8 +640,8 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
             cloudScanClient = new CloudScanClient.Builder().setContext(SentegrityTrustFactorDatasets.getInstance().context)
                     .setToken(SentegrityConstants.TRUSTLOOK_CLIENT_ID)
                     .setRegion(Region.INTL)
-                    .setConnectionTimeout(2000)
-                    .setSocketTimeout(2000)
+                    .setConnectionTimeout(3000)
+                    .setSocketTimeout(3000)
                     .build();
         }
         return cloudScanClient;
