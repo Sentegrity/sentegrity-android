@@ -131,16 +131,17 @@ public class CoreDetection {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             activityDispatcher.startLocation();
-            startCoreDetection(policy, callback);
             return;
         }
+        //we start core detection in background, and just ask user for permission to use location
+        startCoreDetection(policy, callback);
 
         final String[] permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
         MultiplePermissionsListener listener = new MultiplePermissionsListener() {
             @Override
             public void onPermissionsChecked(MultiplePermissionsReport report) {
-                activityDispatcher.startLocation();
-                startCoreDetection(policy, callback);
+                //activityDispatcher.startLocation();
+                //startCoreDetection(policy, callback);
             }
 
             @Override
@@ -148,8 +149,9 @@ public class CoreDetection {
                 //we should use either one of these
                 //depending on do we want to wait for permission or just continue
                 //token.continuePermissionRequest();
-                activityDispatcher.startLocation();
-                startCoreDetection(policy, callback);
+
+                //activityDispatcher.startLocation();
+                //startCoreDetection(policy, callback);
             }
         };
         if (!Dexter.isRequestOngoing())

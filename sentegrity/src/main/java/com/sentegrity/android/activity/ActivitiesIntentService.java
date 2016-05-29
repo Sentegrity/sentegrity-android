@@ -59,7 +59,6 @@ public class ActivitiesIntentService extends IntentService {
             //TODO: remove if not in debug
             Handler handler = new Handler(Looper.getMainLooper());
             handler.post(new Runnable() {
-
                 @Override
                 public void run() {
                     Toast.makeText(getApplicationContext(), getDetectedActivity(lastActivity), Toast.LENGTH_SHORT).show();
