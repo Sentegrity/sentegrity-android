@@ -41,8 +41,12 @@ import com.sentegrity.core_detection.utilities.Helpers;
 import com.stericson.RootShell.RootShell;
 import com.trustlook.sdk.cloudscan.CloudScanClient;
 import com.trustlook.sdk.cloudscan.ScanResult;
+import com.trustlook.sdk.cloudscan.URLScanClient;
 import com.trustlook.sdk.data.*;
 import com.trustlook.sdk.data.Error;
+import com.trustlook.sdk.urlscan.CatType;
+import com.trustlook.sdk.urlscan.CategoryType;
+import com.trustlook.sdk.urlscan.UrlScanResult;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -59,6 +63,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
 
     private Context context;
     private CloudScanClient cloudScanClient;
+    private URLScanClient urlScanClient;
 
     public SentegrityActivityDispatcher(Context context) {
         if (context == null) {
@@ -86,7 +91,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         startMotion();
         startCellularSignal();
         startRootCheck();
-        startPkgCollection();
+        startTrustLookAVScan();
     }
 
     /**
@@ -122,6 +127,8 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
 
                 SentegrityTrustFactorDatasets.getInstance().setNetstatDataDNEStatus(DNEStatusCode.OK);
                 SentegrityTrustFactorDatasets.getInstance().setNetstatData(tcpNetstatData);
+
+                //startTrustLookURLScan();
             }
         }.start();
     }
@@ -519,9 +526,11 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
     }
 
     /**
-     * Starts package collection for TrustLook scan
+     * Starts TrustLook apps scan
+     * It'll first collect installed app packages and create needed data (i.e. md5) or get it from local storage.
+     * After that, if there were newly installed apps, we'll check them online with TrustLook scan.
      */
-    public void startPkgCollection() {
+    public void startTrustLookAVScan() {
         new Thread() {
             @Override
             public void run() {
@@ -631,6 +640,31 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
     }
 
     /**
+     * Starts TrustLook URL scan
+     */
+    public void startTrustLookURLScan(){
+        new Thread() {
+            @Override
+            public void run() {
+                Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+
+                UrlScanResult result = getURLScanClient().urlScan("");
+                if(result.isSuccess()){
+                    if(result.getUrlCategory().getType() == CatType.Malware){
+
+                    }
+                }else{
+                    int errorCode = result.getError();
+                    if(errorCode == Error.NETWORK_ERROR){
+
+                    }
+                    SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgListDNEStatus(DNEStatusCode.ERROR);
+                }
+            }
+        }.start();
+    }
+
+    /**
      * Creates Cloud Scan Client for TrustLook implementation (online antivirus check)
      *
      * @return cloudScanClient instance
@@ -645,6 +679,22 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                     .build();
         }
         return cloudScanClient;
+    }
+
+    /**
+     * Creates Cloud Scan Client for TrustLook implementation (online antivirus check)
+     *
+     * @return cloudScanClient instance
+     */
+    public URLScanClient getURLScanClient() {
+        if (urlScanClient == null) {
+            urlScanClient = new URLScanClient.Builder().setContext(SentegrityTrustFactorDatasets.getInstance().context)
+                    .setToken(SentegrityConstants.TRUSTLOOK_CLIENT_ID)
+                    .setConnectionTimeout(2000)
+                    .setSocketTimeout(2000)
+                    .build();
+        }
+        return urlScanClient;
     }
 
     /**

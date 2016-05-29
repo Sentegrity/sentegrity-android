@@ -35,8 +35,8 @@ public class TrustFactorDispatchNetstat {
 
         List<ActiveConnection> connections = SentegrityTrustFactorDatasets.getInstance().getNetstatData();
 
-        if (SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus() != DNEStatusCode.OK) {
-            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus());
+        if (SentegrityTrustFactorDatasets.getInstance().getNetstatDataDNEStatus() != DNEStatusCode.OK) {
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getNetstatDataDNEStatus());
             return output;
         }
 

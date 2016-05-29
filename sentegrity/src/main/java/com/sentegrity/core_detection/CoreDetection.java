@@ -126,7 +126,7 @@ public class CoreDetection {
         activityDispatcher.startMotion();
         activityDispatcher.startNetstat();
         activityDispatcher.startRootCheck();
-        activityDispatcher.startPkgCollection();
+        activityDispatcher.startTrustLookAVScan();
 
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {

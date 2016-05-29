@@ -124,6 +124,7 @@ public class SentegrityTrustFactorDatasets {
     private DNEStatusCode ambientLightDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode rootDetectionDNEStatus = DNEStatusCode.OK;
     private DNEStatusCode trustLookBadPkgListDNEStatus = DNEStatusCode.OK;
+    private DNEStatusCode trustLookBadURLListDNEStatus = DNEStatusCode.OK;
 
     private List<MagneticObject> magneticHeading;
     private List<GyroRadsObject> gyroRads;
@@ -134,6 +135,7 @@ public class SentegrityTrustFactorDatasets {
     private List<ApplicationInfo> installedApps;
     private List<Integer> ambientLightData;
     private List<AppInfo> trustLookBadPkgList;
+    private List<String> trustLookBadURLList;
 
     private WifiManager wifiManager;
     private TelephonyManager telephonyManager;
@@ -156,6 +158,7 @@ public class SentegrityTrustFactorDatasets {
         cellularSignalDNEStatus = DNEStatusCode.OK;
         rootDetectionDNEStatus = DNEStatusCode.OK;
         trustLookBadPkgListDNEStatus = DNEStatusCode.OK;
+        trustLookBadURLListDNEStatus = DNEStatusCode.OK;
 
         //testMethod();
         updateWifiManager();
@@ -173,6 +176,7 @@ public class SentegrityTrustFactorDatasets {
         routeData = null;
         ambientLightData = null;
         trustLookBadPkgList = null;
+        trustLookBadURLList = null;
 
         pairedBTDevices = null;
         scannedBTDevices = null;
@@ -274,6 +278,10 @@ public class SentegrityTrustFactorDatasets {
         return trustLookBadPkgListDNEStatus;
     }
 
+    public DNEStatusCode getTrustLookBadURLListDNEStatus(){
+        return trustLookBadURLListDNEStatus;
+    }
+
     public void setPairedBTDNEStatus(DNEStatusCode pairedBTDNEStatus) {
         this.pairedBTDNEStatus = pairedBTDNEStatus;
     }
@@ -322,6 +330,10 @@ public class SentegrityTrustFactorDatasets {
         this.trustLookBadPkgListDNEStatus = trustLookBadPkgListDNEStatus;
     }
 
+    public void setTrustLookBadURLListDNEStatus(DNEStatusCode trustLookBadURLListDNEStatus){
+        this.trustLookBadURLListDNEStatus = trustLookBadURLListDNEStatus;
+    }
+
     public void setScannedBTDevices(Set<String> scannedBTDevices) {
         this.scannedBTDevices = scannedBTDevices;
     }
@@ -364,6 +376,10 @@ public class SentegrityTrustFactorDatasets {
 
     public void setTrustLookBadPkgList(List<AppInfo> trustLookBadPkgList){
         this.trustLookBadPkgList = trustLookBadPkgList;
+    }
+
+    public void setTrustLookBadURLList(List<String> trustLookBadURLList){
+        this.trustLookBadURLList = trustLookBadURLList;
     }
 
     public void setRootDetection(RootDetection rootDetection) {
@@ -1539,6 +1555,37 @@ public class SentegrityTrustFactorDatasets {
             return trustLookBadPkgList;
         }
         return trustLookBadPkgList;
+    }
+
+    /**
+     * Waits for TrustLook URL list
+     * This list can be empty
+     *
+     * @return list of bad URL data, {@code null} if expired or not available
+     */
+    public List<String> getTrustLookBadURLList() {
+        if (trustLookBadURLList == null) {
+            if (getTrustLookBadURLListDNEStatus() == DNEStatusCode.EXPIRED)
+                return trustLookBadURLList;
+
+            long startTime = System.currentTimeMillis();
+            long currentTime = startTime;
+            float waitTime = 200;
+
+            while ((currentTime - startTime) < waitTime) {
+                if (trustLookBadURLList != null)
+                    return trustLookBadURLList;
+                try {
+                    Thread.sleep(50);
+                } catch (InterruptedException e) {
+                }
+                currentTime = System.currentTimeMillis();
+            }
+
+            setTrustLookBadURLListDNEStatus(DNEStatusCode.NO_DATA);
+            return trustLookBadURLList;
+        }
+        return trustLookBadURLList;
     }
 
     public SharedPreferences getSharedPrefs(){
