@@ -22,7 +22,7 @@ public class ActivitiesIntentService extends IntentService {
 
     private static final String TAG = "ActivitiesIntentService";
 
-    private static final long LOG_HISTORY_TIME = 24 * 60 * 60 * 1000; //keep history for 24 hours
+    private static final long LOG_HISTORY_TIME = 1 * 15 * 60 * 1000; //keep history for 15 minutes
 
     public ActivitiesIntentService() {
         super(TAG);
@@ -54,17 +54,6 @@ public class ActivitiesIntentService extends IntentService {
 
             sp.edit().putString("activities", newValue).apply();
             sp.edit().putInt("lastActivity", detectedActivities.get(0).getType()).apply();
-
-
-            //TODO: remove if not in debug
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    Toast.makeText(getApplicationContext(), getDetectedActivity(lastActivity), Toast.LENGTH_SHORT).show();
-                }
-            });
-
         }
     }
 
@@ -95,7 +84,7 @@ public class ActivitiesIntentService extends IntentService {
             case DetectedActivity.TILTING:
                 return "tilting";
             case DetectedActivity.UNKNOWN:
-                return "unkown";
+                return "unknown";
             default:
                 return "undefined_" + detectedActivityType;
         }

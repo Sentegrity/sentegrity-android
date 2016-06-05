@@ -1,13 +1,20 @@
 package com.sentegrity.core_detection;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.ActivityRecognition;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.karumi.dexter.Dexter;
@@ -15,6 +22,7 @@ import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.sentegrity.android.activity.ActivitiesIntentService;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorStore;
 import com.sentegrity.core_detection.baseline_analysis.SentegrityBaselineAnalysis;
@@ -41,7 +49,7 @@ import java.util.List;
 /**
  * Created by dmestrov on 20/03/16.
  */
-public class CoreDetection {
+public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private static final String STORAGE_NAME = "CoreDetection";
     private static final int STORAGE_MODE = Context.MODE_PRIVATE;
@@ -59,6 +67,8 @@ public class CoreDetection {
     private KeyValueStorage keyValueStorage;
 
     private SentegrityActivityDispatcher activityDispatcher;
+
+    private GoogleApiClient googleApiClient;
 
     private CoreDetection(Context context) {
         this.context = context;
@@ -80,6 +90,13 @@ public class CoreDetection {
             SentegrityTrustFactorStore.initialize(context);
             SentegrityStartupStore.initialize(context);
             SentegrityTrustFactorDatasets.initialize(context);
+
+            sInstance.googleApiClient = new GoogleApiClient.Builder(context)
+                    .addConnectionCallbacks(sInstance)
+                    .addOnConnectionFailedListener(sInstance)
+                    .addApi(ActivityRecognition.API)
+                    .build();
+            sInstance.googleApiClient.connect();
 
             //sInstance.startCoreDetectionActivities();
         } else {
@@ -348,4 +365,34 @@ public class CoreDetection {
         //startCoreDetectionActivities();
     }
 
+    @Override
+    public void onConnected(Bundle bundle) {
+        requestActivityUpdates();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        if (googleApiClient != null)
+            googleApiClient.connect();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+    }
+
+    public void requestActivityUpdates() {
+        if (!googleApiClient.isConnected()) {
+            Toast.makeText(context, "GoogleApiClient not yet connected. (somehow!?)", Toast.LENGTH_SHORT).show();
+        } else {
+            //first remove (maybe it was running from before
+            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(googleApiClient, getActivityDetectionPendingIntent());
+            //then run every 5 minutes
+            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(googleApiClient, 5 * 60 * 1000, getActivityDetectionPendingIntent());
+        }
+    }
+    private PendingIntent getActivityDetectionPendingIntent() {
+        Intent intent = new Intent(context, ActivitiesIntentService.class);
+
+        return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
 }

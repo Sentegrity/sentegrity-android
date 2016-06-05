@@ -27,37 +27,16 @@ import com.sentegrity.core_detection.policy.SentegrityPolicy;
 import com.sentegrity.core_detection.protect_mode.ProtectMode;
 import com.sentegrity.core_detection.startup.SentegrityStartupStore;
 
-public class LoginActivity extends Activity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class LoginActivity extends Activity {
 
     private SentegrityTrustScoreComputation computationResults;
-    private GoogleApiClient mGoogleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(ActivityRecognition.API)
-                .build();
-
         startAnalyzing();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
     }
 
     private void startAnalyzing() {
@@ -213,41 +192,6 @@ public class LoginActivity extends Activity implements GoogleApiClient.Connectio
                 finishAffinity();
             }
         });
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        requestActivityUpdates();
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        if (mGoogleApiClient != null)
-            mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
-    }
-
-    public void requestActivityUpdates() {
-        if (!mGoogleApiClient.isConnected()) {
-            Toast.makeText(this, "GoogleApiClient not yet connected", Toast.LENGTH_SHORT).show();
-        } else {
-            removeActivityUpdates();
-            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(mGoogleApiClient, 1000 * 90, getActivityDetectionPendingIntent());
-        }
-    }
-
-    public void removeActivityUpdates() {
-        ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(mGoogleApiClient, getActivityDetectionPendingIntent());
-    }
-
-    private PendingIntent getActivityDetectionPendingIntent() {
-        Intent intent = new Intent(this, ActivitiesIntentService.class);
-
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private interface OnLoginListener {
