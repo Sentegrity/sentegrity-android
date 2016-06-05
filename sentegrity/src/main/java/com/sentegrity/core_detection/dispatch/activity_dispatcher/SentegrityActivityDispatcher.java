@@ -649,7 +649,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
             public void run() {
                 Thread.currentThread().setPriority(Thread.NORM_PRIORITY);*/
 
-        List<String> ipList = new ArrayList<>();
+        HashSet<String> ipList = new HashSet<>();
         for(ActiveConnection c : connections){
             if(c.isListening() || c.isLoopBack() || TextUtils.isEmpty(c.remoteIp) || (TextUtils.equals(c.localIp, "0.0.0.0") || (TextUtils.equals(c.localIp, "::"))))
                 continue;
@@ -661,7 +661,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
             SharedPreferences sp = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
             String cachedListJson = sp.getString("cachedURLList", null);
 
-                UrlScanResult result = getURLScanClient().urlScan("https://www.bug.hr/");
+                /*UrlScanResult result = getURLScanClient().urlScan("https://www.bug.hr/");
                 if(result.isSuccess()){
                     if(result.getUrlCategory().getType() == CatType.Malware){
 
@@ -672,7 +672,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
 
                     }
                     SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgListDNEStatus(DNEStatusCode.ERROR);
-                }
+                }*/
         //    }
         //}.start();
     }
