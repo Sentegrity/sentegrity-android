@@ -36,6 +36,7 @@ import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.GyroRad
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.MagneticObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.PitchRollObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDetection;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.trustlook.URLInfo;
 import com.sentegrity.core_detection.logger.Logger;
 import com.sentegrity.core_detection.utilities.Helpers;
 import com.stericson.RootShell.RootShell;
@@ -128,7 +129,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 SentegrityTrustFactorDatasets.getInstance().setNetstatDataDNEStatus(DNEStatusCode.OK);
                 SentegrityTrustFactorDatasets.getInstance().setNetstatData(tcpNetstatData);
 
-                //startTrustLookURLScan();
+                startTrustLookURLScan(tcpNetstatData);
             }
         }.start();
     }
@@ -642,13 +643,25 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
     /**
      * Starts TrustLook URL scan
      */
-    public void startTrustLookURLScan(){
-        new Thread() {
+    public void startTrustLookURLScan(List<ActiveConnection> connections){
+        /*new Thread() {
             @Override
             public void run() {
-                Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+                Thread.currentThread().setPriority(Thread.NORM_PRIORITY);*/
 
-                UrlScanResult result = getURLScanClient().urlScan("");
+        List<String> ipList = new ArrayList<>();
+        for(ActiveConnection c : connections){
+            if(c.isListening() || c.isLoopBack() || TextUtils.isEmpty(c.remoteIp) || (TextUtils.equals(c.localIp, "0.0.0.0") || (TextUtils.equals(c.localIp, "::"))))
+                continue;
+            ipList.add(c.remoteIp);
+        }
+
+            List<URLInfo> urlInfos = new ArrayList<>();
+
+            SharedPreferences sp = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
+            String cachedListJson = sp.getString("cachedURLList", null);
+
+                UrlScanResult result = getURLScanClient().urlScan("https://www.bug.hr/");
                 if(result.isSuccess()){
                     if(result.getUrlCategory().getType() == CatType.Malware){
 
@@ -660,8 +673,8 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                     }
                     SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgListDNEStatus(DNEStatusCode.ERROR);
                 }
-            }
-        }.start();
+        //    }
+        //}.start();
     }
 
     /**

@@ -79,6 +79,11 @@ public class SentegrityTrustFactorDatasetNetstat {
                 continue;
 
             connection.localIp = localInetAddress.getHostAddress();
+
+//            if(TextUtils.equals(connection.localIp, "0.0.0.0") || TextUtils.equals(connection.localIp, "::")){
+//                continue;
+//            }
+
             connection.localPort = getPort(list[1]);
             connection.isLoopBack = localInetAddress.isLoopbackAddress();
 
@@ -87,6 +92,10 @@ public class SentegrityTrustFactorDatasetNetstat {
                 if(remoteInetAddress != null){
 
                     connection.remoteIp = remoteInetAddress.getHostAddress();
+
+//                    if(TextUtils.equals(connection.localIp, "0.0.0.0") || TextUtils.equals(connection.localIp, "::")){
+//                        continue;
+//                    }
                     //we'll go with ip address instead of host name - this requires to go online and check it... it can take a while
                     //connection.remoteHost = remoteInetAddress.getHostName();
                     connection.remotePort = getPort(list[2]);

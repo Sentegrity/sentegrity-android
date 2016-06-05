@@ -128,14 +128,14 @@ public class CoreDetection {
         activityDispatcher.startRootCheck();
         activityDispatcher.startTrustLookAVScan();
 
+        //we start core detection in background, and just ask user for permission to use location
+        startCoreDetection(policy, callback);
+
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             activityDispatcher.startLocation();
             return;
         }
-        //we start core detection in background, and just ask user for permission to use location
-        startCoreDetection(policy, callback);
-
         final String[] permissions = new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION};
         MultiplePermissionsListener listener = new MultiplePermissionsListener() {
             @Override

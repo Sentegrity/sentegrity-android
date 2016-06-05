@@ -36,5 +36,5 @@ dependencies {
     compile 'commons-io:commons-io:2.4'
     compile 'com.jaredrummler:android-processes:1.0.8'
     compile 'com.loopj.android:android-async-http:1.4.9'
-    compile files('libs/cloudscan_sdk_2.0.3.jar')
+    compile files('libs/cloudscan_sdk_2.0.5.jar')
 }
