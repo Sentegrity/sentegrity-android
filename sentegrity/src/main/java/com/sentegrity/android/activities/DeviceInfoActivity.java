@@ -45,26 +45,26 @@ public class DeviceInfoActivity extends InformationActivity {
         }
 
 
-        if(computationResult.getSystemGUIIssues() != null && computationResult.getSystemGUIIssues().size() > 0){
+        if(computationResult.getSystemIssues() != null && computationResult.getSystemIssues().size() > 0){
             infoHolder.addView(createInfo("Issues", InfoType.TITLE));
 
-            for(String issue : computationResult.getSystemGUIIssues()){
+            for(String issue : computationResult.getSystemIssues()){
                 infoHolder.addView(createInfo(issue, InfoType.FAIL));
             }
             infoHolder.addView(createInfo("", InfoType.TITLE));
         }
-        if(computationResult.getSystemGUISuggestions() != null && computationResult.getSystemGUISuggestions().size() > 0){
+        if(computationResult.getSystemSuggestions() != null && computationResult.getSystemSuggestions().size() > 0){
             infoHolder.addView(createInfo("Suggestion", InfoType.TITLE));
 
-            for(String suggestion : computationResult.getSystemGUISuggestions()){
+            for(String suggestion : computationResult.getSystemSuggestions()){
                 infoHolder.addView(createInfo(suggestion, InfoType.SUCCESS));
             }
             infoHolder.addView(createInfo("", InfoType.TITLE));
         }
-        if(computationResult.getSystemGUIAnalysis() != null && computationResult.getSystemGUIAnalysis().size() > 0){
+        if(computationResult.getSystemAnalysisResults() != null && computationResult.getSystemAnalysisResults().size() > 0){
             infoHolder.addView(createInfo("Analysis", InfoType.TITLE));
 
-            for(String analysis : computationResult.getSystemGUIAnalysis()){
+            for(String analysis : computationResult.getSystemAnalysisResults()){
                 infoHolder.addView(createInfo(analysis, analysis.contains("complete") ? InfoType.SUCCESS : InfoType.FAIL));
             }
             infoHolder.addView(createInfo("", InfoType.TITLE));

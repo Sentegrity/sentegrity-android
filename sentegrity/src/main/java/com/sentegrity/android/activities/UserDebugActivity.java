@@ -18,7 +18,7 @@ public class UserDebugActivity extends DebugActivity {
     }
 
     @Override
-    protected String getAcivityTitle() {
+    protected String getActivityTitle() {
         return "User Debug";
     }
 
@@ -59,7 +59,7 @@ public class UserDebugActivity extends DebugActivity {
 
         String userTrustFactorsToWhitelist = "\nTrustFactors To Whitelist\n+++++++++++++++++++++++++++\n";
 
-        for(SentegrityTrustFactorOutput output : computationResult.getProtectModeUserWhitelist()){
+        for(SentegrityTrustFactorOutput output : computationResult.getUserTrustFactorWhitelist()){
             String storedAssertions = "";
             String currentAssertions = "";
 
@@ -90,7 +90,7 @@ public class UserDebugActivity extends DebugActivity {
 
         String userTrustFactorsNotLearned = "\nTrustFactors Not Learned\n+++++++++++++++++++++++++++\n";
 
-        for(SentegrityTrustFactorOutput output : computationResult.getProtectModeUserWhitelist()){
+        for(SentegrityTrustFactorOutput output : computationResult.getUserTrustFactorsNotLearned()){
             String storedAssertions = "";
             String currentAssertions = "";
 
@@ -120,14 +120,14 @@ public class UserDebugActivity extends DebugActivity {
         for(SentegrityTrustFactorOutput output : computationResult.getUserTrustFactorsWithErrors()){
 
             userTrustFactorsWithError += "--Name: " + output.getTrustFactor().getName().toUpperCase() + "\n"
-                    + "DNE: " + output.getStatusCode().getId() + " (" + output.getStatusCode() + ")" + "\n\n";
+                    + "DNE: " + output.getStatusCode() + " (" + output.getStatusCode() + ")" + "\n\n";
         }
 
         complete += userTrustFactorsWithError;
 
         String userTrustFactorsForTransparentAuth = "\nTrustFactors For Transparent Auth\n+++++++++++++++++++++++++++\n";
 
-        for(SentegrityTrustFactorOutput output : computationResult.getTransparentAuthenticationTrustFactors()){
+        for(SentegrityTrustFactorOutput output : computationResult.getTransparentAuthenticationTrustFactorOutputs()){
             String currentAssertions = "";
 
             for(SentegrityStoredAssertion currentAssertion : output.getCandidateAssertionObjects()){

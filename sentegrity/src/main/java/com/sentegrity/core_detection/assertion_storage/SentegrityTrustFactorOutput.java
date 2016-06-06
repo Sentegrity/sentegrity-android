@@ -1,7 +1,10 @@
 package com.sentegrity.core_detection.assertion_storage;
 
 import com.sentegrity.core_detection.constants.DNEStatusCode;
+import com.sentegrity.core_detection.constants.SentegrityConstants;
 import com.sentegrity.core_detection.policy.SentegrityTrustFactor;
+import com.sentegrity.core_detection.startup.SentegrityStartup;
+import com.sentegrity.core_detection.startup.SentegrityStartupStore;
 import com.sentegrity.core_detection.utilities.Helpers;
 
 import java.util.ArrayList;
@@ -21,7 +24,7 @@ public class SentegrityTrustFactorOutput {
     private List<SentegrityStoredAssertion> candidateAssertionObjectsForWhitelisting;
     private List<SentegrityStoredAssertion> candidateAssertionObjects;
 
-    private DNEStatusCode statusCode;
+    private int statusCode;
 
     private boolean matchFound;
     private boolean forComputation;
@@ -58,7 +61,7 @@ public class SentegrityTrustFactorOutput {
         this.candidateAssertionObjects = candidateAssertionObjects;
     }
 
-    public void setStatusCode(DNEStatusCode statusCode) {
+    public void setStatusCode(int statusCode) {
         this.statusCode = statusCode;
     }
 
@@ -106,7 +109,7 @@ public class SentegrityTrustFactorOutput {
         return candidateAssertionObjects != null ? candidateAssertionObjects : new ArrayList<SentegrityStoredAssertion>();
     }
 
-    public DNEStatusCode getStatusCode() {
+    public int getStatusCode() {
         return statusCode;
     }
 
@@ -131,13 +134,18 @@ public class SentegrityTrustFactorOutput {
     }
 
 
-    public void setAssertionObjectsFromOutputWithDeviceSalt(String deviceSalt){
+    public void setAssertionObjectsFromOutputWithDeviceSalt(){
         List<SentegrityStoredAssertion> assertions = new ArrayList<>();
+
+        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupStore();
+        if(startup == null){
+            return;
+        }
 
         for(String trustFactorOutput : getOutput()){
             SentegrityStoredAssertion assertion = new SentegrityStoredAssertion();
 
-            String hash = Helpers.getSHA1Hash(getTrustFactor().getID() + "1234567890" + deviceSalt + trustFactorOutput) + "-" + trustFactorOutput;
+            String hash = Helpers.getSHA1Hash(getTrustFactor().getID() + SentegrityConstants.UNIQUE_DEVICE_ID + startup.getDeviceSaltString() + trustFactorOutput) + "-" + trustFactorOutput;
 
             assertion.setHash(hash);
             assertion.setLastTime(System.currentTimeMillis());

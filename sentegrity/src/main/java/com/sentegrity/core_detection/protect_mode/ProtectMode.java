@@ -55,7 +55,7 @@ public class ProtectMode {
     }
 
     private boolean whitelistAttributingTrustFactorOutput(){
-        SentegrityAssertionStore localStore = SentegrityTrustFactorStore.getInstance().getAssertionStore(policy.getAppID());
+        SentegrityAssertionStore localStore = SentegrityTrustFactorStore.getInstance().getAssertionStore();
         if(localStore == null){
             return false;
         }
@@ -80,7 +80,7 @@ public class ProtectMode {
             }
         }
 
-        SentegrityAssertionStore localStoreOutput = SentegrityTrustFactorStore.getInstance().setAssertionStore(localStore, policy.getAppID());
+        SentegrityAssertionStore localStoreOutput = SentegrityTrustFactorStore.getInstance().setAssertionStore();
 
         if(localStoreOutput == null){
             return false;

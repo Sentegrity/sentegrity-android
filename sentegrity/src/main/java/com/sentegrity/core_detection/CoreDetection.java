@@ -35,11 +35,11 @@ import com.sentegrity.core_detection.logger.ErrorDomain;
 import com.sentegrity.core_detection.logger.Logger;
 import com.sentegrity.core_detection.logger.SentegrityError;
 import com.sentegrity.core_detection.policy.SentegrityPolicy;
+import com.sentegrity.core_detection.policy.SentegrityPolicyParser;
 import com.sentegrity.core_detection.result_analysis.SentegrityResultAnalysis;
-import com.sentegrity.core_detection.startup.SentegrityHistory;
 import com.sentegrity.core_detection.startup.SentegrityStartup;
 import com.sentegrity.core_detection.startup.SentegrityStartupStore;
-import com.sentegrity.core_detection.utilities.KeyValueStorage;
+import com.sentegrity.core_detection.transparent_authentication.SentegrityTransparentAuthentication;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,20 +51,13 @@ import java.util.List;
  */
 public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    private static final String STORAGE_NAME = "CoreDetection";
-    private static final int STORAGE_MODE = Context.MODE_PRIVATE;
-
     private final Context context;
 
     private static CoreDetection sInstance;
 
-    private SentegrityPolicy currentPolicy;
-
     private SentegrityTrustScoreComputation computationResult;
 
     private CoreDetectionCallback coreDetectionCallback;
-
-    private KeyValueStorage keyValueStorage;
 
     private SentegrityActivityDispatcher activityDispatcher;
 
@@ -72,7 +65,7 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
 
     private CoreDetection(Context context) {
         this.context = context;
-        keyValueStorage = new KeyValueStorage(context.getSharedPreferences(STORAGE_NAME, STORAGE_MODE));
+        reset();
     }
 
     public static CoreDetection getInstance() {
@@ -87,9 +80,6 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
         if (sInstance == null) {
             sInstance = new CoreDetection(context);
             Dexter.initialize(context);
-            SentegrityTrustFactorStore.initialize(context);
-            SentegrityStartupStore.initialize(context);
-            SentegrityTrustFactorDatasets.initialize(context);
 
             sInstance.googleApiClient = new GoogleApiClient.Builder(context)
                     .addConnectionCallbacks(sInstance)
@@ -102,10 +92,6 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
         } else {
             Log.d("coreDetection", "Core Detection has already been initialized");
         }
-    }
-
-    public KeyValueStorage getKeyValueStorage() {
-        return keyValueStorage;
     }
 
     public SentegrityPolicy parsePolicy(String policyName) {
@@ -133,7 +119,7 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
         }
     }
 
-    public void performCoreDetection(final SentegrityPolicy policy, final CoreDetectionCallback callback){
+    public void performCoreDetection(final CoreDetectionCallback callback){
         if (activityDispatcher == null)
             activityDispatcher = new SentegrityActivityDispatcher(context);
 
@@ -146,7 +132,7 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
         activityDispatcher.startTrustLookAVScan();
 
         //we start core detection in background, and just ask user for permission to use location
-        startCoreDetection(policy, callback);
+        startCoreDetection(callback);
 
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -158,7 +144,7 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
             @Override
             public void onPermissionsChecked(MultiplePermissionsReport report) {
                 //activityDispatcher.startLocation();
-                //startCoreDetection(policy, callback);
+                //startCoreDetection(callback);
             }
 
             @Override
@@ -166,9 +152,9 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
                 //we should use either one of these
                 //depending on do we want to wait for permission or just continue
                 //token.continuePermissionRequest();
-
+                
                 //activityDispatcher.startLocation();
-                //startCoreDetection(policy, callback);
+                //startCoreDetection(callback);
             }
         };
         if (!Dexter.isRequestOngoing())
@@ -176,7 +162,7 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
         Dexter.checkPermissions(listener, permissions);
     }
 
-    public void startCoreDetection(final SentegrityPolicy policy, final CoreDetectionCallback callback) {
+    public void startCoreDetection(final CoreDetectionCallback callback) {
 
         AsyncTask coreDetectionTask = new AsyncTask() {
 
@@ -196,6 +182,8 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
                 // set task to max priority
                 Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
+                computationResult = null;
+
                 if (callback == null) {
                     SentegrityError error = SentegrityError.NO_CALLBACK_BLOCK_PROVIDED;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
@@ -203,41 +191,42 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
 
                     Logger.INFO("Perform Core Detection Unsuccessful", error);
                     this.success = false;
-                    this.computation = new SentegrityTrustScoreComputation();
+                    this.computation = null;
                     this.error = error;
                     //processCoreDetectionResponse(new SentegrityTrustScoreComputation(), false, error);
+
                     return null;
                 }
                 coreDetectionCallback = callback;
-                if (policy == null) {
+
+                SentegrityPolicyParser.getInstance().setCurrentPolicy(null);
+
+                SentegrityPolicy policy = SentegrityPolicyParser.getInstance().getPolicy();
+
+                if (policy == null || policy.getTrustFactors() == null || policy.getTrustFactors().size() < 1) {
                     SentegrityError error = SentegrityError.CORE_DETECTION_NO_POLICY_PROVIDED;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
                     error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("An invalid policy was provided").setRecoverySuggestion("Try passing a valid policy"));
 
                     Logger.INFO("Perform Core Detection Unsuccessful", error);
                     this.success = false;
-                    this.computation = new SentegrityTrustScoreComputation();
+                    this.computation = null;
                     this.error = error;
                     //processCoreDetectionResponse(new SentegrityTrustScoreComputation(), false, error);
                     return null;
                 }
 
-                CoreDetection.this.currentPolicy = policy;
-                CoreDetection.this.coreDetectionCallback = callback;
+                SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupStore();
 
-                if (policy.getTrustFactors() == null || policy.getTrustFactors().size() < 1) {
-                    SentegrityError error = SentegrityError.NO_TRUSTFACTORS_SET_TO_ANALYZE;
-                    error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
-                    error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No trust factors found to analyze").setRecoverySuggestion("Please provide a policy with valid TrustFactors to analyze"));
+                if(startup == null){
+                    SentegrityError error = SentegrityError.INVALID_STARTUP_INSTANCE;
+                    error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
+                    error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No startup file received").setRecoverySuggestion("Try validating the startup file"));
 
                     Logger.INFO("Perform Core Detection Unsuccessful", error);
-                    this.success = false;
-                    this.computation = new SentegrityTrustScoreComputation();
-                    this.error = error;
-                    //processCoreDetectionResponse(new SentegrityTrustScoreComputation(), false, error);
-                    return null;
+                }else {
+                    startup.setRunCount(startup.getRunCount() + 1);
                 }
-
 
                 SentegrityStartupStore.getInstance().setCurrentState("Starting Core Detection");
 
@@ -249,13 +238,16 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
 
                     Logger.INFO("Perform Core Detection Unsuccessful", error);
                     this.success = false;
-                    this.computation = new SentegrityTrustScoreComputation();
+                    this.computation = null;
                     this.error = error;
                     //processCoreDetectionResponse(new SentegrityTrustScoreComputation(), false, error);
                     return null;
                 }
 
+                SentegrityStartupStore.getInstance().setCurrentState("Performing baseline analysis");
+
                 List<SentegrityTrustFactorOutput> updatedOutputs = SentegrityBaselineAnalysis.performBaselineAnalysis(outputs, policy);
+
                 if (updatedOutputs == null) {
                     SentegrityError error = SentegrityError.NO_TRUSTFACTOR_OUTPUT_OBJECTS_FOR_COMPUTATION;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
@@ -263,13 +255,16 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
 
                     Logger.INFO("Perform Core Detection Unsuccessful", error);
                     this.success = false;
-                    this.computation = new SentegrityTrustScoreComputation();
+                    this.computation = null;
                     this.error = error;
                     //processCoreDetectionResponse(new SentegrityTrustScoreComputation(), false, error);
                     return null;
                 }
 
+                SentegrityStartupStore.getInstance().setCurrentState("Performing computation");
+
                 SentegrityTrustScoreComputation computationResults = SentegrityTrustScoreComputation.performTrustFactorComputation(policy, updatedOutputs);
+
                 if (computationResults == null) {
                     SentegrityError error = SentegrityError.ERROR_DURING_COMPUTATION;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
@@ -277,13 +272,16 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
 
                     Logger.INFO("Perform Core Detection Unsuccessful", error);
                     this.success = false;
-                    this.computation = new SentegrityTrustScoreComputation();
+                    this.computation = null;
                     this.error = error;
                     //processCoreDetectionResponse(new SentegrityTrustScoreComputation(), false, error);
                     return null;
                 }
 
+                SentegrityStartupStore.getInstance().setCurrentState("Performing result analysis");
+
                 computationResults = SentegrityResultAnalysis.analyzeResults(computationResults, policy);
+
                 if (computationResults == null) {
                     SentegrityError error = SentegrityError.ERROR_DURING_COMPUTATION;
                     error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
@@ -291,7 +289,39 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
 
                     Logger.INFO("Perform Core Detection Unsuccessful", error);
                     this.success = false;
-                    this.computation = new SentegrityTrustScoreComputation();
+                    this.computation = null;
+                    this.error = error;
+                    //processCoreDetectionResponse(new SentegrityTrustScoreComputation(), false, error);
+                    return null;
+                }
+
+                if(policy.getTransparentAuthEnabled() == 1 && computationResults.isShouldAttemptTransparentAuthentication()){
+                    SentegrityStartupStore.getInstance().setCurrentState("Performing transparent authentication");
+
+                    computationResults = SentegrityTransparentAuthentication.getInstance().attemptTransparentAuthentication(computationResults, policy);
+
+                    if(computationResults == null){
+                        SentegrityError error = SentegrityError.ERROR_DURING_COMPUTATION;
+                        error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
+                        error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No result analysis objects returned / Error during result analysis").setRecoverySuggestion("Check error logs for details"));
+
+                        Logger.INFO("Perform Core Detection Unsuccessful", error);
+                        this.success = false;
+                        this.computation = null;
+                        this.error = error;
+                        //processCoreDetectionResponse(new SentegrityTrustScoreComputation(), false, error);
+                        return null;
+                    }
+                }
+
+                if(computationResults.getPostAuthenticationAction() == 0 || computationResults.getPreAuthenticationAction() == 0 || computationResults.getCoreDetectionResult() == 0){
+                    SentegrityError error = SentegrityError.ERROR_DURING_COMPUTATION;
+                    error.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
+                    error.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No result analysis objects returned / Error during result analysis").setRecoverySuggestion("Check error logs for details"));
+
+                    Logger.INFO("Perform Core Detection Unsuccessful", error);
+                    this.success = false;
+                    this.computation = null;
                     this.error = error;
                     //processCoreDetectionResponse(new SentegrityTrustScoreComputation(), false, error);
                     return null;
@@ -309,39 +339,23 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
 
             @Override
             protected void onPostExecute(Object o) {
-                processCoreDetectionResponse(computation, success, error);
+                coreDetectionResponse(computation, success, error);
             }
         };
 
         coreDetectionTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
-
     }
 
-    private void processCoreDetectionResponse(SentegrityTrustScoreComputation computationResult, boolean success, SentegrityError error) {
-        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupData();
-
-        SentegrityHistory history = new SentegrityHistory();
-        history.setDeviceScore(computationResult.getSystemScore());
-        history.setTrustScore(computationResult.getDeviceScore());
-        history.setUserScore(computationResult.getUserScore());
-        history.setDeviceIssues(computationResult.getSystemGUIIssues());
-        history.setTimestamp(System.currentTimeMillis());
-        history.setProtectModeAction(computationResult.getProtectModeAction());
-        history.setUserIssues(computationResult.getUserGUIIssues());
-
-        if (startup.getRunHistory() == null || startup.getRunHistory().size() < 1) {
-            List<SentegrityHistory> list = new ArrayList<>();
-            list.add(history);
-            startup.setRunHistory(list);
-        } else {
-            startup.getRunHistory().add(history);
-        }
-
-        SentegrityStartupStore.getInstance().setStartupData(startup);
-
-        if (coreDetectionCallback != null) {
+    private void coreDetectionResponse(SentegrityTrustScoreComputation computationResult, boolean success, SentegrityError error) {
+        if (coreDetectionCallback != null){
             coreDetectionCallback.onFinish(computationResult, error, success);
+        }else{
+            SentegrityError error2 = SentegrityError.ERROR_DURING_COMPUTATION;
+            error2.setDomain(ErrorDomain.CORE_DETECTION_DOMAIN);
+            error2.setDetails(new ErrorDetails().setDescription("Perform Core Detection Unsuccessful").setFailureReason("No result analysis objects returned / Error during result analysis").setRecoverySuggestion("Check error logs for details"));
+
+            Logger.INFO("Perform Core Detection Unsuccessful", error2);
         }
     }
 
@@ -361,6 +375,7 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
         SentegrityTrustFactorStore.initialize(context);
         SentegrityStartupStore.initialize(context);
         SentegrityTrustFactorDatasets.initialize(context);
+        SentegrityPolicyParser.initialize(context);
 
         //startCoreDetectionActivities();
     }

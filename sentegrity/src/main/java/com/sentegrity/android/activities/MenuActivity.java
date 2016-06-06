@@ -13,6 +13,8 @@ import android.view.View;
 import com.sentegrity.android.R;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorStore;
 import com.trustlook.sdk.cloudscan.CloudScanClient;
+import com.sentegrity.core_detection.startup.SentegrityStartup;
+import com.sentegrity.core_detection.startup.SentegrityStartupStore;
 
 import java.io.File;
 import java.util.MissingResourceException;
@@ -33,6 +35,10 @@ public abstract class MenuActivity extends Activity {
         View userDebug = findViewById(R.id.user_debug);
         if(userDebug != null)
             userDebug.setOnClickListener(listener);
+
+        View transparentDebug = findViewById(R.id.transparent_debug);
+        if(transparentDebug != null)
+            transparentDebug.setOnClickListener(listener);
 
         View systemDebug = findViewById(R.id.system_debug);
         if(systemDebug != null)
@@ -59,6 +65,9 @@ public abstract class MenuActivity extends Activity {
                 case R.id.user_debug:
                     startActivity(new Intent(MenuActivity.this, UserDebugActivity.class));
                     break;
+                case R.id.transparent_debug:
+                    startActivity(new Intent(MenuActivity.this, TransparentDebugActivity.class));
+                    break;
                 case R.id.system_debug:
                     startActivity(new Intent(MenuActivity.this, SystemDebugActivity.class));
                     break;
@@ -83,15 +92,12 @@ public abstract class MenuActivity extends Activity {
         dialogBuilder.setPositiveButton("Reset", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                File f = new File(SentegrityTrustFactorStore.getInstance().getStorePath());
-                if(!f.exists())
-                    return;
-                for(File file : f.listFiles()){
-                    if(file.getName().endsWith(".store")){
-                        file.delete();
-                    }
-                }
-
+                //TODO: is this correct way to do this? set empty startup store? who'll and how set the password
+                SentegrityStartupStore.getInstance().resetStartupStore();
+                //SentegrityStartupStore.getInstance().setCurrentStartupStore(new SentegrityStartup());
+                //SentegrityStartupStore.getInstance().setStartupStore();
+                SentegrityTrustFactorStore.getInstance().resetAssertionStore();
+                
                 //we'll also reset all the trustlook cache
                 SharedPreferences sp = getSharedPreferences("prefs", Context.MODE_PRIVATE);
                 sp.edit().putString("cachedList", "[]").apply();

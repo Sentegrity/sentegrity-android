@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
+import android.text.TextUtils;
 
 import com.sentegrity.core_detection.constants.SentegrityConstants;
 
@@ -36,7 +37,7 @@ public class BTScanner {
             public void onReceive(final Context ctx, Intent intent) {
                 String action = intent.getAction();
 
-                if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                if (TextUtils.equals(BluetoothAdapter.ACTION_STATE_CHANGED, action)) {
 
                     final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
                     callback.onStateUpdate(state);

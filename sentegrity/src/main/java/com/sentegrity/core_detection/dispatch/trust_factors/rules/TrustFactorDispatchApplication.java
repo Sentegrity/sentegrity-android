@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
@@ -48,7 +49,7 @@ public class TrustFactorDispatchApplication {
 
             for (Object badAppName : payload) {
 
-                if (badAppName.equals(appInfo.packageName)) {
+                if (TextUtils.equals((String) badAppName, appInfo.packageName)) {
 
                     if (!outputList.contains(appInfo.packageName)) {
                         outputList.add(appInfo.packageName);

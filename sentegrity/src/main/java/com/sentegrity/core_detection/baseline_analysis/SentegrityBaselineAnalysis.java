@@ -1,6 +1,7 @@
 package com.sentegrity.core_detection.baseline_analysis;
 
 import android.os.Build;
+import android.text.TextUtils;
 
 import com.sentegrity.core_detection.assertion_storage.SentegrityAssertionStore;
 import com.sentegrity.core_detection.assertion_storage.SentegrityStoredAssertion;
@@ -29,15 +30,18 @@ public class SentegrityBaselineAnalysis {
 
     public static List<SentegrityTrustFactorOutput> performBaselineAnalysis(List<SentegrityTrustFactorOutput> outputs, SentegrityPolicy policy) {
 
-        SentegrityAssertionStore assertionStore = SentegrityTrustFactorStore.getInstance().getAssertionStore(policy.getAppID());
+        SentegrityAssertionStore assertionStore = SentegrityTrustFactorStore.getInstance().getAssertionStore();
 
         if (assertionStore == null) {
-            Logger.INFO("Local store did not exist. Creating blank");
-            assertionStore = new SentegrityAssertionStore();
-            assertionStore.setAppId(policy.getAppID());
+            SentegrityError error = SentegrityError.INVALID_STARTUP_INSTANCE;
+            error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
+            error.setDetails(new ErrorDetails().setDescription("Failed to get assertion file").setFailureReason("No assertion file received").setRecoverySuggestion("Try validating the assertion file"));
+
+            Logger.INFO("Failed to Get Assertion file", error);
+            return null;
         }
 
-        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupData();
+        SentegrityStartup startup = SentegrityStartupStore.getInstance().getStartupStore();
 
         if (startup == null) {
             SentegrityError error = SentegrityError.INVALID_STARTUP_INSTANCE;
@@ -50,38 +54,39 @@ public class SentegrityBaselineAnalysis {
 
         boolean shouldWipeData = false;
 
-        if (!startup.getLastOSVersion().equals(Build.VERSION.RELEASE)) {
+        if (!TextUtils.equals(startup.getLastOSVersion(), Build.VERSION.RELEASE)) {
             shouldWipeData = true;
 
             startup.setLastOSVersion(Build.VERSION.RELEASE);
-
-            if (!SentegrityStartupStore.getInstance().setStartupData(startup)) {
-                Logger.INFO("Failed to set startup file.");
-                return null;
-            }
         }
 
         SentegrityStoredTrustFactor storedTrustFactor;
 
-        SentegrityTrustFactorOutput outputTrustFactor;
+        SentegrityTrustFactorOutput updatedTrustFactorOutput;
 
-        for (SentegrityTrustFactorOutput output : outputs) {
-            if (output == null) {
+        for (SentegrityTrustFactorOutput trustFactorOutput : outputs) {
+            if (trustFactorOutput == null) {
                 SentegrityError error = SentegrityError.INVALID_STORED_TRUST_FACTOR_OBJECTS_PROVIDED;
                 error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
                 error.setDetails(new ErrorDetails().setDescription("Failed to add trustFactorOutputObject").setFailureReason("Invalid trustFactorOutputObject passed").setRecoverySuggestion("Try passing a valid trustFactorOutputObject"));
 
                 Logger.INFO("Failed to Add TrustFactorOutputObject", error);
-                return null;
+
+                if (policy.continueOnError()) {
+                    updatedTrustFactorOutput = performBaselineAnalysis(trustFactorOutput);
+                    continue;
+                } else {
+                    return null;
+                }
             }
 
-            storedTrustFactor = assertionStore.getStoredTrustFactor(output.getTrustFactor().getID());
+            storedTrustFactor = assertionStore.getStoredTrustFactor(trustFactorOutput.getTrustFactor().getID());
 
             if (storedTrustFactor == null) {
 
                 Logger.INFO("Couldn't find stored trust factor object in local store, creating new one.");
 
-                storedTrustFactor = assertionStore.createStoredTrustFactor(output);
+                storedTrustFactor = assertionStore.createStoredTrustFactor(trustFactorOutput);
 
                 if (storedTrustFactor == null) {
                     SentegrityError error = SentegrityError.UNABLE_TO_CREATE_NEW_STORED_ASSERTION;
@@ -89,65 +94,113 @@ public class SentegrityBaselineAnalysis {
                     error.setDetails(new ErrorDetails().setDescription("No trust factor output object were able to be added").setFailureReason("Unable to create a new stored trust factor object").setRecoverySuggestion("Try passing a valid trustFactorOutputObject"));
 
                     Logger.INFO("No trust factor output object were able to be added", error);
-                    return null;
+                    if (policy.continueOnError()) {
+                        continue;
+                    } else {
+                        return null;
+                    }
                 }
 
-                output.setStoredTrustFactor(storedTrustFactor);
+                trustFactorOutput.setStoredTrustFactor(storedTrustFactor);
 
-                outputTrustFactor = performBaselineAnalysis(output);
+                updatedTrustFactorOutput = performBaselineAnalysis(trustFactorOutput);
 
-                if (outputTrustFactor == null) {
+                if (updatedTrustFactorOutput == null) {
                     SentegrityError error = SentegrityError.UNABLE_TO_PERFORM_BASE_ANALYSIS_FOR_TRUST_FACTOR;
                     error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
                     error.setDetails(new ErrorDetails().setDescription("Failed to compare").setFailureReason("Unable to perform base analysis for trust factor output object").setRecoverySuggestion("Try updating trust factor output objects"));
 
                     Logger.INFO("Failed to compare trust factor", error);
-                    return null;
+                    if (policy.continueOnError()) {
+                        continue;
+                    } else {
+                        return null;
+                    }
                 }
 
-                if (!assertionStore.addToStore(outputTrustFactor.getStoredTrustFactor())) {
+                if (!assertionStore.addToStore(updatedTrustFactorOutput.getStoredTrustFactor())) {
                     SentegrityError error = SentegrityError.NO_ASSERTIONS_ADDED_TO_STORE;
                     error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
                     error.setDetails(new ErrorDetails().setDescription("Failed to add stored trust factor objects").setFailureReason("Unable to add stored trust factor objects to the runtime local store").setRecoverySuggestion("Try providing a valid object to store"));
 
                     Logger.INFO("Failed to compare trust factor", error);
-                    return null;
+                    if (policy.continueOnError()) {
+                        continue;
+                    } else {
+                        return null;
+                    }
                 }
             } else {
-                if (!checkTrustFactorRevision(output, storedTrustFactor) || (shouldWipeData && output.getTrustFactor().isWipeOnUpdate())) {
-                    storedTrustFactor = assertionStore.createStoredTrustFactor(output);
+                if (!checkTrustFactorRevision(trustFactorOutput, storedTrustFactor) || (shouldWipeData && trustFactorOutput.getTrustFactor().isWipeOnUpdate())) {
+                    storedTrustFactor = assertionStore.createStoredTrustFactor(trustFactorOutput);
+
+                    trustFactorOutput.setStoredTrustFactor(storedTrustFactor);
+
+                    updatedTrustFactorOutput = performBaselineAnalysis(trustFactorOutput);
+
+                    if (updatedTrustFactorOutput == null) {
+                        SentegrityError error = SentegrityError.UNABLE_TO_PERFORM_BASE_ANALYSIS_FOR_TRUST_FACTOR;
+                        error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
+                        error.setDetails(new ErrorDetails().setDescription("Failed to compare").setFailureReason("Unable to perform base analysis for trust factor output object").setRecoverySuggestion("Try updating trust factor output objects"));
+
+                        Logger.INFO("Failed to compare trust factor", error);
+                        if (policy.continueOnError()) {
+                            continue;
+                        } else {
+                            return null;
+                        }
+                    }
+
+                    if (!assertionStore.replaceInStore(updatedTrustFactorOutput.getStoredTrustFactor())) {
+                        SentegrityError error = SentegrityError.NO_ASSERTIONS_ADDED_TO_STORE;
+                        error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
+                        error.setDetails(new ErrorDetails().setDescription("Failed to add stored trust factor objects").setFailureReason("Unable to add stored trust factor objects to the runtime local store").setRecoverySuggestion("Try providing a valid object to store"));
+
+                        Logger.INFO("Failed to compare trust factor", error);
+                        if (policy.continueOnError()) {
+                            continue;
+                        } else {
+                            return null;
+                        }
+                    }
+                } else {
+                    trustFactorOutput.setStoredTrustFactor(storedTrustFactor);
+                    updatedTrustFactorOutput = performBaselineAnalysis(trustFactorOutput);
+
+                    if (updatedTrustFactorOutput == null) {
+                        SentegrityError error = SentegrityError.UNABLE_TO_PERFORM_BASE_ANALYSIS_FOR_TRUST_FACTOR;
+                        error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
+                        error.setDetails(new ErrorDetails().setDescription("Failed to compare").setFailureReason("Unable to perform base analysis for trust factor output object").setRecoverySuggestion("Try updating trust factor output objects"));
+
+                        Logger.INFO("Failed to perform", error);
+                        if (policy.continueOnError()) {
+                            continue;
+                        } else {
+                            return null;
+                        }
+                    }
+
+                    if (!assertionStore.replaceInStore(updatedTrustFactorOutput.getStoredTrustFactor())) {
+                        SentegrityError error = SentegrityError.UNABLE_TO_SET_ASSERTION_TO_STORE;
+                        error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
+                        error.setDetails(new ErrorDetails().setDescription("No trust factor output object were able to be added").setFailureReason("Unable to replace stored assertion").setRecoverySuggestion("Try passing a valid trustFactorOutputObject"));
+
+                        Logger.INFO("Failed to perform", error);
+                        return null;
+                    }
                 }
 
-                output.setStoredTrustFactor(storedTrustFactor);
 
-                outputTrustFactor = performBaselineAnalysis(output);
-
-                if (outputTrustFactor == null) {
-                    SentegrityError error = SentegrityError.UNABLE_TO_PERFORM_BASE_ANALYSIS_FOR_TRUST_FACTOR;
-                    error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
-                    error.setDetails(new ErrorDetails().setDescription("Failed to compare").setFailureReason("Unable to perform base analysis for trust factor output object").setRecoverySuggestion("Try updating trust factor output objects"));
-
-                    Logger.INFO("Failed to perform", error);
-                    return null;
-                }
-
-                if (!assertionStore.replaceInStore(outputTrustFactor.getStoredTrustFactor())) {
-                    SentegrityError error = SentegrityError.UNABLE_TO_SET_ASSERTION_TO_STORE;
-                    error.setDomain(ErrorDomain.SENTEGRITY_DOMAIN);
-                    error.setDetails(new ErrorDetails().setDescription("No trust factor output object were able to be added").setFailureReason("Unable to replace stored assertion").setRecoverySuggestion("Try passing a valid trustFactorOutputObject"));
-
-                    Logger.INFO("Failed to perform", error);
-                    return null;
-                }
             }
         }
 
-        SentegrityAssertionStore localStoreOutput = SentegrityTrustFactorStore.getInstance().setAssertionStore(assertionStore, policy.getAppID());
+        /*SentegrityAssertionStore localStoreOutput = */
+        SentegrityTrustFactorStore.getInstance().setAssertionStore();
 
-        if (localStoreOutput == null) {
+        /*if (localStoreOutput == null) {
             Logger.INFO("Failed to write store");
             return null;
-        }
+        }*/
 
         return outputs;
     }
@@ -257,7 +310,7 @@ public class SentegrityBaselineAnalysis {
                 foundMatch = false;
 
                 for (SentegrityStoredAssertion stored : output.getStoredTrustFactor().getAssertions()) {
-                    if (candidate.getHash().equals(stored.getHash())) {
+                    if (TextUtils.equals(candidate.getHash(), stored.getHash())) {
                         foundMatch = true;
 
                         matchingAssertion = stored;
@@ -288,7 +341,7 @@ public class SentegrityBaselineAnalysis {
             currentCandidateMatch = false;
 
             for (SentegrityStoredAssertion stored : output.getStoredTrustFactor().getAssertions()) {
-                if (candidate.getHash().equals(stored.getHash())) {
+                if (TextUtils.equals(candidate.getHash(), stored.getHash())) {
                     startHitCount = stored.getHitCount();
                     newHitCount = startHitCount + 1;
                     stored.setHitCount(newHitCount);

@@ -5,10 +5,18 @@ package com.sentegrity.core_detection.constants;
  */
 public class SentegrityConstants {
 
+    public static final String UNIQUE_DEVICE_ID = "1234567890";
 
     public static final String STARTUP_FILE_NAME = "startup";
 
     public static final String STORE_FILETYPE = ".store";
+
+    public static final String ASSERTION_STORE_FILE_NAME = "store";
+
+    //public static final String CORE_DETECTION_BUNDLE = "PolicyBundle";
+    //public static final String CORE_DETECTION_BUNDLE_EXTENSTION = "bundle";
+    public static final String CORE_DETECTION_POLICY_FILE_NAME = "policy";
+
 
     public static final String HOTSPOT_SSID_LIST_FILE_NAME = "hotspot_ssids.list";
     public static final String OUI_LIST_FILE_NAME = "oui.list";
@@ -20,6 +28,10 @@ public class SentegrityConstants {
     public static final String DEVICE_SALT_DEFAULT = "821057bac664ccbe58338360c0cd1c78";
     public static final String USER_SALT_DEFAULT = "a4a8eeb22881b5ccce006f60bb6f8aab";
     public static final String TRUSTLOOK_CLIENT_ID = "0623f7917a1e2e09e7bcc700482392fba620e6a2a29200fbc6a92198";
+
+    public static final int allowPrivateAPIs = 1;
+
+    public static final String baseURL = "https://cloud.sentegrity.com/app_dev.php/";
 
     public static final int BLUETOOTH_SEARCH_TIME = 5000;
 }

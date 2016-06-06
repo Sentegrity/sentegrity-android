@@ -34,7 +34,7 @@ public class SentegrityClassificationComputation {
 
     private List<String> status;
 
-    private List<String> authenticators;
+    private List<String> dynamicTwoFactors;
 
     public int getScore() {
         return score;
@@ -81,7 +81,7 @@ public class SentegrityClassificationComputation {
     }
 
     public List<String> getAuthenticators() {
-        return authenticators != null ? authenticators : new ArrayList<String>();
+        return dynamicTwoFactors != null ? dynamicTwoFactors : new ArrayList<String>();
     }
 
     public void setScore(int score) {
@@ -128,7 +128,7 @@ public class SentegrityClassificationComputation {
         this.status = status;
     }
 
-    public void setAuthenticators(List<String> authenticators) {
-        this.authenticators = authenticators;
+    public void setDynamicTwoFactors(List<String> dynamicTwoFactors) {
+        this.dynamicTwoFactors = dynamicTwoFactors;
     }
 }

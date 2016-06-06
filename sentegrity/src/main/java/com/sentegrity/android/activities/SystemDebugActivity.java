@@ -18,7 +18,7 @@ public class SystemDebugActivity extends DebugActivity {
     }
 
     @Override
-    protected String getAcivityTitle() {
+    protected String getActivityTitle() {
         return "System Debug";
     }
 
@@ -59,7 +59,7 @@ public class SystemDebugActivity extends DebugActivity {
 
         String systemTrustFactorsToWhitelist = "\nTrustFactors To Whitelist\n+++++++++++++++++++++++++++\n";
 
-        for(SentegrityTrustFactorOutput output : computationResult.getProtectModeSystemWhitelist()){
+        for(SentegrityTrustFactorOutput output : computationResult.getSystemTrustFactorWhitelist()){
             String storedAssertions = "";
             String currentAssertions = "";
 
@@ -116,7 +116,7 @@ public class SystemDebugActivity extends DebugActivity {
         for(SentegrityTrustFactorOutput output : computationResult.getSystemTrustFactorsWithErrors()){
 
             systemTrustFactorsWithError += "--Name: " + output.getTrustFactor().getName().toUpperCase() + "\n"
-                    + "DNE: " + output.getStatusCode().getId() + " (" + output.getStatusCode() + ")" + "\n\n";
+                    + "DNE: " + output.getStatusCode() + " (" + output.getStatusCode() + ")" + "\n\n";
         }
 
         complete += systemTrustFactorsWithError;

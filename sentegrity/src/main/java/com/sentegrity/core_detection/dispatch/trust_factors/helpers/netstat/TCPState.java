@@ -33,7 +33,7 @@ public enum TCPState {
 
     public static String getByState(String state){
         for(TCPState s : values()){
-            if(s.stateString.equals(state))
+            if(TextUtils.equals(s.stateString, state))
                 return s.state;
         }
         return "?";
