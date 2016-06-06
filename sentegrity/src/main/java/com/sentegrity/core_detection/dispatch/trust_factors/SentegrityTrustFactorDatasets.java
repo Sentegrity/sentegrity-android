@@ -278,7 +278,7 @@ public class SentegrityTrustFactorDatasets {
         return trustLookBadPkgListDNEStatus;
     }
 
-    public DNEStatusCode getTrustLookBadURLListDNEStatus(){
+    public int getTrustLookBadURLListDNEStatus(){
         return trustLookBadURLListDNEStatus;
     }
 
@@ -330,7 +330,7 @@ public class SentegrityTrustFactorDatasets {
         this.trustLookBadPkgListDNEStatus = trustLookBadPkgListDNEStatus;
     }
 
-    public void setTrustLookBadURLListDNEStatus(DNEStatusCode trustLookBadURLListDNEStatus){
+    public void setTrustLookBadURLListDNEStatus(int trustLookBadURLListDNEStatus){
         this.trustLookBadURLListDNEStatus = trustLookBadURLListDNEStatus;
     }
 

@@ -1,7 +1,6 @@
 package com.sentegrity.android.activities;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,13 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.ActivityRecognition;
 import com.sentegrity.android.R;
-import com.sentegrity.android.activity.ActivitiesIntentService;
 import com.sentegrity.core_detection.CoreDetection;
 import com.sentegrity.core_detection.CoreDetectionCallback;
 import com.sentegrity.core_detection.computation.SentegrityTrustScoreComputation;
@@ -28,13 +22,11 @@ import com.sentegrity.core_detection.constants.PreAuthAction;
 import com.sentegrity.core_detection.logger.SentegrityError;
 import com.sentegrity.core_detection.login_action.SentegrityLoginAction;
 import com.sentegrity.core_detection.login_action.SentegrityLoginResponseObject;
-import com.sentegrity.core_detection.networking.RunHistoryCallback;
-import com.sentegrity.core_detection.networking.SentegrityNetworkManager;
 import com.sentegrity.core_detection.startup.SentegrityStartupStore;
 
-public class LoginActivity extends Activity {
+import java.io.File;
 
-    private SentegrityTrustScoreComputation computationResults;
+public class LoginActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +65,7 @@ public class LoginActivity extends Activity {
 
         File f = new File(SentegrityStartupStore.getInstance().getStorePath());
         if(!f.exists()){
-            String dummyPass = "asdf";
+            String dummyPass = "user";
             String masterKey = SentegrityStartupStore.getInstance().createNewStartupFileWithUserPassword(dummyPass);
         }
 
