@@ -28,6 +28,8 @@ import com.sentegrity.core_detection.constants.PreAuthAction;
 import com.sentegrity.core_detection.logger.SentegrityError;
 import com.sentegrity.core_detection.login_action.SentegrityLoginAction;
 import com.sentegrity.core_detection.login_action.SentegrityLoginResponseObject;
+import com.sentegrity.core_detection.networking.RunHistoryCallback;
+import com.sentegrity.core_detection.networking.SentegrityNetworkManager;
 import com.sentegrity.core_detection.startup.SentegrityStartupStore;
 
 public class LoginActivity extends Activity {
@@ -48,6 +50,26 @@ public class LoginActivity extends Activity {
         progressDialog.setTitle("Analyzing");
         progressDialog.setMessage("Mobile Security Posture");
         progressDialog.show();
+
+        //removed history objects upload for now
+        /*SentegrityNetworkManager.upload(new RunHistoryCallback() {
+            @Override
+            public void onFinish(boolean successfullyExecuted, boolean successfullyUploaded, boolean newPolicyDownloaded) {
+                if (!successfullyExecuted) {
+                    //error: unable to run network manager
+                }
+                if (successfullyUploaded) {
+                    if (!SentegrityStartupStore.getInstance().setStartupStore()) {
+                        //error: unable to update startup store
+                    } else {
+                        //network manager: successfully uploaded runHistoryObjects
+                    }
+                }
+                if (newPolicyDownloaded) {
+                    //network manager: new policy downloaded and stored for the next run
+                }
+            }
+        }, this);*/
 
         File f = new File(SentegrityStartupStore.getInstance().getStorePath());
         if(!f.exists()){
