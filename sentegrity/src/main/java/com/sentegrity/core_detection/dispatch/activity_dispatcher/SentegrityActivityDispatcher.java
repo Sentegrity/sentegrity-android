@@ -535,7 +535,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         new Thread() {
             @Override
             public void run() {
-                Thread.currentThread().setPriority(Thread.NORM_PRIORITY);
+                Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 
                 long current = System.currentTimeMillis();
 
@@ -559,6 +559,8 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 }
 
                 List<PackageInfo> packageInfoList = Helpers.getLocalAppsPkgInfo(SentegrityTrustFactorDatasets.getInstance().context);
+
+                Log.d("trustlook", "time: " + (System.currentTimeMillis() - current));
                 for (PackageInfo pi : packageInfoList) {
                     if (pi != null && pi.applicationInfo != null) {
                         PkgInfo pkgInfo = null;
@@ -586,6 +588,8 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                         }
                     }
                 }
+
+                Log.d("trustlook", "time: " + (System.currentTimeMillis() - current));
 
                 //we'll do online scan only if there's been new apps since last online check
                 if (listToCheck.size() > 0) {

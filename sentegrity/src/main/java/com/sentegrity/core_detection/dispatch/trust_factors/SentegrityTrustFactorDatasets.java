@@ -1539,7 +1539,7 @@ public class SentegrityTrustFactorDatasets {
 
             long startTime = System.currentTimeMillis();
             long currentTime = startTime;
-            float waitTime = 2000;
+            float waitTime = 20000;
 
             while ((currentTime - startTime) < waitTime) {
                 if (trustLookBadPkgList != null)
