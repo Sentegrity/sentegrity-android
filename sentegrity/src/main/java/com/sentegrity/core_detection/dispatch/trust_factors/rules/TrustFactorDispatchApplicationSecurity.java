@@ -24,7 +24,7 @@ public class TrustFactorDispatchApplicationSecurity {
 
     private final static long MILLISECONDS_IN_DAY = 86400000;
 
-    public static SentegrityTrustFactorOutput trustLookScan(List<Object> payload) {
+    public static SentegrityTrustFactorOutput trustLookPackageScan(List<Object> payload) {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         if (!SentegrityTrustFactorDatasets.validatePayload(payload)) {
@@ -54,6 +54,38 @@ public class TrustFactorDispatchApplicationSecurity {
 
         for(AppInfo appInfo : list){
             outputList.add(appInfo.getPackageName() + "_" + appInfo.getMd5());
+        }
+
+        output.setOutput(outputList);
+
+        return output;
+    }
+
+    public static SentegrityTrustFactorOutput trustLookURLScan(List<Object> payload) {
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        List<String> outputList = new ArrayList<>();
+
+        if (SentegrityTrustFactorDatasets.getInstance().getTrustLookBadURLListDNEStatus() != DNEStatusCode.OK &&
+                SentegrityTrustFactorDatasets.getInstance().getTrustLookBadURLListDNEStatus() != DNEStatusCode.EXPIRED) {
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getTrustLookBadURLListDNEStatus());
+            return output;
+        }
+
+        List<String> list = SentegrityTrustFactorDatasets.getInstance().getTrustLookBadURLList();
+
+        if (SentegrityTrustFactorDatasets.getInstance().getTrustLookBadURLListDNEStatus() != DNEStatusCode.OK) {
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getTrustLookBadURLListDNEStatus());
+            return output;
+        }
+
+        if (list == null) {
+            output.setStatusCode(DNEStatusCode.ERROR);
+            return output;
+        }
+
+        for(String url : list){
+            outputList.add(url);
         }
 
         output.setOutput(outputList);

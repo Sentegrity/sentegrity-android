@@ -1524,7 +1524,7 @@
       "decayMetric": 0,
       "wipeOnUpdate": 0,
       "dispatch": "ApplicationSecurity",
-      "implementation": "trustLookScan:",
+      "implementation": "trustLookPackageScan:",
       "whitelistable": 1,
       "privateAPI": 0,
       "payload": [
@@ -1562,6 +1562,36 @@
           
         }
       ]
-    }
+    },
+    {
+      "id": 1002,
+      "notFoundIssueMessage": "Malware URL detected",
+      "notFoundSuggestionMessage": "Reinstall device",
+      "lowConfidenceIssueMessage": "",
+      "lowConfidenceSuggestionMessage": "",
+      "revision": 1,
+      "classID": 1,
+      "subClassID": 3,
+      "name": "trustlook url scan",
+      "transparentEligible": 0,
+      "partialWeight": 0,
+      "weight": 100,
+      "learnMode": 0,
+      "learnTime": 0,
+      "learnAssertionCount": 0,
+      "learnRunCount": 0,
+      "decayMode": 0,
+      "decayMetric": 0,
+      "wipeOnUpdate": 0,
+      "dispatch": "ApplicationSecurity",
+      "implementation": "trustLookURLScan:",
+      "whitelistable": 1,
+      "privateAPI": 0,
+      "payload": [
+        {
+
+        }
+      ]
+    },
   ]
 }

@@ -47,6 +47,7 @@ import com.trustlook.sdk.data.*;
 import com.trustlook.sdk.data.Error;
 import com.trustlook.sdk.urlscan.CatType;
 import com.trustlook.sdk.urlscan.CategoryType;
+import com.trustlook.sdk.urlscan.UrlInfo;
 import com.trustlook.sdk.urlscan.UrlScanResult;
 
 import java.io.IOException;
@@ -619,7 +620,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                     } else {
                         //TODO: handle different error codes (maybe UNAVAILABLE if no internet?)
                         int errorCode = onlineResult.getError();
-                        if(errorCode == Error.NETWORK_ERROR){
+                        if (errorCode == Error.NETWORK_ERROR) {
 
                         }
                         SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgListDNEStatus(DNEStatusCode.ERROR);
@@ -647,36 +648,39 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
     /**
      * Starts TrustLook URL scan
      */
-    public void startTrustLookURLScan(List<ActiveConnection> connections){
+    public void startTrustLookURLScan(List<ActiveConnection> connections) {
         /*new Thread() {
             @Override
             public void run() {
                 Thread.currentThread().setPriority(Thread.NORM_PRIORITY);*/
 
         HashSet<String> ipList = new HashSet<>();
-        for(ActiveConnection c : connections){
-            if(c.isListening() || c.isLoopBack() || TextUtils.isEmpty(c.remoteIp) || (TextUtils.equals(c.localIp, "0.0.0.0") || (TextUtils.equals(c.localIp, "::"))))
+        for (ActiveConnection c : connections) {
+            if (c.isListening() || c.isLoopBack() || TextUtils.isEmpty(c.remoteIp) || (TextUtils.equals(c.localIp, "0.0.0.0") || (TextUtils.equals(c.localIp, "::"))))
                 continue;
             ipList.add(c.remoteIp);
         }
 
-            List<URLInfo> urlInfos = new ArrayList<>();
+        SharedPreferences sp = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        List<String> badIPList = new ArrayList<>();
 
-            SharedPreferences sp = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
-            String cachedListJson = sp.getString("cachedURLList", null);
+        UrlScanResult result = getURLScanClient().urlScan(new ArrayList<String>(ipList));
+        if (result.isSuccess()) {
+            for (UrlInfo info : result.getList()) {
+                if (info.getCategory() == CatType.Malware) {
+                    badIPList.add(info.getUrl());
+                }
+            }
+        } else {
+            int errorCode = result.getError();
+            if (errorCode == Error.NETWORK_ERROR) {
 
-                /*UrlScanResult result = getURLScanClient().urlScan("https://www.bug.hr/");
-                if(result.isSuccess()){
-                    if(result.getUrlCategory().getType() == CatType.Malware){
+            }
+            SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgListDNEStatus(DNEStatusCode.ERROR);
+        }
 
-                    }
-                }else{
-                    int errorCode = result.getError();
-                    if(errorCode == Error.NETWORK_ERROR){
-
-                    }
-                    SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgListDNEStatus(DNEStatusCode.ERROR);
-                }*/
+        SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgListDNEStatus(DNEStatusCode.OK);
+        SentegrityTrustFactorDatasets.getInstance().setTrustLookBadURLList(badIPList);
         //    }
         //}.start();
     }
