@@ -1588,43 +1588,10 @@ public class SentegrityTrustFactorDatasets {
         return trustLookBadURLList;
     }
 
-    public SharedPreferences getSharedPrefs(){
-        return context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
-    }
-
     /**
      * Call on reloading login
      */
     public static void destroy() {
         sInstance = null;
-    }
-
-    GoogleApiClient mCredentialsApiClient;
-
-    public void testMethod() {
-        mCredentialsApiClient = new GoogleApiClient.Builder(context)
-                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
-                    @Override
-                    public void onConnected(Bundle bundle) {
-                        CredentialRequest mCredentialRequest = new CredentialRequest.Builder()
-                                .setPasswordLoginSupported(true)
-                                .build();
-
-                        Auth.CredentialsApi.request(mCredentialsApiClient, mCredentialRequest).setResultCallback(new ResultCallback<CredentialRequestResult>() {
-                            @Override
-                            public void onResult(CredentialRequestResult credentialRequestResult) {
-                                // check if smart lock is enabled
-                                // if -> credentialRequestResult.getStatus().getStatusCode() == CommonStatusCodes.CANCELED;
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onConnectionSuspended(int i) {
-                    }
-                })
-                .addApi(Auth.CREDENTIALS_API)
-                .build();
-        mCredentialsApiClient.connect();
     }
 }

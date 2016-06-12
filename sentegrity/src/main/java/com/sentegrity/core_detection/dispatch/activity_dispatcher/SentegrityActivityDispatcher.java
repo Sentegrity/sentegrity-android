@@ -546,7 +546,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 List<AppInfo> cachedBadApps = new ArrayList<>();
                 List<AppInfo> newBadApps = new ArrayList<>();
 
-                SharedPreferences sp = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
+                SharedPreferences sp = context.getSharedPreferences(SentegrityConstants.SHARED_PREFS_NAME, SentegrityConstants.SHARED_PREFS_MODE);
                 String cachedListJson = sp.getString("cachedList", null);
                 String cachedBadAppsJson = sp.getString("cachedBadApps", null);
 
@@ -661,7 +661,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
             ipList.add(c.remoteIp);
         }
 
-        SharedPreferences sp = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        SharedPreferences sp = context.getSharedPreferences(SentegrityConstants.SHARED_PREFS_NAME, SentegrityConstants.SHARED_PREFS_MODE);
         List<String> badIPList = new ArrayList<>();
 
         UrlScanResult result = getURLScanClient().urlScan(new ArrayList<String>(ipList));

@@ -1,5 +1,7 @@
 package com.sentegrity.core_detection.constants;
 
+import android.content.Context;
+
 /**
  * Created by dmestrov on 21/03/16.
  */
@@ -34,4 +36,7 @@ public class SentegrityConstants {
     public static final String baseURL = "https://cloud.sentegrity.com/app_dev.php/";
 
     public static final int BLUETOOTH_SEARCH_TIME = 5000;
+
+    public static final String SHARED_PREFS_NAME = "prefs";
+    public static final int SHARED_PREFS_MODE = Context.MODE_PRIVATE;
 }

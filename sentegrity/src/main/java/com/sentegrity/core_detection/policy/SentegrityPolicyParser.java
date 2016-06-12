@@ -1,8 +1,12 @@
 package com.sentegrity.core_detection.policy;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.Build;
+import android.text.TextUtils;
 
 import com.google.gson.Gson;
+import com.sentegrity.android.BuildConfig;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
 import com.sentegrity.core_detection.logger.ErrorDetails;
 import com.sentegrity.core_detection.logger.ErrorDomain;
@@ -76,6 +80,27 @@ public class SentegrityPolicyParser {
                     Logger.INFO("Parse policy failed", error);
                     return null;
                 } else {
+
+                    if(isNewAppVersion()){
+                        SentegrityPolicy assetsPolicy = loadPolicyFromMainBundle();
+
+                        if(assetsPolicy != null) {
+                            if (TextUtils.equals("default", policy.getPolicyID())) {
+                                if(policy.getRevision() > assetsPolicy.getRevision()){
+                                    //copy currentAppVersion and currentAppHash from assets policy to document policy
+                                }else{
+                                    //copy complete assets policy to document policy
+//                                    if (saveNewPolicy(assetsPolicy)) {
+//                                        currentPolicy = assetsPolicy;
+//                                        return currentPolicy;
+//                                    }
+                                }
+                            } else {
+                                //copy currentAppVersion and currentAppHash from assets policy to document policy
+                            }
+                        }
+                    }
+
                     currentPolicy = policy;
                     return currentPolicy;
                 }
@@ -83,6 +108,19 @@ public class SentegrityPolicyParser {
         } else {
             return currentPolicy;
         }
+    }
+
+    private boolean isNewAppVersion() {
+        boolean isNew = false;
+
+        SharedPreferences prefs = context.getSharedPreferences(SentegrityConstants.SHARED_PREFS_NAME, SentegrityConstants.SHARED_PREFS_MODE);
+        String prevAppVersion = prefs.getString("prevAppVersion", "");
+        if(TextUtils.equals(prevAppVersion, BuildConfig.VERSION_NAME)){
+            isNew = true;
+            prefs.edit().putString("prevAppVersion", BuildConfig.VERSION_NAME).apply();
+        }
+
+        return isNew;
     }
 
     private SentegrityPolicy loadPolicyFromMainBundle() {

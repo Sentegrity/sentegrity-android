@@ -94,6 +94,7 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
         }
     }
 
+    @Deprecated
     public SentegrityPolicy parsePolicy(String policyName) {
         AssetManager mg = context.getResources().getAssets();
 

@@ -8,6 +8,7 @@ import android.view.WindowManager;
 
 import com.sentegrity.android.activity.ActivitiesIntentService;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
+import com.sentegrity.core_detection.constants.SentegrityConstants;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.AccelRadsObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.GyroRadsObject;
@@ -54,7 +55,7 @@ public class SentegrityTrustFactorDatasetMotion {
         //TODO: we are returning last movement from activities list. this data can be at most 3minutes old.
         //check if we should have some other sort of implementation based on device sensors
 
-        SharedPreferences sp = context.getSharedPreferences("prefs", Context.MODE_PRIVATE);
+        SharedPreferences sp = context.getSharedPreferences(SentegrityConstants.SHARED_PREFS_NAME, SentegrityConstants.SHARED_PREFS_MODE);
 
         final int lastActivity = sp.getInt("lastActivity", -1);
         return ActivitiesIntentService.getDetectedActivity(lastActivity);

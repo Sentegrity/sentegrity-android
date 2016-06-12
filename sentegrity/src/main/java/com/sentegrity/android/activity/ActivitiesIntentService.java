@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.DetectedActivity;
+import com.sentegrity.core_detection.constants.SentegrityConstants;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class ActivitiesIntentService extends IntentService {
 
         ArrayList<DetectedActivity> detectedActivities = (ArrayList) result.getProbableActivities();
 
-        SharedPreferences sp = getApplicationContext().getSharedPreferences("prefs", MODE_PRIVATE);
+        SharedPreferences sp = getApplicationContext().getSharedPreferences(SentegrityConstants.SHARED_PREFS_NAME, SentegrityConstants.SHARED_PREFS_MODE);
 
         final int lastActivity = sp.getInt("lastActivity", -1);
         if(detectedActivities.get(0).getType() != lastActivity){
