@@ -16,6 +16,15 @@ public class SentegrityPolicy implements Serializable {
     @SerializedName("appID")
     private String appID;
 
+    @SerializedName("currentAppVersion")
+    private String currentAppVersion;
+
+    @SerializedName("currentAppHash")
+    private String currentAppHash;
+
+    @SerializedName("platform")
+    private String platform;
+
     @SerializedName("revision")
     private int revision;
 
@@ -154,5 +163,25 @@ public class SentegrityPolicy implements Serializable {
 
     public int getStatusUploadTimeFrequency() {
         return statusUploadTimeFrequency;
+    }
+
+    public String getCurrentAppVersion() {
+        return currentAppVersion;
+    }
+
+    public String getCurrentAppHash() {
+        return currentAppHash;
+    }
+
+    public String getPlatform() {
+        return platform;
+    }
+
+    public void setCurrentAppVersion(String currentAppVersion) {
+        this.currentAppVersion = currentAppVersion;
+    }
+
+    public void setCurrentAppHash(String currentAppHash) {
+        this.currentAppHash = currentAppHash;
     }
 }

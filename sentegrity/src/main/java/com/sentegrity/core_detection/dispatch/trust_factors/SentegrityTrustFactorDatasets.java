@@ -42,6 +42,8 @@ import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.Magneti
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.PitchRollObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDetection;
+import com.sentegrity.core_detection.policy.SentegrityPolicy;
+import com.sentegrity.core_detection.policy.SentegrityPolicyParser;
 import com.sentegrity.core_detection.utilities.Helpers;
 import com.trustlook.sdk.cloudscan.CloudScanClient;
 import com.trustlook.sdk.data.AppInfo;
@@ -1352,7 +1354,7 @@ public class SentegrityTrustFactorDatasets {
     }
 
     /**
-     * Gets current application signature, hashes it using MD5, and compares with expected signature {@link SentegrityConstants#APK_SIGNATURE}.
+     * Gets current application signature, hashes it using MD5, and compares with expected signature {@link SentegrityPolicy#currentAppHash}.
      * We need to check all the available signatures since there could be multiple ones (fake + real).
      * Only return {@code true} if all signatures are ok (in practice that should be only one REAL signature)
      *
@@ -1376,7 +1378,7 @@ public class SentegrityTrustFactorDatasets {
                         hexString.append(hex);
                     }
 
-                    if (TextUtils.equals(SentegrityConstants.APK_SIGNATURE, hexString.toString())) {
+                    if (TextUtils.equals(SentegrityPolicyParser.getInstance().getPolicy().getCurrentAppHash(), hexString.toString())) {
                         signatureOk = true;
                     } else {
                         return signatureOK = false;

@@ -81,14 +81,17 @@ public class SentegrityPolicyParser {
                     return null;
                 } else {
 
-                    if(isNewAppVersion()){
+                    if (isNewAppVersion()) {
                         SentegrityPolicy assetsPolicy = loadPolicyFromMainBundle();
 
-                        if(assetsPolicy != null) {
-                            if (TextUtils.equals("default", policy.getPolicyID())) {
-                                if(policy.getRevision() > assetsPolicy.getRevision()){
+                        if (assetsPolicy != null) {
+                            if (TextUtils.equals("default", policy.getAppID())) {
+                                if (policy.getRevision() > assetsPolicy.getRevision()) {
                                     //copy currentAppVersion and currentAppHash from assets policy to document policy
-                                }else{
+                                    policy.setCurrentAppHash(assetsPolicy.getCurrentAppHash());
+                                    policy.setCurrentAppVersion(assetsPolicy.getCurrentAppVersion());
+                                    saveNewPolicy(policy);
+                                } else {
                                     //copy complete assets policy to document policy
 //                                    if (saveNewPolicy(assetsPolicy)) {
 //                                        currentPolicy = assetsPolicy;
@@ -97,6 +100,9 @@ public class SentegrityPolicyParser {
                                 }
                             } else {
                                 //copy currentAppVersion and currentAppHash from assets policy to document policy
+                                policy.setCurrentAppHash(assetsPolicy.getCurrentAppHash());
+                                policy.setCurrentAppVersion(assetsPolicy.getCurrentAppVersion());
+                                saveNewPolicy(policy);
                             }
                         }
                     }
@@ -115,7 +121,7 @@ public class SentegrityPolicyParser {
 
         SharedPreferences prefs = context.getSharedPreferences(SentegrityConstants.SHARED_PREFS_NAME, SentegrityConstants.SHARED_PREFS_MODE);
         String prevAppVersion = prefs.getString("prevAppVersion", "");
-        if(TextUtils.equals(prevAppVersion, BuildConfig.VERSION_NAME)){
+        if (!TextUtils.equals(prevAppVersion, BuildConfig.VERSION_NAME)) {
             isNew = true;
             prefs.edit().putString("prevAppVersion", BuildConfig.VERSION_NAME).apply();
         }

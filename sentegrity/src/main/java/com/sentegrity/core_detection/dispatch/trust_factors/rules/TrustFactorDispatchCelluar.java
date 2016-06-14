@@ -39,7 +39,7 @@ public class TrustFactorDispatchCelluar {
 
         cell = connectionSpeed + "_" + carrierName;
 
-        Location currentLocation;
+        /*Location currentLocation;
 
         if (SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() == DNEStatusCode.OK ||
                 SentegrityTrustFactorDatasets.getInstance().getLocationDNEStatus() == DNEStatusCode.EXPIRED) {
@@ -53,7 +53,7 @@ public class TrustFactorDispatchCelluar {
                 String roundedLocation = String.format(locationBuilder, currentLocation.getLongitude(), currentLocation.getLatitude());
                 cell += "_" + roundedLocation;
             }
-        }
+        }*/
 
         outputList.add(cell);
 
