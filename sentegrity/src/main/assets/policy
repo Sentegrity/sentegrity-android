@@ -430,36 +430,6 @@
       ]
     },
     {
-      "id": 7,
-      "notFoundIssueMessage": "Filesystem integrity modified",
-      "notFoundSuggestionMessage": "Perform factory reset",
-      "lowConfidenceIssueMessage": "",
-      "lowConfidenceSuggestionMessage": "",
-      "revision": 1,
-      "classID": 3,
-      "subClassID": 4,
-      "name": "Critical file size anomaly",
-      "transparentEligible": 0,
-      "partialWeight": 0,
-      "weight": 30,
-      "learnMode": 1,
-      "learnTime": 0,
-      "learnAssertionCount": 0,
-      "learnRunCount": 0,
-      "decayMode": 0,
-      "decayMetric": 0,
-      "wipeOnUpdate": 0,
-      "dispatch": "File",
-      "implementation": "sizeChange:",
-      "whitelistable": 0,
-      "privateAPI": 0,
-      "payload": [
-        "\/etc\/passwd",
-        "\/bin\/usr",
-        "\/etc\/fstab"
-      ]
-    },
-    {
       "id": 8,
       "notFoundIssueMessage": "New network service",
       "notFoundSuggestionMessage": "Reboot device",
