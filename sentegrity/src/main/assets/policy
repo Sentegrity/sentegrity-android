@@ -838,8 +838,14 @@
       "whitelistable": 0,
       "privateAPI": 1,
       "payload": [
-        "com.dunkinbrands.DunkinMobile",
-        "net.technet.systat"
+        "com.elnware.ActiveAppsWidget",
+        "com.elnware.ActiveAppsAds",
+        "com.sayhello2theworld.te",
+        "com.macdom.ble.blescanner",
+        "com.eolwral.osmonitor",
+        "com.p_soft.sysmon",
+        "com.cgollner.systemmonitor.lite",
+        "com.koushikadutta.backup"
       ]
     },
     {
