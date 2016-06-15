@@ -300,6 +300,8 @@ public class SentegrityCrypto {
 
     public String createSHA1HashOfData(byte[] inputData) {
         Formatter formatter = new Formatter();
+        if(inputData == null || inputData.length == 0)
+            return "";
         int len = inputData.length;
         for (int j = 0; j < len; j++) {
             formatter.format("%02x", inputData[j]);
@@ -356,7 +358,7 @@ public class SentegrityCrypto {
     }
 
     public int benchmarkPBKDF2UsingExampleString(String example, int timeMillis) {
-        return 100 + new Random().nextInt(100);
+        return 500 + new Random().nextInt(500);
     }
 
 
