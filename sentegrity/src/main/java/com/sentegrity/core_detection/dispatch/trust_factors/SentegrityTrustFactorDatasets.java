@@ -32,6 +32,7 @@ import com.google.android.gms.auth.api.credentials.CredentialRequest;
 import com.google.android.gms.auth.api.credentials.CredentialRequestResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
+import com.scottyab.rootbeer.RootBeer;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
 import com.sentegrity.core_detection.dispatch.activity_dispatcher.SentegrityActivityDispatcher;
@@ -145,6 +146,8 @@ public class SentegrityTrustFactorDatasets {
     private KeyguardManager keyguardManager;
     private ConnectivityManager connectivityManager;
     private AudioManager audioManager;
+
+    private RootBeer rootBeer;
 
     public SentegrityTrustFactorDatasets(Context context) {
         this.context = context;
@@ -1553,6 +1556,12 @@ public class SentegrityTrustFactorDatasets {
         if (audioManager != null) return true;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         return audioManager != null;
+    }
+
+    public RootBeer getRootBeer() {
+        if(rootBeer != null)
+            return rootBeer;
+        return rootBeer = new RootBeer(context);
     }
 
 

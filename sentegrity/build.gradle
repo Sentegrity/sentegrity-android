@@ -30,6 +30,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-auth:9.0.0'
     compile 'com.karumi:dexter:2.2.2'
     compile 'commons-io:commons-io:2.4'
+    compile 'com.scottyab:rootbeer-lib:0.0.4'
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile files('libs/cloudscan_sdk_2.0.6.jar')
 }
