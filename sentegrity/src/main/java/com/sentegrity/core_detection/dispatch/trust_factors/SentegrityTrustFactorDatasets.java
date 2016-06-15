@@ -41,6 +41,7 @@ import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.GyroRad
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.MagneticObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.PitchRollObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.platform.VulnerablePlatformData;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDetection;
 import com.sentegrity.core_detection.policy.SentegrityPolicy;
 import com.sentegrity.core_detection.policy.SentegrityPolicyParser;
@@ -1282,6 +1283,32 @@ public class SentegrityTrustFactorDatasets {
 
             while ((line = buffReader.readLine()) != null) {
                 list.add(line);
+            }
+            return list;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Collects vulnerable platform list from internal application file.
+     *
+     * @return arraylist of vulnerable platforms, or {@code null} if not available
+     */
+    public ArrayList<VulnerablePlatformData> getVulnerablePlatformData() {
+        try {
+            AssetManager mg = context.getResources().getAssets();
+
+            ArrayList<VulnerablePlatformData> list = new ArrayList<>();
+            String line;
+            InputStream is = mg.open(SentegrityConstants.VULNERABLE_PLATFORM_LIST_FILE_NAME);
+            InputStreamReader inputReader = new InputStreamReader(is);
+            BufferedReader buffReader = new BufferedReader(inputReader);
+
+            while ((line = buffReader.readLine()) != null) {
+                list.add(new VulnerablePlatformData(line));
             }
             return list;
 
