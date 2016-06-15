@@ -2,6 +2,7 @@ package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
@@ -160,6 +161,32 @@ public class TrustFactorDispatchApplicationSecurity {
                     }
                 }
             }
+        }
+
+        output.setOutput(outputList);
+
+        return output;
+    }
+
+    public static SentegrityTrustFactorOutput sideloadedApp(List<Object> payload){
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        List<String> outputList = new ArrayList<>();
+
+        List<ApplicationInfo> userApps = SentegrityTrustFactorDatasets.getInstance().getInstalledAppInfo();
+
+        PackageManager pm = SentegrityTrustFactorDatasets.getInstance().getPackageManager();
+
+        for (ApplicationInfo appInfo : userApps) {
+
+            //System app, we can skip it
+            if((appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
+                continue;
+
+            String installer = pm.getInstallerPackageName(appInfo.packageName);
+
+            if(TextUtils.isEmpty(installer))
+                outputList.add(appInfo.packageName);
         }
 
         output.setOutput(outputList);

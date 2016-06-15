@@ -1555,6 +1555,11 @@ public class SentegrityTrustFactorDatasets {
         return audioManager != null;
     }
 
+
+    public PackageManager getPackageManager() {
+        return context.getPackageManager();
+    }
+
     /**
      * Waits for TrustLook bad package AppInfo list
      * This list can be empty

@@ -1539,5 +1539,33 @@
         }
       ]
     },
+    {
+      "id": 22,
+      "notFoundIssueMessage": "Sideloaded app",
+      "notFoundSuggestionMessage": "Uninstall Sideloaded apps",
+      "lowConfidenceIssueMessage": "",
+      "lowConfidenceSuggestionMessage": "",
+      "revision": 1,
+      "classID": 3,
+      "subClassID": 3,
+      "name": "Sideloaded apps",
+      "transparentEligible": 0,
+      "partialWeight": 0,
+      "weight": 5,
+      "learnMode": 0,
+      "learnTime": 0,
+      "learnAssertionCount": 0,
+      "learnRunCount": 0,
+      "decayMode": 0,
+      "decayMetric": 0,
+      "wipeOnUpdate": 0,
+      "dispatch": "ApplicationSecurity",
+      "implementation": "sideloadedApp:",
+      "whitelistable": 0,
+      "privateAPI": 1,
+      "payload": [
+
+      ]
+    }
   ]
 }
