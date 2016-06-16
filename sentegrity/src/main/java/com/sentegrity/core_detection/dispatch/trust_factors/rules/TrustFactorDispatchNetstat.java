@@ -98,7 +98,7 @@ public class TrustFactorDispatchNetstat {
         }
 
         List<Integer> payloadInt = new ArrayList<>();
-        for(Object port : payload){
+        for (Object port : payload) {
             payloadInt.add((int) (double) port);
         }
 
@@ -162,7 +162,6 @@ public class TrustFactorDispatchNetstat {
         return output;
     }
 
-    @Deprecated
     public static SentegrityTrustFactorOutput dataExfiltration(List<Object> payload) {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
@@ -175,7 +174,7 @@ public class TrustFactorDispatchNetstat {
 
         Long dataXfer = SentegrityTrustFactorDatasets.getInstance().getDataXferInfo();
 
-        if(dataXfer == null){
+        if (dataXfer == null) {
             output.setStatusCode(DNEStatusCode.ERROR);
             return output;
         }
@@ -183,7 +182,7 @@ public class TrustFactorDispatchNetstat {
         long uptime = 0;
         uptime = SystemClock.uptimeMillis();
 
-        if(uptime <= 0) {
+        if (uptime <= 0) {
             output.setStatusCode(DNEStatusCode.UNAVAILABLE);
             return output;
         }
@@ -191,17 +190,17 @@ public class TrustFactorDispatchNetstat {
         uptime /= 1000;
 
         int timeInterval = 0;
-        timeInterval = (int) (double) ((LinkedTreeMap)payload.get(0)).get("secondsInterval");
+        timeInterval = (int) (double) ((LinkedTreeMap) payload.get(0)).get("secondsInterval");
 
-        if(timeInterval == 0){
+        if (timeInterval == 0) {
             output.setStatusCode(DNEStatusCode.ERROR);
             return output;
         }
 
         int dataMax = 0;
-        dataMax = (int) (double) ((LinkedTreeMap)payload.get(0)).get("maxSentMB");
+        dataMax = (int) (double) ((LinkedTreeMap) payload.get(0)).get("maxSentMB");
 
-        if(dataMax == 0){
+        if (dataMax == 0) {
             output.setStatusCode(DNEStatusCode.ERROR);
             return output;
         }
@@ -209,18 +208,18 @@ public class TrustFactorDispatchNetstat {
         int timeSlots = 0;
         timeSlots = Math.round(uptime / timeInterval);
 
-        if(timeSlots < 1){
+        if (timeSlots < 1) {
             return output;
         }
 
         int dataSentPerTimeSlot = (int) Math.ceil(dataXfer / (float) timeSlots);
 
-        if(dataSentPerTimeSlot < 1){
+        if (dataSentPerTimeSlot < 1) {
             return output;
         }
 
         //we need it in bytes
-        if(dataSentPerTimeSlot > dataMax * 1000000){
+        if (dataSentPerTimeSlot > dataMax * 1000000) {
             outputList.add("exfil");
         }
 
@@ -258,7 +257,7 @@ public class TrustFactorDispatchNetstat {
         }
 
         List<Integer> payloadInt = new ArrayList<>();
-        for(Object port : payload){
+        for (Object port : payload) {
             payloadInt.add((int) (double) port);
         }
 
@@ -273,30 +272,24 @@ public class TrustFactorDispatchNetstat {
 
             for (int badDstPort : payloadInt) {
                 if (connection.getRemotePort() == badDstPort) {
-                    /*remoteHost is replaced with remoteIp and added to output
-                    if (!outputList.contains(connection.remoteHost)) {
-                        String host = connection.remoteHost;
+                    if (!outputList.contains(connection.remoteIp)) {
+                        String host = connection.remoteIp;
                         if (host == null)
                             continue;
 
+                        //TODO: IPv6 trim?
                         String[] components = host.split("\\.");
-                        if (host.length() > 15) {
-                            if (components.length > 1) {
-                                host = components[components.length - 2] + "." + components[components.length - 1];
-                            }
-                        } else {
-                            if (components.length == 4) {
-                                host = components[components.length - 4] + "." + components[components.length - 3] + "." + components[components.length - 2];
-                            }
+                        if (components.length == 4) {
+                            host = components[components.length - 4] + "." + components[components.length - 3] + "." + components[components.length - 2];
                         }
 
                         if (!outputList.contains(host)) {
                             outputList.add(host);
                         }
-                    }*/
-                    if(!outputList.contains(connection.remoteIp)){
-                        outputList.add(connection.remoteIp);
                     }
+//                    if(!outputList.contains(connection.remoteIp)){
+//                        outputList.add(connection.remoteIp);
+//                    }
                 }
             }
         }
@@ -306,7 +299,7 @@ public class TrustFactorDispatchNetstat {
         return output;
     }
 
-    public static SentegrityTrustFactorOutput trustLookURLScan(List<Object> payload){
+    public static SentegrityTrustFactorOutput trustLookURLScan(List<Object> payload) {
         return new SentegrityTrustFactorOutput();
     }
 }
