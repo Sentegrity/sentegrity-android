@@ -9,6 +9,7 @@ import com.google.gson.internal.LinkedTreeMap;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.platform.PatchVersion;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.platform.VulnerablePlatformData;
 import com.sentegrity.core_detection.utilities.Helpers;
 
@@ -62,6 +63,7 @@ public class TrustFactorDispatchPlatform {
                 break;
             }
         }
+
         if(isVulnerable){
             outputList.add(currentVersion);
         }
@@ -75,9 +77,59 @@ public class TrustFactorDispatchPlatform {
         return new SentegrityTrustFactorOutput();
     }
 
-    @Deprecated
     public static SentegrityTrustFactorOutput versionAllowed(List<Object> payload){
-        return new SentegrityTrustFactorOutput();
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        List<String> outputList = new ArrayList<>();
+
+        List<PatchVersion> patchVersions = SentegrityTrustFactorDatasets.getInstance().getPatchVersionsList();
+
+        if (patchVersions == null) {
+            output.setStatusCode(DNEStatusCode.NO_DATA);
+            return output;
+        }
+
+        String carrier = SentegrityTrustFactorDatasets.getInstance().getCarrierConnectionName();
+        String currentVersion = Build.VERSION.RELEASE;
+        String model = Build.MODEL;
+        String patch = Build.ID;
+
+        Boolean isVulnerable = null;
+
+        for (int i = 0; i < patchVersions.size(); i++) {
+            PatchVersion data = patchVersions.get(i);
+            if(TextUtils.isEmpty(data.getModel()))
+                continue;
+
+            if(!TextUtils.equals(data.getModel(), model))
+                continue;
+
+            if(!TextUtils.equals(data.getSdkVersion(), currentVersion))
+                continue;
+
+            //check if need to check for manufacturer
+            if(!TextUtils.equals(data.getCarrier(), "*")){
+                //check if we have correct manufacturer for this regex, otherwise just continue
+                if(!TextUtils.equals(data.getCarrier(), carrier)){
+                    continue;
+                }
+            }
+
+            isVulnerable = !TextUtils.equals(data.getPatchName(), patch);
+
+            break;
+        }
+
+        if(isVulnerable == null){
+            output.setStatusCode(DNEStatusCode.DISABLED);
+            return output;
+        }else if(isVulnerable){
+            outputList.add(patch);
+        }
+
+        output.setOutput(outputList);
+
+        return output;
     }
 
     public static SentegrityTrustFactorOutput shortUptime(List<Object> payload){

@@ -26,6 +26,7 @@ public class SentegrityConstants {
     public static final String MALICIOUS_APP_LIST_FILE_NAME = "maliciousapp.list";
     public static final String HIGH_RISK_APP_LIST_FILE_NAME = "highriskapp.list";
     public static final String VULNERABLE_PLATFORM_LIST_FILE_NAME = "vulnerable_platform.list";
+    public static final String PATCH_VERSION_LIST_FILE_NAME = "patch_version.list";
 
     //pulic static final String APK_SIGNATURE = "2da2e47fc43442cfe3109a8a71885912";
     public static final String DEVICE_SALT_DEFAULT = "821057bac664ccbe58338360c0cd1c78";

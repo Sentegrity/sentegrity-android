@@ -1,5 +1,6 @@
 package com.sentegrity.core_detection.dispatch.trust_factors;
 
+import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.content.ContentResolver;
@@ -43,6 +44,7 @@ import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.GyroRad
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.MagneticObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.PitchRollObject;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.netstat.ActiveConnection;
+import com.sentegrity.core_detection.dispatch.trust_factors.helpers.platform.PatchVersion;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.platform.VulnerablePlatformData;
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDetection;
 import com.sentegrity.core_detection.policy.SentegrityPolicy;
@@ -591,10 +593,20 @@ public class SentegrityTrustFactorDatasets {
         return hasInternetConnection;
     }
 
+    @SuppressWarnings("deprecation")
     public Boolean isVpnUp() {
         if (!updateConnectivityManager()) {
             return null;
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return isVpnUpLollipop();
+        }
+        NetworkInfo networkInfo = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_VPN);
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private Boolean isVpnUpLollipop() {
         for (Network network : connectivityManager.getAllNetworks()) {
             NetworkInfo netInfo = connectivityManager.getNetworkInfo(network);
             if (netInfo == null)
@@ -1342,6 +1354,32 @@ public class SentegrityTrustFactorDatasets {
 
             while ((line = buffReader.readLine()) != null) {
                 list.add(new VulnerablePlatformData(line));
+            }
+            return list;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Collects patch versions list from internal application file.
+     *
+     * @return arraylist of patch versions, or {@code null} if not available
+     */
+    public ArrayList<PatchVersion> getPatchVersionsList() {
+        try {
+            AssetManager mg = context.getResources().getAssets();
+
+            ArrayList<PatchVersion> list = new ArrayList<>();
+            String line;
+            InputStream is = mg.open(SentegrityConstants.PATCH_VERSION_LIST_FILE_NAME);
+            InputStreamReader inputReader = new InputStreamReader(is);
+            BufferedReader buffReader = new BufferedReader(inputReader);
+
+            while ((line = buffReader.readLine()) != null) {
+                list.add(new PatchVersion(line));
             }
             return list;
 
