@@ -53,6 +53,14 @@ public class TrustFactorDispatchRoute {
             return null;
         }*/
 
+//        //let's add simple quick check, only take result if true
+//        Boolean isVpnUp = SentegrityTrustFactorDatasets.getInstance().isVpnUp();
+//        if(isVpnUp != null && isVpnUp){
+//            outputList.add("VPN_UP");
+//            output.setOutput(outputList);
+//            return output;
+//        }
+
         List<NetworkInterface> interfaces = SentegrityTrustFactorDatasets.getInstance().getRouteInfo();
 
         if (interfaces == null || interfaces.size() == 0) {

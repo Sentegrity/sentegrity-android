@@ -15,6 +15,7 @@ import android.content.res.AssetManager;
 import android.location.Location;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
+import android.net.Network;
 import android.net.NetworkInfo;
 import android.net.TrafficStats;
 import android.net.wifi.WifiConfiguration;
@@ -284,7 +285,7 @@ public class SentegrityTrustFactorDatasets {
         return trustLookBadPkgListDNEStatus;
     }
 
-    public int getTrustLookBadURLListDNEStatus(){
+    public int getTrustLookBadURLListDNEStatus() {
         return trustLookBadURLListDNEStatus;
     }
 
@@ -332,11 +333,11 @@ public class SentegrityTrustFactorDatasets {
         this.rootDetectionDNEStatus = rootDetectionDNEStatus;
     }
 
-    public void setTrustLookBadPkgListDNEStatus(int trustLookBadPkgListDNEStatus){
+    public void setTrustLookBadPkgListDNEStatus(int trustLookBadPkgListDNEStatus) {
         this.trustLookBadPkgListDNEStatus = trustLookBadPkgListDNEStatus;
     }
 
-    public void setTrustLookBadURLListDNEStatus(int trustLookBadURLListDNEStatus){
+    public void setTrustLookBadURLListDNEStatus(int trustLookBadURLListDNEStatus) {
         this.trustLookBadURLListDNEStatus = trustLookBadURLListDNEStatus;
     }
 
@@ -380,11 +381,11 @@ public class SentegrityTrustFactorDatasets {
         this.accelRads = accelRads;
     }
 
-    public void setTrustLookBadPkgList(List<AppInfo> trustLookBadPkgList){
+    public void setTrustLookBadPkgList(List<AppInfo> trustLookBadPkgList) {
         this.trustLookBadPkgList = trustLookBadPkgList;
     }
 
-    public void setTrustLookBadURLList(List<String> trustLookBadURLList){
+    public void setTrustLookBadURLList(List<String> trustLookBadURLList) {
         this.trustLookBadURLList = trustLookBadURLList;
     }
 
@@ -588,6 +589,20 @@ public class SentegrityTrustFactorDatasets {
             return hasInternetConnection = netInfo != null && netInfo.isConnectedOrConnecting();
         }
         return hasInternetConnection;
+    }
+
+    public Boolean isVpnUp() {
+        if (!updateConnectivityManager()) {
+            return null;
+        }
+        for(Network network : connectivityManager.getAllNetworks()){
+            NetworkInfo netInfo = connectivityManager.getNetworkInfo(network);
+            if(netInfo == null)
+                continue;
+            if(netInfo.getType() == ConnectivityManager.TYPE_VPN && netInfo.isConnectedOrConnecting())
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -1559,7 +1574,7 @@ public class SentegrityTrustFactorDatasets {
     }
 
     public RootBeer getRootBeer() {
-        if(rootBeer != null)
+        if (rootBeer != null)
             return rootBeer;
         return rootBeer = new RootBeer(context);
     }
