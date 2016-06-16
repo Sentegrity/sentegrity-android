@@ -177,10 +177,12 @@ public class TrustFactorDispatchApplicationSecurity {
 
         PackageManager pm = SentegrityTrustFactorDatasets.getInstance().getPackageManager();
 
+        int mask = ApplicationInfo.FLAG_SYSTEM | ApplicationInfo.FLAG_UPDATED_SYSTEM_APP;
+
         for (ApplicationInfo appInfo : userApps) {
 
             //System app, we can skip it
-            if((appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0)
+            if((appInfo.flags & mask) != 0 /*&& SentegrityTrustFactorDatasets.getInstance().isSystemApp(appInfo.packageName)*/)
                 continue;
 
             String installer = pm.getInstallerPackageName(appInfo.packageName);

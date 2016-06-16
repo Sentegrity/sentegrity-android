@@ -595,11 +595,11 @@ public class SentegrityTrustFactorDatasets {
         if (!updateConnectivityManager()) {
             return null;
         }
-        for(Network network : connectivityManager.getAllNetworks()){
+        for (Network network : connectivityManager.getAllNetworks()) {
             NetworkInfo netInfo = connectivityManager.getNetworkInfo(network);
-            if(netInfo == null)
+            if (netInfo == null)
                 continue;
-            if(netInfo.getType() == ConnectivityManager.TYPE_VPN && netInfo.isConnectedOrConnecting())
+            if (netInfo.getType() == ConnectivityManager.TYPE_VPN && netInfo.isConnectedOrConnecting())
                 return true;
         }
         return false;
@@ -697,6 +697,21 @@ public class SentegrityTrustFactorDatasets {
             return gripMovement = SentegrityTrustFactorDatasetMotion.getGripMovement();
         }
         return gripMovement;
+    }
+
+    public boolean isSystemApp(String packageName) {
+        try {
+            // Get packageinfo for target application
+            PackageInfo targetPkgInfo = getPackageManager().getPackageInfo(
+                    packageName, PackageManager.GET_SIGNATURES);
+            // Get packageinfo for system package
+            String SYSTEM_PACKAGE_NAME = "android";
+            PackageInfo sys = getPackageManager().getPackageInfo(SYSTEM_PACKAGE_NAME, PackageManager.GET_SIGNATURES);
+            // Match both packageinfo for there signatures
+            return (targetPkgInfo != null && targetPkgInfo.signatures != null && sys.signatures[0].equals(targetPkgInfo.signatures[0]));
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
     }
 
     /**

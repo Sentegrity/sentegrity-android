@@ -298,8 +298,4 @@ public class TrustFactorDispatchNetstat {
 
         return output;
     }
-
-    public static SentegrityTrustFactorOutput trustLookURLScan(List<Object> payload) {
-        return new SentegrityTrustFactorOutput();
-    }
 }
