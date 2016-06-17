@@ -1353,6 +1353,8 @@
         {
           "brightnessBlocksizeWithLocation": 3,
           "brightnessBlocksizeNoLocation": 4,
+          "brightnessBlocksizeListWithLocation": [7, 45, 100, 250, 500],
+          "brightnessBlocksizeListNoLocation": [5, 15, 40, 80, 150, 350, 600],
           "locationRounding": 2,
           "magneticBlockSize": 25,
           "cellSignalBlocksizeNoLocation": 5,

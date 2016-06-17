@@ -12,6 +12,9 @@ import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFacto
 import com.sentegrity.core_detection.dispatch.trust_factors.helpers.gyro.MagneticObject;
 import com.sentegrity.core_detection.utilities.Helpers;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,29 +26,6 @@ import java.util.Map;
  */
 public class TrustFactorDispatchLocation {
 
-    //TODO: agree on the values --> put them in policy
-    private static Map<Integer, Integer> alignedLightNoLoc;
-    private static Map<Integer, Integer> alignedLightLoc;
-    static {
-        alignedLightNoLoc = new ArrayMap<>();
-        alignedLightNoLoc.put(1, 5);
-        alignedLightNoLoc.put(2, 15);
-        alignedLightNoLoc.put(3, 40);
-        alignedLightNoLoc.put(4, 80);
-        alignedLightNoLoc.put(5, 150);
-        alignedLightNoLoc.put(6, 350);
-        alignedLightNoLoc.put(7, 600);
-        alignedLightNoLoc.put(8, Integer.MAX_VALUE/*1000*/);
-    }
-    static {
-        alignedLightLoc = new ArrayMap<>();
-        alignedLightLoc.put(1, 7);
-        alignedLightLoc.put(2, 45);
-        alignedLightLoc.put(3, 100);
-        alignedLightLoc.put(4, 250);
-        alignedLightLoc.put(5, 500);
-        alignedLightLoc.put(6, Integer.MAX_VALUE/*1000*/);
-    }
     public static SentegrityTrustFactorOutput locationGPS(List<Object> payload) {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
@@ -234,37 +214,45 @@ public class TrustFactorDispatchLocation {
         //it returns ambient light value
         List<Integer> ambientLightData = SentegrityTrustFactorDatasets.getInstance().getAmbientLightData();
 
-        if(ambientLightData == null || ambientLightData.size() == 0) {
+        if (ambientLightData == null || ambientLightData.size() == 0) {
             //TODO:do we need some penalization? do we really have this data always - check for "unsupported" status
             anomalyString += "_LIGHT:" + "NODATA";
-        }else{
+        } else {
 
             int ambientLightLevel = 0;
 
             //we'll take an average from all the values we have
-            for(Integer level : ambientLightData){
+            for (Integer level : ambientLightData) {
                 ambientLightLevel += level;
             }
             ambientLightLevel = ambientLightLevel / ambientLightData.size();
 
-            //set aligned value to highest possible
-            int alignedAmbientLight = 9;
+            int alignedAmbientLight = -1;
 
-            Map<Integer, Integer> alignedValues;
+            ArrayList<Double> brightnessListBlock;
             if (!locationAvailable) {
-                alignedValues = alignedLightNoLoc;
+                brightnessListBlock = (ArrayList) ((LinkedTreeMap) payload.get(0)).get("brightnessBlocksizeListNoLocation");
             } else {
-                alignedValues = alignedLightLoc;
+                brightnessListBlock = (ArrayList) ((LinkedTreeMap) payload.get(0)).get("brightnessBlocksizeListWithLocation");
             }
 
-            for(Map.Entry<Integer, Integer> entry : alignedValues.entrySet()){
-                if(ambientLightLevel < entry.getValue()){
-                    alignedAmbientLight = entry.getKey();
-                    break;
+            if(brightnessListBlock == null || brightnessListBlock.size() == 0)
+                anomalyString += "_LIGHT:" + "UNKNOWN";
+
+            else {
+
+                if (ambientLightLevel > brightnessListBlock.get(brightnessListBlock.size() - 1)){
+                    alignedAmbientLight = brightnessListBlock.size();
+                }else {
+                    for (Double element : brightnessListBlock) {
+                        if (ambientLightLevel < element) {
+                            alignedAmbientLight = brightnessListBlock.indexOf(element) + 1;
+                            break;
+                        }
+                    }
                 }
+                anomalyString += "_LIGHT:" + alignedAmbientLight;
             }
-
-            anomalyString += "_LIGHT:" + alignedAmbientLight;
         }
 
 
