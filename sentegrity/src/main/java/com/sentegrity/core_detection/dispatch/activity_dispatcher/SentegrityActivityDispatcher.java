@@ -262,7 +262,6 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         Sensor gyroSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         if (gyroSensor == null) {
             SentegrityTrustFactorDatasets.getInstance().setGyroMotionDNEStatus(DNEStatusCode.UNSUPPORTED);
-            SentegrityTrustFactorDatasets.getInstance().setUserMovementDNEStatus(DNEStatusCode.UNSUPPORTED);
         } else {
             //USER MOVEMENT!?
 

@@ -2,6 +2,7 @@ package com.sentegrity.core_detection.dispatch.trust_factors.rules;
 
 import android.content.pm.ApplicationInfo;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
@@ -16,7 +17,17 @@ import java.util.List;
 public class TrustFactorDispatchActivity {
 
     public static SentegrityTrustFactorOutput previous(List<Object> payload){
-        return new SentegrityTrustFactorOutput();
+        SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
+
+        List<String> outputList = new ArrayList<>();
+
+        String userMovement = SentegrityTrustFactorDatasets.getInstance().getPreviousUserMovement();
+
+        outputList.add(userMovement);
+
+        output.setOutput(outputList);
+
+        return output;
     }
 
     public static SentegrityTrustFactorOutput deviceState(List<Object> payload){
@@ -58,6 +69,6 @@ public class TrustFactorDispatchActivity {
 
         output.setOutput(outputList);
 
-        return new SentegrityTrustFactorOutput();
+        return output;
     }
 }

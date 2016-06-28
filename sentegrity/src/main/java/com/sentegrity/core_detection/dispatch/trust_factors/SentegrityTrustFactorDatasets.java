@@ -7,7 +7,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -24,18 +23,10 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.BatteryManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.Log;
-import android.widget.Toast;
 
-import com.google.android.gms.auth.api.Auth;
-import com.google.android.gms.auth.api.credentials.CredentialRequest;
-import com.google.android.gms.auth.api.credentials.CredentialRequestResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
 import com.scottyab.rootbeer.RootBeer;
 import com.sentegrity.core_detection.constants.DNEStatusCode;
 import com.sentegrity.core_detection.constants.SentegrityConstants;
@@ -52,10 +43,7 @@ import com.sentegrity.core_detection.dispatch.trust_factors.helpers.root.RootDet
 import com.sentegrity.core_detection.policy.SentegrityPolicy;
 import com.sentegrity.core_detection.policy.SentegrityPolicyParser;
 import com.sentegrity.core_detection.utilities.Helpers;
-import com.trustlook.sdk.cloudscan.CloudScanClient;
 import com.trustlook.sdk.data.AppInfo;
-import com.trustlook.sdk.data.PkgInfo;
-import com.trustlook.sdk.data.Region;
 
 import org.apache.http.conn.util.InetAddressUtils;
 
@@ -103,6 +91,7 @@ public class SentegrityTrustFactorDatasets {
     private Integer cellularSignalRaw = null;
     private Float gripMovement = null;
     private String userMovement = null;
+    private String previousUserMovement = null;
     private String deviceOrientation = null;
     private Boolean passcodeSet = null;
     private Boolean wifiUnencrypted = null;
@@ -129,7 +118,6 @@ public class SentegrityTrustFactorDatasets {
     private int scannedBTDNEStatus = DNEStatusCode.OK;
     private int gyroMotionDNEStatus = DNEStatusCode.OK;
     private int magneticHeadingDNEStatus = DNEStatusCode.OK;
-    private int userMovementDNEStatus = DNEStatusCode.OK;
     private int accelMotionDNEStatus = DNEStatusCode.OK;
     private int netstatDataDNEStatus = DNEStatusCode.OK;
     private int cellularSignalDNEStatus = DNEStatusCode.OK;
@@ -166,7 +154,6 @@ public class SentegrityTrustFactorDatasets {
         scannedBTDNEStatus = DNEStatusCode.OK;
         gyroMotionDNEStatus = DNEStatusCode.OK;
         magneticHeadingDNEStatus = DNEStatusCode.OK;
-        userMovementDNEStatus = DNEStatusCode.OK;
         accelMotionDNEStatus = DNEStatusCode.OK;
         netstatDataDNEStatus = DNEStatusCode.OK;
         cellularSignalDNEStatus = DNEStatusCode.OK;
@@ -208,6 +195,7 @@ public class SentegrityTrustFactorDatasets {
         cellularSignalRaw = null;
         gripMovement = null;
         userMovement = null;
+        previousUserMovement = null;
         deviceOrientation = null;
         passcodeSet = null;
         wifiUnencrypted = null;
@@ -260,10 +248,6 @@ public class SentegrityTrustFactorDatasets {
         return scannedBTDNEStatus;
     }
 
-    public int getUserMovementDNEStatus() {
-        return userMovementDNEStatus;
-    }
-
     public int getGyroMotionDNEStatus() {
         return gyroMotionDNEStatus;
     }
@@ -314,10 +298,6 @@ public class SentegrityTrustFactorDatasets {
 
     public void setMagneticHeadingDNEStatus(int magneticHeadingDNEStatus) {
         this.magneticHeadingDNEStatus = magneticHeadingDNEStatus;
-    }
-
-    public void setUserMovementDNEStatus(int userMovementDNEStatus) {
-        this.userMovementDNEStatus = userMovementDNEStatus;
     }
 
     public void setAccelMotionDNEStatus(int accelMotionDNEStatus) {
@@ -733,6 +713,16 @@ public class SentegrityTrustFactorDatasets {
             return userMovement = SentegrityTrustFactorDatasetMotion.getUserMovement(context);
         }
         return userMovement;
+    }
+
+    /**
+     * @return string representing previous user movement
+     */
+    public String getPreviousUserMovement() {
+        if (previousUserMovement == null) {
+            return previousUserMovement = SentegrityTrustFactorDatasetMotion.getPreviousUserMovement(context);
+        }
+        return previousUserMovement;
     }
 
     /**

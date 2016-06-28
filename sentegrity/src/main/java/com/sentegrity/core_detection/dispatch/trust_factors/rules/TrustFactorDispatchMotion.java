@@ -47,17 +47,17 @@ public class TrustFactorDispatchMotion {
 
         List<String> outputList = new ArrayList<>();
 
-        if(SentegrityTrustFactorDatasets.getInstance().getUserMovementDNEStatus() != DNEStatusCode.OK &&
-                SentegrityTrustFactorDatasets.getInstance().getUserMovementDNEStatus() != DNEStatusCode.EXPIRED){
-            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getUserMovementDNEStatus());
+        if(SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus() != DNEStatusCode.OK &&
+                SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus() != DNEStatusCode.EXPIRED){
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus());
             return output;
         }
 
         float gripMovement = 0.0f;
         gripMovement = SentegrityTrustFactorDatasets.getInstance().getGripMovement();
 
-        if(SentegrityTrustFactorDatasets.getInstance().getUserMovementDNEStatus() != DNEStatusCode.OK){
-            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getUserMovementDNEStatus());
+        if(SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus() != DNEStatusCode.OK){
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getGyroMotionDNEStatus());
             return output;
         }
 

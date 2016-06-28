@@ -58,6 +58,14 @@ public class SentegrityTrustFactorDatasetMotion {
         return ActivitiesIntentService.getDetectedActivity(lastActivity);
     }
 
+    public static String getPreviousUserMovement(Context context){
+        SharedPreferences sp = context.getSharedPreferences(SentegrityConstants.SHARED_PREFS_NAME, SentegrityConstants.SHARED_PREFS_MODE);
+
+        final String activities = sp.getString("activities", "");
+
+        return getUserMovement(context);
+    }
+
     public static String getOrientation(Context context){
         String orientation = "error";
 
@@ -124,26 +132,6 @@ public class SentegrityTrustFactorDatasetMotion {
         }
 
         return orientation;
-//        // fake random orientation for testing purposes
-//        int i = new Random().nextInt(8);
-//        switch (i) {
-//            case 0:
-//                return "Portrait";
-//            case 1:
-//                return "Landscape_Right";
-//            case 2:
-//                return "Landscape_Left";
-//            case 3:
-//                return "Portrait_Upside_Down";
-//            case 4:
-//                return "Face_Up";
-//            case 5:
-//                return "Face_Down";
-//            case 6:
-//                return "unknown";
-//            default:
-//                return "error";
-//        }
     }
 
     public static String getScreenOrientation(Context context) {
