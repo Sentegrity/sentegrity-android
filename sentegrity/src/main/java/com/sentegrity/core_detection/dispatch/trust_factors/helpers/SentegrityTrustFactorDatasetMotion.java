@@ -52,9 +52,6 @@ public class SentegrityTrustFactorDatasetMotion {
     }
 
     public static String getUserMovement(Context context){
-        //TODO: we are returning last movement from activities list. this data can be at most 3minutes old.
-        //check if we should have some other sort of implementation based on device sensors
-
         SharedPreferences sp = context.getSharedPreferences(SentegrityConstants.SHARED_PREFS_NAME, SentegrityConstants.SHARED_PREFS_MODE);
 
         final int lastActivity = sp.getInt("lastActivity", -1);

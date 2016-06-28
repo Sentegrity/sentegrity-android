@@ -17,12 +17,12 @@ public class TrustFactorDispatchConfiguration {
 
         List<String> outputList = new ArrayList<>();
 
-        Integer backupEnabled = SentegrityTrustFactorDatasets.getInstance().isBackupEnabled();
+        Boolean backupEnabled = SentegrityTrustFactorDatasets.getInstance().isBackupEnabled();
 
-        if(backupEnabled == -1){
+        if(backupEnabled == null){
             output.setStatusCode(DNEStatusCode.UNAVAILABLE);
             return output;
-        } else if(backupEnabled == 1) {
+        } else if(backupEnabled) {
             outputList.add("backup-enabled");
         }
 

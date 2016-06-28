@@ -277,7 +277,6 @@ public class TrustFactorDispatchNetstat {
                         if (host == null)
                             continue;
 
-                        //TODO: IPv6 trim?
                         String[] components = host.split("\\.");
                         if (components.length == 4) {
                             host = components[components.length - 4] + "." + components[components.length - 3] + "." + components[components.length - 2];

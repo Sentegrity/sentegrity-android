@@ -48,7 +48,6 @@ public class TrustFactorDispatchPower {
     }
 
     public static SentegrityTrustFactorOutput pluggedIn(List<Object> payload) {
-        //TODO: recheck this for different devices
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         List<String> outputList = new ArrayList<>();
@@ -72,7 +71,6 @@ public class TrustFactorDispatchPower {
     }
 
     public static SentegrityTrustFactorOutput batteryState(List<Object> payload) {
-        //TODO: recheck this for different devices
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         List<String> outputList = new ArrayList<>();

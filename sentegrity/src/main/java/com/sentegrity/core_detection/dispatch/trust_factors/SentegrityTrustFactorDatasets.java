@@ -28,6 +28,8 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.credentials.CredentialRequest;
@@ -55,12 +57,15 @@ import com.trustlook.sdk.data.AppInfo;
 import com.trustlook.sdk.data.PkgInfo;
 import com.trustlook.sdk.data.Region;
 
+import org.apache.http.conn.util.InetAddressUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -101,7 +106,7 @@ public class SentegrityTrustFactorDatasets {
     private String deviceOrientation = null;
     private Boolean passcodeSet = null;
     private Boolean wifiUnencrypted = null;
-    private Integer backupEnabled = null;
+    private Boolean backupEnabled = null;
     private Boolean hasInternetConnection = null;
     private String carrierConnectionSpeed = null;
     private RootDetection rootDetection = null;
@@ -527,12 +532,13 @@ public class SentegrityTrustFactorDatasets {
      *
      * @return {@code true/false} if in tethering mode, or {@code null} if not available
      */
-    //TODO: uses reflection
     public Boolean isTethering() {
         if (tethering == null) {
             if (!updateWifiManager()) {
                 return null;
             }
+            if(isUsbTethered())
+                return tethering = true;
             try {
                 Method method = wifiManager.getClass().getDeclaredMethod("isWifiApEnabled");
                 return tethering = (Boolean) method.invoke(wifiManager);
@@ -542,6 +548,34 @@ public class SentegrityTrustFactorDatasets {
             }
         }
         return tethering;
+    }
+
+    private static boolean isUsbTethered() {
+        String ipAddr = getIPAddressUsb();
+        return ipAddr.length() != 0;
+    }
+
+    private static String getIPAddressUsb() {
+        try {
+            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface intf : interfaces) {
+                if (intf.getDisplayName().startsWith("rndis")) {
+                    List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
+                    for (InetAddress addr : addrs) {
+                        String sAddr = addr.getHostAddress().toUpperCase();
+                        boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr);
+                        if (isIPv4) {
+                            return sAddr;
+                        }
+                        int delim = sAddr.indexOf('%');
+                        return delim < 0 ? sAddr : sAddr.substring(0, delim);
+                    }
+                }
+            }
+        } catch (final Exception ex) {
+            // for now eat exceptions
+        }
+        return "";
     }
 
     /**
@@ -1147,7 +1181,6 @@ public class SentegrityTrustFactorDatasets {
      *
      * @return {@code true/false} if there is some passcode set, {@code null} if not available
      */
-    //TODO: uses reflection
     public Boolean isPasscodeSet() {
         if (passcodeSet == null) {
             //version 23+
@@ -1193,11 +1226,16 @@ public class SentegrityTrustFactorDatasets {
      *
      * @return {@code true/false} if there is backup enabled
      */
-    public Integer isBackupEnabled() {
+    public Boolean isBackupEnabled() {
         if (backupEnabled == null) {
             //only tested for nexus 5 and nexus 5x, android version 6.0.1
-            //TODO: "backup_enabled" is hidden secure setting, this should be checked
-            return backupEnabled = Settings.Secure.getInt(context.getContentResolver(), "backup_enabled", -1);
+            int enabled = Settings.Secure.getInt(context.getContentResolver(), "backup_enabled", -1);
+            if(enabled == -1)
+                backupEnabled = null;
+            else
+                backupEnabled = enabled != 0;
+
+            return backupEnabled;
         }
         return backupEnabled;
     }

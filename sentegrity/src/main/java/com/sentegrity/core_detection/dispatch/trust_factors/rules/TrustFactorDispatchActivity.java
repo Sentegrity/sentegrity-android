@@ -26,22 +26,6 @@ public class TrustFactorDispatchActivity {
 
         String anomalyString = "";
 
-        //TODO: we're gonna check one by one all that we have
-        //here's ios list
-//        if ([statusBar[@"isBackingUp"] intValue]==1)
-        //not sure we can check this
-
-//        if ([statusBar[@"isNavigating"] intValue]==1)
-//        if ([statusBar[@"isUsingYourLocation"] intValue]==1)
-        //some idea for the solution?
-
-//        if ([statusBar[@"isOnCall"] intValue]==1)
-//        if ([statusBar[@"doNotDisturb"] intValue]==1)
-//        if ([statusBar[@"orientationLock"] intValue]==1)
-//        if ([statusBar[@"isTethering"] intValue]==1)
-//        if (![statusBar[@"lastApp"] isEqualToString:@""])
-//        if ([statusBar[@"isAirplaneMode"] intValue]==1)
-
         if(SentegrityTrustFactorDatasets.getInstance().isTethering() != null &&
                 SentegrityTrustFactorDatasets.getInstance().isTethering()){
             anomalyString += "isTethering_";
@@ -61,14 +45,10 @@ public class TrustFactorDispatchActivity {
         if(!TextUtils.isEmpty(SentegrityTrustFactorDatasets.getInstance().getLastApplication())){
 
         }
-
-
         if(SentegrityTrustFactorDatasets.getInstance().isAirplaneMode() != null &&
                 SentegrityTrustFactorDatasets.getInstance().isAirplaneMode()){
             anomalyString += "airplane_";
         }
-
-
 
         if(TextUtils.isEmpty(anomalyString)){
             anomalyString = "none_";

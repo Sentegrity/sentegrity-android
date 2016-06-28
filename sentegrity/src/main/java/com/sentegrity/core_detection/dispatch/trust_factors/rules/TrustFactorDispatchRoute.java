@@ -49,7 +49,6 @@ public class TrustFactorDispatchRoute {
                 }
             }
         } catch (Exception e) {
-            //TODO: why not error?
             return null;
         }*/
 
@@ -68,8 +67,7 @@ public class TrustFactorDispatchRoute {
             return output;
         }
 
-        //TODO add "tun0" to payload in policy
-        payload.add("tun0");
+        //payload.add("tun0");
         List<NetworkInterface> vpnInterfaces = new ArrayList<>();
         for (NetworkInterface networkInterface : interfaces) {
             try {
@@ -126,7 +124,6 @@ public class TrustFactorDispatchRoute {
             if (!defaultRoute)
                 outputList.add("noRoute");
         } catch (Exception e) {
-            //TODO: why not error?
             return null;
         }*/
 

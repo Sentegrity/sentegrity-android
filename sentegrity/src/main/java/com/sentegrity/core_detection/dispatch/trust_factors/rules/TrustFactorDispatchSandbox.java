@@ -88,6 +88,38 @@ public class TrustFactorDispatchSandbox {
         return output;
     }
 
+    /**
+     {
+     "id": 42,
+     "notFoundIssueMessage": "Sandbox root violation",
+     "notFoundSuggestionMessage": "Reinstall operating system",
+     "lowConfidenceIssueMessage": "",
+     "lowConfidenceSuggestionMessage": "",
+     "revision": 1,
+     "classID": 1,
+     "subClassID": 4,
+     "name": "Sandbox integrity compromise",
+     "transparentEligible": 0,
+     "partialWeight": 0,
+     "weight": 100,
+     "learnMode": 0,
+     "learnTime": 0,
+     "learnAssertionCount": 0,
+     "learnRunCount": 0,
+     "decayMode": 0,
+     "decayMetric": 0,
+     "wipeOnUpdate": 0,
+     "dispatch": "Sandbox",
+     "implementation": "rootDetect:",
+     "whitelistable": 0,
+     "privateAPI": 0,
+     "payload": [
+
+     ]
+     }
+     */
+
+    @Deprecated
     public static SentegrityTrustFactorOutput rootDetect(List<Object> payload) {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 

@@ -74,6 +74,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         this.context = context;
     }
 
+    @Deprecated
     public void runCoreDetectionActivities(Context context) {
         //we need to restart data
         scannedDevices = new HashSet<>();
@@ -92,7 +93,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
         startLocation();
         startMotion();
         startCellularSignal();
-        startRootCheck();
+        //startRootCheck();
         startTrustLookAVScan();
     }
 
@@ -410,7 +411,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 int strength = 0;
                 boolean gotValidValue = false;
 
-                //TODO: try another way of getting info --> signalStrength.toString() --> split
+                //signalStrength.toString() --> split could more easily return values, but this could depend on implementation
                 if (signalStrength.isGsm()) {
                     strength = signalStrength.getGsmSignalStrength();
 
@@ -443,7 +444,6 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 } else {
                     SentegrityTrustFactorDatasets.getInstance().setCellularSignalDNEStatus(DNEStatusCode.UNAVAILABLE);
                 }
-                //TODO: have array of values or only one?
                 telephonyManager.listen(this, LISTEN_NONE);
             }
         };
@@ -490,7 +490,12 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
      * It will check if root access is given to the app, if busy box is available or if there's root available on the device.
      *
      * @see RootShell
+     *
+     * Deprecated
+     * Takes too long, check RootBeer implementation
+     * @see com.scottyab.rootbeer.RootBeer
      */
+    @Deprecated
     public void startRootCheck() {
         final RootDetection rootDetection = new RootDetection();
         new Thread() {
@@ -504,7 +509,6 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 rootDetection.isAccessGiven = RootShell.isAccessGiven();
                 SentegrityTrustFactorDatasets.getInstance().setRootDetection(rootDetection);
 
-                //TODO: set this now, or only when completely over?
                 SentegrityTrustFactorDatasets.getInstance().setRootDetectionDNEStatus(DNEStatusCode.OK);
 
                 Logger.INFO("RootDetecion[access] " + (System.currentTimeMillis() - start));
@@ -618,12 +622,11 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                         }
                         newCheckedList.addAll(listToCheck);
                     } else {
-                        //TODO: handle different error codes (maybe UNAVAILABLE if no internet?)
                         int errorCode = onlineResult.getError();
                         if (errorCode == Error.NETWORK_ERROR) {
 
                         }
-                        SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgListDNEStatus(DNEStatusCode.ERROR);
+                        SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgListDNEStatus(DNEStatusCode.UNAVAILABLE);
 
                         sp.edit().putString("cachedList", new Gson().toJson(newCheckedList)).apply();
                         sp.edit().putString("cachedBadApps", new Gson().toJson(newBadApps)).apply();
@@ -676,7 +679,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
             if (errorCode == Error.NETWORK_ERROR) {
 
             }
-            SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgListDNEStatus(DNEStatusCode.ERROR);
+            SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgListDNEStatus(DNEStatusCode.UNAVAILABLE);
         }
 
         SentegrityTrustFactorDatasets.getInstance().setTrustLookBadPkgListDNEStatus(DNEStatusCode.OK);

@@ -129,7 +129,7 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
         activityDispatcher.startCellularSignal();
         activityDispatcher.startMotion();
         activityDispatcher.startNetstat();
-        activityDispatcher.startRootCheck();
+        //activityDispatcher.startRootCheck();
         activityDispatcher.startTrustLookAVScan();
 
         //we start core detection in background, and just ask user for permission to use location
