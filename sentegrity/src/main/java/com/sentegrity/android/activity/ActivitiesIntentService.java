@@ -38,29 +38,34 @@ public class ActivitiesIntentService extends IntentService {
         SharedPreferences sp = getApplicationContext().getSharedPreferences(SentegrityConstants.SHARED_PREFS_NAME, SentegrityConstants.SHARED_PREFS_MODE);
 
         final int lastActivity = sp.getInt("lastActivity", -1);
-        if(detectedActivities.get(0).getType() != lastActivity){
-            String currentValue = sp.getString("activities", "");
-            currentValue += getLine(detectedActivities);
+        String currentValue = sp.getString("activities", "");
 
-            String newValue = "";
-            String[] list = currentValue.split("\n");
-            long currentTime = System.currentTimeMillis();
-            for(int i = 0; i < list.length; i++){
-                try {
-                    if (Long.valueOf(list[i].replaceAll("^.*?(\\w+)\\W*$", "$1")) + LOG_HISTORY_TIME < currentTime)
-                        break;
-                    newValue += list[i] + "\n";
-                }catch (Exception e){/*just in case*/}
-            }
+        String newValue = "";
 
-            sp.edit().putString("activities", newValue).apply();
-            sp.edit().putInt("lastActivity", detectedActivities.get(0).getType()).apply();
+        //if we have first value, let's just update it
+        if (detectedActivities.get(0).getType() == lastActivity && currentValue.split("\n").length > 0) {
+            currentValue = currentValue.substring(currentValue.indexOf("\n") + 1);
         }
+        currentValue = getLine(detectedActivities) + currentValue;
+
+        String[] list = currentValue.split("\n");
+
+        long currentTime = System.currentTimeMillis();
+        for (int i = 0; i < list.length; i++) {
+            try {
+                if (Long.valueOf(list[i].replaceAll("^.*?(\\w+)\\W*$", "$1")) + LOG_HISTORY_TIME < currentTime)
+                    break;
+                newValue += list[i] + "\n";
+            } catch (Exception e) {/*just in case*/}
+        }
+
+        sp.edit().putString("activities", newValue).apply();
+        sp.edit().putInt("lastActivity", detectedActivities.get(0).getType()).apply();
     }
 
-    private String getLine(List<DetectedActivity> activityList){
+    private String getLine(List<DetectedActivity> activityList) {
         String activities = "";
-        for(DetectedActivity activity : activityList){
+        for (DetectedActivity activity : activityList) {
             activities += getDetectedActivity(activity.getType()) + " " + activity.getConfidence() + ", ";
         }
         activities = activities.trim();
@@ -69,7 +74,7 @@ public class ActivitiesIntentService extends IntentService {
     }
 
     public static String getDetectedActivity(int detectedActivityType) {
-        switch(detectedActivityType) {
+        switch (detectedActivityType) {
             case DetectedActivity.IN_VEHICLE:
                 return "vehicle";
             case DetectedActivity.ON_BICYCLE:
@@ -92,6 +97,7 @@ public class ActivitiesIntentService extends IntentService {
     }
 
     SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
     public String getDate(long milliSeconds) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(milliSeconds);

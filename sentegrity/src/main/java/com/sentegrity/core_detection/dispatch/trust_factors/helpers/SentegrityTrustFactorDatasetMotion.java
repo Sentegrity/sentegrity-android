@@ -2,6 +2,7 @@ package com.sentegrity.core_detection.dispatch.trust_factors.helpers;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -54,16 +55,48 @@ public class SentegrityTrustFactorDatasetMotion {
     public static String getUserMovement(Context context){
         SharedPreferences sp = context.getSharedPreferences(SentegrityConstants.SHARED_PREFS_NAME, SentegrityConstants.SHARED_PREFS_MODE);
 
-        final int lastActivity = sp.getInt("lastActivity", -1);
-        return ActivitiesIntentService.getDetectedActivity(lastActivity);
+        /*final int lastActivity = sp.getInt("lastActivity", -1);
+        if(lastActivity == -1)
+            return null;
+
+        return ActivitiesIntentService.getDetectedActivity(lastActivity);*/
+
+        final String activities = sp.getString("activities", "");
+        String list[] = activities.split("\n");
+        if(list.length == 0)
+            return null;
+
+        try {
+            if (Long.valueOf(list[0].replaceAll("^.*?(\\w+)\\W*$", "$1")) + 15 * 60 * 1000 < System.currentTimeMillis())
+                return null;
+            return list[0].trim().split(" ")[0];
+        }catch (Exception e){/*just in case*/}
+
+        return null;
     }
 
     public static String getPreviousUserMovement(Context context){
         SharedPreferences sp = context.getSharedPreferences(SentegrityConstants.SHARED_PREFS_NAME, SentegrityConstants.SHARED_PREFS_MODE);
 
         final String activities = sp.getString("activities", "");
+        String list[] = activities.split("\n");
+        if(list.length == 0)
+            return null;
 
-        return getUserMovement(context);
+        try {
+            String line = list[list.length - 1];
+            if(TextUtils.isEmpty(line.trim())) {
+                if(list.length > 1)
+                    line = list[list.length - 2];
+                else
+                    return null;
+            }
+            if (Long.valueOf(line.replaceAll("^.*?(\\w+)\\W*$", "$1")) + 15 * 60 * 1000 < System.currentTimeMillis())
+                return null;
+            return line.trim().split(" ")[0];
+        }catch (Exception e){/*just in case*/}
+
+        return null;
     }
 
     public static String getOrientation(Context context){

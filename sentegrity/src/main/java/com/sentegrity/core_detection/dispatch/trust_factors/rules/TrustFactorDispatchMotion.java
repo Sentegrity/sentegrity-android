@@ -72,6 +72,8 @@ public class TrustFactorDispatchMotion {
 
         String userMovement = SentegrityTrustFactorDatasets.getInstance().getUserMovement();
 
+        Log.d("Movement", "current: " + userMovement);
+
         String motion = "grip_Movement_" + movementBlock + "_" + "device_Movement_" + userMovement;
         Log.d("grip", motion);
 

@@ -23,6 +23,7 @@ public class TrustFactorDispatchActivity {
 
         String userMovement = SentegrityTrustFactorDatasets.getInstance().getPreviousUserMovement();
 
+        Log.d("Movement", "previous: " + userMovement);
         outputList.add(userMovement);
 
         output.setOutput(outputList);

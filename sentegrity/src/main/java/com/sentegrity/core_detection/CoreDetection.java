@@ -396,19 +396,34 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
     public void onConnectionFailed(ConnectionResult connectionResult) {
     }
 
-    public void requestActivityUpdates() {
+    public void removeActivityUpdates() {
         if (!googleApiClient.isConnected()) {
-            Toast.makeText(context, "GoogleApiClient not yet connected. (somehow!?)", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "GoogleApiClient not yet connected. (somehow!?)", Toast.LENGTH_SHORT).show();
         } else {
             //first remove (maybe it was running from before
             ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(googleApiClient, getActivityDetectionPendingIntent());
-            //then run every 5 minutes
-            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(googleApiClient, 5 * 60 * 1000, getActivityDetectionPendingIntent());
+        }
+    }
+
+    public void requestActivityUpdates() {
+        if (!googleApiClient.isConnected()) {
+            //Toast.makeText(context, "GoogleApiClient not yet connected. (somehow!?)", Toast.LENGTH_SHORT).show();
+        } else {
+            //first remove (maybe it was running from before
+            ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(googleApiClient, getActivityDetectionPendingIntent());
+            //then run every 1 minutes
+            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(googleApiClient, 60 * 1000, getActivityDetectionPendingIntent());
         }
     }
     private PendingIntent getActivityDetectionPendingIntent() {
         Intent intent = new Intent(context, ActivitiesIntentService.class);
 
         return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    public static void onDestroy(){
+        if(sInstance == null)
+            return;
+        sInstance.removeActivityUpdates();
     }
 }

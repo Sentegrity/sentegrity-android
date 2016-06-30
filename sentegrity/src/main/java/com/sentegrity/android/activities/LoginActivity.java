@@ -275,4 +275,10 @@ public class LoginActivity extends Activity {
     private interface OnLoginListener {
         void onLogin(String password);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        CoreDetection.onDestroy();
+    }
 }
