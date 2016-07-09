@@ -573,15 +573,15 @@ public class SentegrityTrustFactorDatasets {
 
             for (WifiConfiguration configuration : wifiManager.getConfiguredNetworks()) {
                 if (TextUtils.equals(wifiInfo.getBSSID(), configuration.BSSID)) {
-                    boolean unencrypted = false;
+                    boolean unencrypted = true;
                     if (configuration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_PSK)) {
-                        unencrypted = true;
+                        unencrypted = false;
                     } else if (configuration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.WPA_EAP)) {
-                        unencrypted = true;
+                        unencrypted = false;
                     } else if (configuration.allowedKeyManagement.get(WifiConfiguration.KeyMgmt.IEEE8021X)) {
-                        unencrypted = true;
+                        unencrypted = false;
                     } else if (configuration.wepKeys.length > 0 && configuration.wepKeys[0] != null) {
-                        unencrypted = true;
+                        unencrypted = false;
                     }
                     return wifiUnencrypted = unencrypted;
                 }
