@@ -26,14 +26,14 @@ public class TrustFactorDispatchCelluar {
         String carrierName = SentegrityTrustFactorDatasets.getInstance().getCarrierConnectionName();
 
         if (TextUtils.isEmpty(carrierName)) {
-            output.setStatusCode(DNEStatusCode.ERROR);
+            output.setStatusCode(DNEStatusCode.NO_DATA);
             return output;
         }
 
         String connectionSpeed = SentegrityTrustFactorDatasets.getInstance().getCarrierConnectionSpeed();
 
         if (TextUtils.isEmpty(connectionSpeed)) {
-            output.setStatusCode(DNEStatusCode.ERROR);
+            output.setStatusCode(DNEStatusCode.NO_DATA);
             return output;
         }
 
