@@ -27,7 +27,7 @@ import dalvik.system.DexFile;
  */
 public class TrustFactorDispatchSentegrity {
 
-    public static SentegrityTrustFactorOutput tamper2(List<Object> payload){
+    public static SentegrityTrustFactorOutput tamper(List<Object> payload){
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         List<String> outputList = new ArrayList<>();
@@ -60,7 +60,7 @@ public class TrustFactorDispatchSentegrity {
         if(isDebuggable == null){
             //unknown
         }else if(isDebuggable){
-            tamper += "APP_IS_DEBUGGABLE_";
+            //tamper += "APP_IS_DEBUGGABLE_";
         }
 
         Boolean isFromPlayStore = SentegrityTrustFactorDatasets.getInstance().isFromPlayStore();
@@ -68,7 +68,7 @@ public class TrustFactorDispatchSentegrity {
         if(isFromPlayStore == null){
             //unknown
         }else if(!isFromPlayStore){
-            tamper += "APP_NOT_FROM_PLAY_STORE_";
+            //tamper += "APP_NOT_FROM_PLAY_STORE_";
         }
 
         List<ApplicationInfo> userApps = SentegrityTrustFactorDatasets.getInstance().getInstalledAppInfo();
