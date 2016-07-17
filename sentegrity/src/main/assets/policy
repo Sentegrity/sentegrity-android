@@ -33,7 +33,7 @@
       "type": 0,
       "computationMethod": 0,
       "name": "SYSTEM_BREACH",
-      "desc": "High Risk Device",
+      "desc": "High Risk\nDevice",
       "preAuthenticationAction": 3,
       "postAuthenticationAction": 3
     },
@@ -42,7 +42,7 @@
       "type": 0,
       "computationMethod": 0,
       "name": "SYSTEM_POLICY",
-      "desc": "Device Violation",
+      "desc": "Device\nViolation",
       "preAuthenticationAction": 2,
       "postAuthenticationAction": 2
     },
@@ -51,7 +51,7 @@
       "type": 0,
       "computationMethod": 0,
       "name": "SYSTEM_SECURITY",
-      "desc": "Device Anomaly",
+      "desc": "Device\nAnomaly",
       "preAuthenticationAction": 2,
       "postAuthenticationAction": 2
     },
@@ -60,7 +60,7 @@
       "type": 1,
       "computationMethod": 0,
       "name": "USER_POLICY",
-      "desc": "User Violation",
+      "desc": "User\nViolation",
       "preAuthenticationAction": 2,
       "postAuthenticationAction": 1
     },
@@ -69,7 +69,7 @@
       "type": 1,
       "computationMethod": 1,
       "name": "USER_ANOMALY",
-      "desc": "User Anomaly",
+      "desc": "User\nAnomaly",
       "preAuthenticationAction": 1,
       "postAuthenticationAction": 1
     }

@@ -46,6 +46,10 @@
             android:layout_marginTop="35dp"
             android:orientation="vertical">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="4" />
 
             <com.sentegrity.android.widget.ScoreLayout
                 android:id="@+id/score_layout"
@@ -59,6 +63,10 @@
                 app:pie_stroke="15dp"
                 app:title_text_size="30dp" />
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="4" />
 
             <LinearLayout
                 android:id="@+id/device_info"
@@ -92,7 +100,7 @@
                 <TextView
                     android:id="@+id/device_info_text"
                     android:layout_width="0dp"
-                    android:layout_height="65dp"
+                    android:layout_height="68dp"
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-light"
                     android:gravity="center_vertical"
@@ -101,6 +109,11 @@
                     android:text="High Risk Device"
                     android:textSize="28dp" />
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
             <LinearLayout
                 android:id="@+id/user_info"
@@ -133,7 +146,7 @@
                 <TextView
                     android:id="@+id/user_info_text"
                     android:layout_width="0dp"
-                    android:layout_height="65dp"
+                    android:layout_height="68dp"
                     android:layout_weight="1"
                     android:fontFamily="sans-serif-light"
                     android:gravity="center_vertical"
@@ -146,7 +159,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1" />
+                android:layout_weight="6" />
 
             <TextView
                 android:id="@+id/reload"
