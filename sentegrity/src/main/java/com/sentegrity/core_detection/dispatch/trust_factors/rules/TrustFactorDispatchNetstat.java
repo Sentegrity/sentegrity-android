@@ -123,11 +123,6 @@ public class TrustFactorDispatchNetstat {
     public static SentegrityTrustFactorOutput newService(List<Object> payload) {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
-        if (!SentegrityTrustFactorDatasets.validatePayload(payload)) {
-            output.setStatusCode(DNEStatusCode.ERROR);
-            return output;
-        }
-
         List<String> outputList = new ArrayList<>();
 
         if (SentegrityTrustFactorDatasets.getInstance().getNetstatDataDNEStatus() != DNEStatusCode.OK &&
@@ -138,8 +133,8 @@ public class TrustFactorDispatchNetstat {
 
         List<ActiveConnection> connections = SentegrityTrustFactorDatasets.getInstance().getNetstatData();
 
-        if (SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus() != DNEStatusCode.OK) {
-            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getPairedBTDNEStatus());
+        if (SentegrityTrustFactorDatasets.getInstance().getNetstatDataDNEStatus() != DNEStatusCode.OK) {
+            output.setStatusCode(SentegrityTrustFactorDatasets.getInstance().getNetstatDataDNEStatus());
             return output;
         }
 
