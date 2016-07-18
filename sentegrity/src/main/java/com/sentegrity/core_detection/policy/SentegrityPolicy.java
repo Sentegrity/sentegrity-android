@@ -13,14 +13,8 @@ public class SentegrityPolicy implements Serializable {
     @SerializedName("policyID")
     private String policyID;
 
-    @SerializedName("appID")
+    @SerializedName("applicationVersionID")
     private String appID;
-
-    @SerializedName("currentAppVersion")
-    private String currentAppVersion;
-
-    @SerializedName("currentAppHash")
-    private String currentAppHash;
 
     @SerializedName("platform")
     private String platform;
@@ -36,15 +30,6 @@ public class SentegrityPolicy implements Serializable {
 
     @SerializedName("timeout")
     private int timeout;
-
-    @SerializedName("contactPhone")
-    private String contactPhone;
-
-    @SerializedName("contactURL")
-    private String contactURL;
-
-    @SerializedName("contactEmail")
-    private String contactEmail;
 
     @SerializedName("DNEModifiers")
     private SentegrityDNEModifiers dneModifiers;
@@ -105,18 +90,6 @@ public class SentegrityPolicy implements Serializable {
         return timeout;
     }
 
-    public String getContactPhone() {
-        return contactPhone;
-    }
-
-    public String getContactURL() {
-        return contactURL;
-    }
-
-    public String getContactEmail() {
-        return contactEmail;
-    }
-
     public SentegrityDNEModifiers getDneModifiers() {
         return dneModifiers;
     }
@@ -165,23 +138,8 @@ public class SentegrityPolicy implements Serializable {
         return statusUploadTimeFrequency;
     }
 
-    public String getCurrentAppVersion() {
-        return currentAppVersion;
-    }
-
-    public String getCurrentAppHash() {
-        return currentAppHash;
-    }
-
     public String getPlatform() {
         return platform;
     }
 
-    public void setCurrentAppVersion(String currentAppVersion) {
-        this.currentAppVersion = currentAppVersion;
-    }
-
-    public void setCurrentAppHash(String currentAppHash) {
-        this.currentAppHash = currentAppHash;
-    }
 }

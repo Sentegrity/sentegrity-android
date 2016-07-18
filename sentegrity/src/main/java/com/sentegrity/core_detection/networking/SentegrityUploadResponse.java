@@ -2,11 +2,14 @@ package com.sentegrity.core_detection.networking;
 
 import com.google.gson.annotations.SerializedName;
 import com.sentegrity.core_detection.policy.SentegrityPolicy;
+import com.sentegrity.core_detection.startup.SentegrityHistoryObject;
+
+import java.util.List;
 
 /**
- * Created by dmestrov on 24/05/16.
+ * Created by dmestrov on 18/07/16.
  */
-public class SentegrityCheckinResponse {
+public class SentegrityUploadResponse {
 
     @SerializedName("data")
     private Data data;

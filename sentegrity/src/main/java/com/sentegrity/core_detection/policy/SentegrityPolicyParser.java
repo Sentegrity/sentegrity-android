@@ -87,9 +87,6 @@ public class SentegrityPolicyParser {
                         if (assetsPolicy != null) {
                             if (TextUtils.equals("default", policy.getAppID())) {
                                 if (policy.getRevision() > assetsPolicy.getRevision()) {
-                                    //copy currentAppVersion and currentAppHash from assets policy to document policy
-                                    policy.setCurrentAppHash(assetsPolicy.getCurrentAppHash());
-                                    policy.setCurrentAppVersion(assetsPolicy.getCurrentAppVersion());
                                     saveNewPolicy(policy);
                                 } else {
                                     //copy complete assets policy to document policy
@@ -99,9 +96,6 @@ public class SentegrityPolicyParser {
 //                                    }
                                 }
                             } else {
-                                //copy currentAppVersion and currentAppHash from assets policy to document policy
-                                policy.setCurrentAppHash(assetsPolicy.getCurrentAppHash());
-                                policy.setCurrentAppVersion(assetsPolicy.getCurrentAppVersion());
                                 saveNewPolicy(policy);
                             }
                         }

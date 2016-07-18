@@ -1,6 +1,7 @@
 package com.sentegrity.core_detection.networking;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.google.gson.Gson;
 import com.sentegrity.core_detection.policy.SentegrityPolicy;
@@ -9,6 +10,7 @@ import com.sentegrity.core_detection.startup.SentegrityHistoryObject;
 import com.sentegrity.core_detection.startup.SentegrityStartup;
 import com.sentegrity.core_detection.startup.SentegrityStartupStore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,7 +18,7 @@ import java.util.List;
  */
 public class SentegrityNetworkManager {
 
-    public static void upload(final RunHistoryCallback callback, Context context){
+    public static void uploadRunHistoryObjectsAndCheckForNewPolicy(final RunHistoryCallback callback, Context context){
 
         final SentegrityStartup currentStartup = SentegrityStartupStore.getInstance().getStartupStore();
 
@@ -62,9 +64,24 @@ public class SentegrityNetworkManager {
 
         final List<SentegrityHistoryObject> runHistoryObjects = currentStartup.getRunHistoryObjects();
 
-        SentegrityCheckinRequest networkRequest = new SentegrityCheckinRequest(currentStartup, currentPolicy);
 
-        SentegrityRestClient.postData(context, networkRequest, new NetworkCallback() {
+        String email = currentStartup.getEmail();
+        if(TextUtils.isEmpty(email))
+            email = "";
+
+        final SentegrityUploadRequest request = new SentegrityUploadRequest();
+
+        request.setPolicyID(currentPolicy.getPolicyID());
+        request.setPolicyRevision(currentPolicy.getRevision() + "");
+        request.setPlatform(currentPolicy.getPlatform());
+        request.setEmail(email);
+        request.setRunHistoryObjects(new ArrayList<SentegrityHistoryObject>());
+        request.setDeviceSalt(currentStartup.getDeviceSaltString());
+        request.setApplicationVersionID(currentPolicy.getAppID());
+        //request.setDeviceName();
+
+
+        SentegrityRestClient.postData(context, request, new NetworkCallback() {
             @Override
             public void onFinish(boolean success, String response) {
                 if (!success) {
@@ -79,7 +96,7 @@ public class SentegrityNetworkManager {
 
                 removeOldRunHistoryObjects(runHistoryObjects, currentStartup);
 
-                SentegrityCheckinResponse responseObject = new Gson().fromJson(response, SentegrityCheckinResponse.class);
+                SentegrityUploadResponse responseObject = new Gson().fromJson(response, SentegrityUploadResponse.class);
                 if (responseObject == null) {
                     if (callback != null) {
                         callback.onFinish(false, false, false);
@@ -109,6 +126,75 @@ public class SentegrityNetworkManager {
                 } else {
                     if (callback != null) {
                         callback.onFinish(true, true, false);
+                    }
+                }
+            }
+        });
+
+    }
+
+    public static void checkForNewPolicyWithEmail(String email, final CheckPolicyCallback callback, Context context){
+        final SentegrityStartup currentStartup = SentegrityStartupStore.getInstance().getStartupStore();
+
+        if(currentStartup == null){
+            if(callback != null){
+                callback.onFinish(false, false);
+            }
+            return;
+        }
+
+        final SentegrityPolicy currentPolicy = SentegrityPolicyParser.getInstance().getPolicy();
+
+        if(currentPolicy == null){
+            if(callback != null){
+                callback.onFinish(false, false);
+            }
+            return;
+        }
+
+        final SentegrityUploadRequest request = new SentegrityUploadRequest();
+
+        request.setPolicyID(currentPolicy.getPolicyID());
+        request.setPolicyRevision(currentPolicy.getRevision() + "");
+        request.setPlatform(currentPolicy.getPlatform());
+        request.setEmail(email);
+        request.setRunHistoryObjects(new ArrayList<SentegrityHistoryObject>());
+        request.setDeviceSalt(currentStartup.getDeviceSaltString());
+        request.setApplicationVersionID(currentPolicy.getAppID());
+        //request.setDeviceName();
+
+        SentegrityRestClient.uploadReport(context, request, new NetworkCallback() {
+            @Override
+            public void onFinish(boolean success, String response) {
+                if(!success){
+                    if(callback != null){
+                        callback.onFinish(false, false);
+                    }
+                    return;
+                }else{
+                    SentegrityUploadResponse responseObject = new Gson().fromJson(response, SentegrityUploadResponse.class);
+
+                    SentegrityPolicy policy = responseObject.getPolicy();
+
+                    if(policy != null){
+                        if(!SentegrityPolicyParser.getInstance().saveNewPolicy(policy)){
+                            if(callback != null){
+                                callback.onFinish(false, false);
+                            }
+                            return;
+                        }
+
+                        if (callback != null) {
+                            if (policy.getAllowPrivateAPIs() == 1) {
+                                //TODO: allow apis? standard user defaults?
+                                //allow private APIs
+                            }
+                            callback.onFinish(true, true);
+                        }
+                    } else {
+                        if (callback != null) {
+                            callback.onFinish(true, false);
+                        }
                     }
                 }
             }

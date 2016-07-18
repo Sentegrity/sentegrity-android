@@ -96,6 +96,10 @@ public class SentegrityRestClient {
         }
     }
 
+    public static void uploadReport(Context context, Object object, final NetworkCallback callback){
+
+    }
+
     private static String getUrlForService(String service) {
         return URL + service;
     }
