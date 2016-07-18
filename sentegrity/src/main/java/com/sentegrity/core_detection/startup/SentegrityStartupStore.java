@@ -205,7 +205,7 @@ public class SentegrityStartupStore {
         return null;
     }
 
-    public String createNewStartupFileWithUserPassword(String password){
+    public void createNewStartupFile(){
         SentegrityStartup startup = new SentegrityStartup();
 
         currentStartupStore = startup;
@@ -232,6 +232,23 @@ public class SentegrityStartupStore {
         //sentegrityStartup.setDeviceSalt(deviceSalt());
         currentStartupStore.setLastOSVersion(Build.VERSION.RELEASE);
 
+        currentStartupStore.setLastState("");
+
+        currentStartupStore.setRunHistoryObjects(new ArrayList<SentegrityHistoryObject>());
+        currentStartupStore.setTransparentAuthKeyObjects(new ArrayList<SentegrityTransparentAuthObject>());
+        currentStartupStore.setRunCount(0);
+        currentStartupStore.setRunCountAtLastUpload(0);
+        currentStartupStore.setTimeOfLastUpload(0);
+
+        setStartupStore();
+
+        //return masterKeyString;
+    }
+
+    public String udpateStartupFileWithPassword(String password){
+        if(getStartupStore() == null)
+            return null;
+
         String masterKeyString = SentegrityCrypto.getInstance().provisionNewUserKeyAndCreateMasterKeyWithPassword(password);
         if(masterKeyString == null){
             SentegrityError error = SentegrityError.INVALID_STARTUP_FILE;
@@ -240,14 +257,6 @@ public class SentegrityStartupStore {
 
             Logger.INFO("Failed to Read Startup Store", error);
         }
-
-        currentStartupStore.setLastState("");
-
-        currentStartupStore.setRunHistoryObjects(new ArrayList<SentegrityHistoryObject>());
-        currentStartupStore.setTransparentAuthKeyObjects(new ArrayList<SentegrityTransparentAuthObject>());
-        currentStartupStore.setRunCount(0);
-        currentStartupStore.setRunCountAtLastUpload(0);
-        currentStartupStore.setTimeOfLastUpload(0);
 
         setStartupStore();
 

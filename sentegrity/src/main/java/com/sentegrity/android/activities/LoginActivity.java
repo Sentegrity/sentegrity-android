@@ -68,7 +68,8 @@ public class LoginActivity extends Activity {
         File f = new File(SentegrityStartupStore.getInstance().getStorePath());
         if(!f.exists()){
             String dummyPass = "user";
-            String masterKey = SentegrityStartupStore.getInstance().createNewStartupFileWithUserPassword(dummyPass);
+            SentegrityStartupStore.getInstance().createNewStartupFile();
+            String masterKey = SentegrityStartupStore.getInstance().udpateStartupFileWithPassword(dummyPass);
         }
 
         CoreDetection.getInstance().performCoreDetection(new CoreDetectionCallback() {

@@ -67,7 +67,7 @@ public class SentegrityNetworkManager {
 
         String email = currentStartup.getEmail();
         if(TextUtils.isEmpty(email))
-            email = "";
+            email = "davor@sentegrity.com";
 
         final SentegrityUploadRequest request = new SentegrityUploadRequest();
 
@@ -81,7 +81,7 @@ public class SentegrityNetworkManager {
         //request.setDeviceName();
 
 
-        SentegrityRestClient.postData(context, request, new NetworkCallback() {
+        SentegrityRestClient.uploadReport(context, request, new NetworkCallback() {
             @Override
             public void onFinish(boolean success, String response) {
                 if (!success) {
