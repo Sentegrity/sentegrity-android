@@ -15,8 +15,7 @@ import java.util.Set;
  */
 public class TrustFactorDispatchBluetooth {
 
-    //TODO: rename to connectedDevices (update policy accordingly)
-    public static SentegrityTrustFactorOutput connectedClassicDevice(List<Object> payload) {
+    public static SentegrityTrustFactorOutput connectedDevices(List<Object> payload) {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         List<String> outputList = new ArrayList<>();
@@ -49,8 +48,7 @@ public class TrustFactorDispatchBluetooth {
         return output;
     }
 
-    //TODO: rename to discoveredDevices (update policy accordingly)
-    public static SentegrityTrustFactorOutput discoveredBLEDevice(List<Object> payload) {
+    public static SentegrityTrustFactorOutput discoveredDevices(List<Object> payload) {
         SentegrityTrustFactorOutput output = new SentegrityTrustFactorOutput();
 
         List<String> outputList = new ArrayList<>();

@@ -428,7 +428,7 @@
       "whitelistable": 0,
       "privateAPI": 0,
       "payload": [
-        "9.3"
+
       ]
     },
     {
@@ -877,22 +877,7 @@
       "whitelistable": 0,
       "privateAPI": 0,
       "payload": [
-        "4.0-4.0.2",
-        "4.1-4.2.1",
-        "4.2.6-4.2.8",
-        "4.2.9-4.2.10",
-        "4.3-4.3.3",
-        "4.3.4-4.3.5",
-        "5.0",
-        "5.1",
-        "5.0.1",
-        "5.1.1",
-        "6.0-6.1.2",
-        "6.1.3-6.1.6",
-        "7.0-7.0.6",
-        "7.1*",
-        "8.0-8.4",
-        "9.0-9.0.2"
+
       ]
     },
     {
@@ -950,7 +935,7 @@
       "whitelistable": 0,
       "privateAPI": 0,
       "payload": [
-        "backupd"
+
       ]
     },
     {
@@ -1281,7 +1266,7 @@
       "revision": 1,
       "classID": 5,
       "subClassID": 8,
-      "name": "bluetooth classic paired",
+      "name": "bluetooth devices paired",
       "transparentEligible": 1,
       "partialWeight": 0,
       "weight": 50,
@@ -1293,35 +1278,7 @@
       "decayMetric": 0.07,
       "wipeOnUpdate": 0,
       "dispatch": "Bluetooth",
-      "implementation": "connectedClassicDevice:",
-      "whitelistable": 1,
-      "privateAPI": 0,
-      "payload": [
-        
-      ]
-    },
-    {
-      "id": 38,
-      "notFoundIssueMessage": "",
-      "notFoundSuggestionMessage": "Pair a Bluetooth device",
-      "lowConfidenceIssueMessage": "",
-      "lowConfidenceSuggestionMessage": "Use Bluetooth device frequently",
-      "revision": 1,
-      "classID": 5,
-      "subClassID": 8,
-      "name": "bluetooth BLE paired",
-      "transparentEligible": 1,
-      "partialWeight": 0,
-      "weight": 50,
-      "learnMode": 0,
-      "learnTime": 0,
-      "learnAssertionCount": 0,
-      "learnRunCount": 0,
-      "decayMode": 1,
-      "decayMetric": 0.07,
-      "wipeOnUpdate": 0,
-      "dispatch": "Bluetooth",
-      "implementation": "connectedBLEDevice:",
+      "implementation": "connectedDevices:",
       "whitelistable": 1,
       "privateAPI": 0,
       "payload": [
@@ -1407,7 +1364,7 @@
       "revision": 1,
       "classID": 5,
       "subClassID": 8,
-      "name": "bluetooth low-energy scanning",
+      "name": "bluetooth devices scanning",
       "transparentEligible": 0,
       "partialWeight": 1,
       "weight": 15,
@@ -1419,7 +1376,7 @@
       "decayMetric": 0.07,
       "wipeOnUpdate": 0,
       "dispatch": "Bluetooth",
-      "implementation": "discoveredBLEDevice:",
+      "implementation": "discoveredDevices:",
       "whitelistable": 1,
       "privateAPI": 0,
       "payload": [
