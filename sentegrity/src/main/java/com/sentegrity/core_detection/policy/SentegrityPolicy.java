@@ -65,6 +65,9 @@ public class SentegrityPolicy implements Serializable {
     @SerializedName("statusUploadTimeFrequency")
     private int statusUploadTimeFrequency;
 
+    @SerializedName("passwordRequirements")
+    private SentegrityPasswordRequirements passwordRequirements;
+
 
     public String getPolicyID() {
         return policyID;
