@@ -1,6 +1,7 @@
 package com.sentegrity.core_detection.networking;
 
 import android.content.Context;
+import android.os.Build;
 import android.text.TextUtils;
 
 import com.google.gson.Gson;
@@ -78,7 +79,7 @@ public class SentegrityNetworkManager {
         request.setRunHistoryObjects(new ArrayList<SentegrityHistoryObject>());
         request.setDeviceSalt(currentStartup.getDeviceSaltString());
         request.setApplicationVersionID(currentPolicy.getAppID());
-        //request.setDeviceName();
+        request.setDeviceName(Build.MODEL);
 
 
         SentegrityRestClient.uploadReport(context, request, new NetworkCallback() {
@@ -161,7 +162,7 @@ public class SentegrityNetworkManager {
         request.setRunHistoryObjects(new ArrayList<SentegrityHistoryObject>());
         request.setDeviceSalt(currentStartup.getDeviceSaltString());
         request.setApplicationVersionID(currentPolicy.getAppID());
-        //request.setDeviceName();
+        request.setDeviceName(Build.MODEL);
 
         SentegrityRestClient.uploadReport(context, request, new NetworkCallback() {
             @Override
