@@ -5,6 +5,7 @@ import android.os.Bundle;
 import com.sentegrity.android.R;
 import com.sentegrity.core_detection.assertion_storage.SentegrityStoredAssertion;
 import com.sentegrity.core_detection.assertion_storage.SentegrityTrustFactorOutput;
+import com.sentegrity.core_detection.constants.DNEStatusCode;
 
 /**
  * Created by dmestrov on 02/04/16.
@@ -120,7 +121,7 @@ public class UserDebugActivity extends DebugActivity {
         for(SentegrityTrustFactorOutput output : computationResult.getUserTrustFactorsWithErrors()){
 
             userTrustFactorsWithError += "--Name: " + output.getTrustFactor().getName().toUpperCase() + "\n"
-                    + "DNE: " + output.getStatusCode() + " (" + output.getStatusCode() + ")" + "\n\n";
+                    + "DNE: " + output.getStatusCode() + " (" + DNEStatusCode.toString(output.getStatusCode()) + ")" + "\n\n";
         }
 
         complete += userTrustFactorsWithError;

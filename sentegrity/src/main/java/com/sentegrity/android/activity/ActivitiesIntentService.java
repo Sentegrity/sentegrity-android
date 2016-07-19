@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
@@ -51,13 +52,22 @@ public class ActivitiesIntentService extends IntentService {
         String[] list = currentValue.split("\n");
 
         long currentTime = System.currentTimeMillis();
-        for (int i = 0; i < list.length; i++) {
-            try {
-                if (Long.valueOf(list[i].replaceAll("^.*?(\\w+)\\W*$", "$1")) + LOG_HISTORY_TIME < currentTime)
-                    break;
-                newValue += list[i] + "\n";
-            } catch (Exception e) {/*just in case*/}
+        if(list.length > 1){
+            for (int i = 0; i < list.length; i++) {
+                try {
+                    if(TextUtils.isEmpty(list[i]))
+                        continue;
+                    if (Long.valueOf(list[i].replaceAll("^.*?(\\w+)\\W*$", "$1")) + LOG_HISTORY_TIME < currentTime)
+                        break;
+                    newValue += list[i] + "\n";
+                } catch (Exception e) {/*just in case*/}
+            }
+        }else if(list.length == 1){
+            newValue += list[0];
         }
+
+        newValue = newValue.trim();
+
 
         sp.edit().putString("activities", newValue).apply();
         sp.edit().putInt("lastActivity", detectedActivities.get(0).getType()).apply();

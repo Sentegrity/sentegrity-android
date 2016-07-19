@@ -15,4 +15,27 @@ public final class DNEStatusCode{
     public static final int NO_DATA = 7;
     public static final int INVALID = 8;
 
+    public static String toString(int statusCode){
+        switch (statusCode){
+            case 0:
+                return "OK";
+            case 1:
+                return "UNAUTHORIZED";
+            case 2:
+                return "UNSUPPORTED";
+            case 3:
+                return "UNAVAILABLE";
+            case 4:
+                return "DISABLED";
+            case 5:
+                return "EXPIRED";
+            case 6:
+                return "ERROR";
+            case 7:
+                return "NO_DATA";
+            case 8:
+                return "INVALID";
+        }
+        return "" + statusCode;
+    }
 }

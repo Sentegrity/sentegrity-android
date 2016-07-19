@@ -55,24 +55,24 @@ public class SentegrityTrustFactorDatasetMotion {
     public static String getUserMovement(Context context){
         SharedPreferences sp = context.getSharedPreferences(SentegrityConstants.SHARED_PREFS_NAME, SentegrityConstants.SHARED_PREFS_MODE);
 
-        /*final int lastActivity = sp.getInt("lastActivity", -1);
+        final int lastActivity = sp.getInt("lastActivity", -1);
         if(lastActivity == -1)
             return null;
 
-        return ActivitiesIntentService.getDetectedActivity(lastActivity);*/
+        return ActivitiesIntentService.getDetectedActivity(lastActivity);
 
-        final String activities = sp.getString("activities", "");
+        /*final String activities = sp.getString("activities", "");
         String list[] = activities.split("\n");
         if(list.length == 0)
             return null;
 
         try {
-            if (Long.valueOf(list[0].replaceAll("^.*?(\\w+)\\W*$", "$1")) + 15 * 60 * 1000 < System.currentTimeMillis())
-                return null;
+            //if (Long.valueOf(list[0].replaceAll("^.*?(\\w+)\\W*$", "$1")) + 15 * 60 * 1000 < System.currentTimeMillis())
+            //    return null;
             return list[0].trim().split(" ")[0];
-        }catch (Exception e){/*just in case*/}
+        }catch (Exception e){//just in case}
 
-        return null;
+        return null;*/
     }
 
     public static String getPreviousUserMovement(Context context){
@@ -91,8 +91,8 @@ public class SentegrityTrustFactorDatasetMotion {
                 else
                     return null;
             }
-            if (Long.valueOf(line.replaceAll("^.*?(\\w+)\\W*$", "$1")) + 15 * 60 * 1000 < System.currentTimeMillis())
-                return null;
+            //if (Long.valueOf(line.replaceAll("^.*?(\\w+)\\W*$", "$1")) + 15 * 60 * 1000 < System.currentTimeMillis())
+            //    return null;
             return line.trim().split(" ")[0];
         }catch (Exception e){/*just in case*/}
 
