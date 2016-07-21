@@ -1,9 +1,13 @@
 package com.sentegrity.core_detection.crypto;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.sentegrity.core_detection.CoreDetection;
 import com.sentegrity.core_detection.computation.SentegrityTrustScoreComputation;
+import com.sentegrity.core_detection.constants.SentegrityConstants;
 import com.sentegrity.core_detection.dispatch.trust_factors.SentegrityTrustFactorDatasets;
 import com.sentegrity.core_detection.startup.SentegrityStartup;
 import com.sentegrity.core_detection.startup.SentegrityStartupStore;
@@ -53,7 +57,9 @@ public class SentegrityCrypto {
 
         int transparentRounds = startup.getTransparentAuthPBKDF2rounds();
 
+        long start = System.currentTimeMillis();
         byte[] derivedTransparentKey = createPBKDF2Key(output, transparentKeySaltData, transparentRounds);
+        Log.d("iterationTime", "time: " + (System.currentTimeMillis() - start) + ", getTransparentKeyForTrustFactorOutput");
 
         if (derivedTransparentKey == null) {
             return null;
@@ -73,7 +79,9 @@ public class SentegrityCrypto {
 
         int userRounds = startup.getUserKeyPBKDF2rounds();
 
+        long start = System.currentTimeMillis();
         byte[] derivedUserKey = createPBKDF2Key(password, userKeySaltData, userRounds);
+        Log.d("iterationTime", "time: " + (System.currentTimeMillis() - start) + ", getUserKeyForPassword");
 
         if (derivedUserKey == null) {
             return null;
@@ -165,7 +173,9 @@ public class SentegrityCrypto {
             return null;
         }
 
+        long start = System.currentTimeMillis();
         byte[] userKeyData = createPBKDF2Key(userPassword, userSaltData, startup.getUserKeyPBKDF2rounds());
+        Log.d("iterationTime", "time: " + (System.currentTimeMillis() - start) + ", provisionNewUserKeyAndCreateMasterKeyWithPassword");
 
         if (userKeyData == null) {
             return null;
@@ -203,7 +213,9 @@ public class SentegrityCrypto {
 
         byte[] userSaltData = convertHexStringToData(startup.getUserKeySaltString());
 
+        long start = System.currentTimeMillis();
         byte[] userKeyData = createPBKDF2Key(userPassword, userSaltData, startup.getUserKeyPBKDF2rounds());
+        Log.d("iterationTime", "time: " + (System.currentTimeMillis() - start) + ", updateUserKeyForExistingMasterKeyWithPassword");
 
         if (userKeyData == null) {
             return false;
@@ -357,10 +369,25 @@ public class SentegrityCrypto {
         return output;
     }
 
-    public int benchmarkPBKDF2UsingExampleString(String example, int timeMillis) {
-        return 500 + new Random().nextInt(500);
+    public int getEstimateIterationsForMillis(int millis) {
+        int iterationsPerSecond = calculateIterationsPerSecond(3000);
+        //we'll take 90% of max calculated value
+        return (int) ((iterationsPerSecond * (millis / 1000.0)) * 0.9);
     }
 
+    private int calculateIterationsPerSecond(int patternSize){
+        String dummyValue = "device_movement_0_user_grip_0_location_1_wifi_ssid_test_wifi_mac_44:43:54:43:43";
+        byte[] salt = SentegrityCrypto.getInstance().generateSalt256();
+        long startTime = System.currentTimeMillis();
+        SentegrityCrypto.getInstance().createPBKDF2Key(dummyValue, salt, patternSize);
+        long time = System.currentTimeMillis() - startTime;
+
+        int iterationsPerSecond = (int) (((float)1000.0 / time) * patternSize);
+
+        Log.d("iterationTime", "patternSize: " + patternSize + ", text: " + dummyValue + ", persec: " + iterationsPerSecond);
+
+        return iterationsPerSecond;
+    }
 
     /*
         Cipher aesCipher = Cipher.getInstance("AES");

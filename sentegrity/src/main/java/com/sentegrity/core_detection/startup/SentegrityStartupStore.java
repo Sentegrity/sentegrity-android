@@ -219,13 +219,9 @@ public class SentegrityStartupStore {
         byte[] transparentAuthGlobalPBKDF2Salt = SentegrityCrypto.getInstance().generateSalt256();
         currentStartupStore.setTransparentAuthGlobalPBKDF2SaltString(SentegrityCrypto.getInstance().convertDataToHexString(transparentAuthGlobalPBKDF2Salt));
 
-        String testTransparentAuthOutput = "TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0_TEST_0";
-        int transparentAuthEstimateRounds = SentegrityCrypto.getInstance().benchmarkPBKDF2UsingExampleString(testTransparentAuthOutput, 10);
-        currentStartupStore.setTransparentAuthPBKDF2rounds(transparentAuthEstimateRounds);
-
-        String testUserPassword = "abcdef";
-        int userEstimateRounds = SentegrityCrypto.getInstance().benchmarkPBKDF2UsingExampleString(testUserPassword, 10);
-        currentStartupStore.setUserKeyPBKDF2rounds(userEstimateRounds);
+        int estimateRounds = SentegrityCrypto.getInstance().getEstimateIterationsForMillis(500);
+        currentStartupStore.setUserKeyPBKDF2rounds(estimateRounds);
+        currentStartupStore.setTransparentAuthPBKDF2rounds(estimateRounds);
 
 
         //sentegrityStartup.setUserSalt(SentegrityConstants.USER_SALT_DEFAULT);
