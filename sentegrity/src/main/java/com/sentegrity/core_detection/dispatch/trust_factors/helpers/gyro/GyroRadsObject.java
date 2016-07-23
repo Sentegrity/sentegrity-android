@@ -20,4 +20,9 @@ public class GyroRadsObject {
 
         Log.d("gyro", x + ", " + y + ", " + z);
     }
+
+    @Override
+    public String toString() {
+        return x + "\n" + y + "\n" + z;
+    }
 }

@@ -54,6 +54,10 @@ public abstract class MenuActivity extends Activity {
         if(wipeProfile != null)
             wipeProfile.setOnClickListener(listener);
 
+        View details = findViewById(R.id.details);
+        if(details != null)
+            details.setOnClickListener(listener);
+
         View menuHandle = findViewById(R.id.menu_handle);
         if(menuHandle == null)
             throw new MissingResourceException("Missing menu handle for the MenuActivity. Add view in layout with id menu_handle.", "view", "menu_handle");
@@ -78,6 +82,9 @@ public abstract class MenuActivity extends Activity {
                     break;
                 case R.id.wipe_profile:
                     showWipeAlert();
+                    break;
+                case R.id.details:
+                    startActivity(new Intent(MenuActivity.this, DetailsActivity.class));
                     break;
                 case R.id.menu_handle:
                     drawer.openDrawer(Gravity.RIGHT);

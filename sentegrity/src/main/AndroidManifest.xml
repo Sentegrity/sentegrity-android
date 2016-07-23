@@ -48,6 +48,9 @@
         <activity
             android:name=".activities.TransparentDebugActivity"
             android:configChanges="orientation|screenSize"></activity>
+        <activity
+            android:name=".activities.DetailsActivity"
+            android:configChanges="orientation|screenSize"></activity>
 
         <service
             android:name=".activity.ActivitiesIntentService"

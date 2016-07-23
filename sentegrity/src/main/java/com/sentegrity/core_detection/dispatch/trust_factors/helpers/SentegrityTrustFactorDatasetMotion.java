@@ -23,8 +23,10 @@ import java.util.Random;
 public class SentegrityTrustFactorDatasetMotion {
 
     public static float getGripMovement(){
-        List<GyroRadsObject> gyroRads = SentegrityTrustFactorDatasets.getInstance().getGyroRads();
+        return getGripMovement(SentegrityTrustFactorDatasets.getInstance().getGyroRads());
+    }
 
+    public static float getGripMovement(List<GyroRadsObject> gyroRads){
         float lastX = 0.0f;
         float lastY = 0.0f;
         float lastZ = 0.0f;
@@ -100,12 +102,15 @@ public class SentegrityTrustFactorDatasetMotion {
     }
 
     public static String getOrientation(Context context){
+        return getOrientation(context, SentegrityTrustFactorDatasets.getInstance().getAccelRads());
+    }
+
+    public static String getOrientation(Context context, List<AccelRadsObject> accelRads){
         String orientation = "error";
 
         if(SentegrityTrustFactorDatasets.getInstance().getAccelMotionDNEStatus() != DNEStatusCode.OK){
             orientation = getScreenOrientation(context);
         }else{
-            List<AccelRadsObject> accelRads = SentegrityTrustFactorDatasets.getInstance().getAccelRads();
 
             float xAvg, yAvg, zAvg;
 
@@ -148,10 +153,12 @@ public class SentegrityTrustFactorDatasetMotion {
                     //portrait
                     Log.d("orientation", "portrait");
                     orientation = "Portrait";
+                //TODO should we use 0.35?
                 }else if(xAvg <= 0.15 && xAvg >= -0.15 && yAvg <= 0.15 && yAvg >= -0.15 && zAvg <= 0){
                     //face down
                     Log.d("orientation", "down");
                     orientation = "Face_Down";
+                //TODO should we use 0.35?
                 }else if(xAvg <= 0.15 && xAvg >= -0.15 && yAvg <= 0.15 && yAvg >= -0.15 && zAvg > 0){
                     //face up
                     Log.d("orientation", "up");

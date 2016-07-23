@@ -91,4 +91,21 @@
         android:layout_height="1dp"
         android:background="#ffffff" />
 
+    <TextView
+        android:id="@+id/details"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:clickable="true"
+        android:gravity="center_vertical|right"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:text="Details"
+        android:textColor="@drawable/right_menu_row_color"
+        android:textSize="20dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#ffffff" />
+
 </LinearLayout>
