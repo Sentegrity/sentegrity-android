@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
@@ -71,6 +72,8 @@ public class ActivitiesIntentService extends IntentService {
 
         sp.edit().putString("activities", newValue).apply();
         sp.edit().putInt("lastActivity", detectedActivities.get(0).getType()).apply();
+
+        Log.d("newActivity", getLine(detectedActivities));
     }
 
     private String getLine(List<DetectedActivity> activityList) {

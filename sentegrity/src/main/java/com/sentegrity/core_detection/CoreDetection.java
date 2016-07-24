@@ -81,13 +81,6 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
             sInstance = new CoreDetection(context);
             Dexter.initialize(context);
 
-            sInstance.googleApiClient = new GoogleApiClient.Builder(context)
-                    .addConnectionCallbacks(sInstance)
-                    .addOnConnectionFailedListener(sInstance)
-                    .addApi(ActivityRecognition.API)
-                    .build();
-            sInstance.googleApiClient.connect();
-
             //sInstance.startCoreDetectionActivities();
         } else {
             Log.d("coreDetection", "Core Detection has already been initialized");
@@ -121,6 +114,14 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
     }
 
     public void performCoreDetection(final CoreDetectionCallback callback){
+
+        sInstance.googleApiClient = new GoogleApiClient.Builder(context)
+                .addConnectionCallbacks(sInstance)
+                .addOnConnectionFailedListener(sInstance)
+                .addApi(ActivityRecognition.API)
+                .build();
+        sInstance.googleApiClient.connect();
+
         if (activityDispatcher == null)
             activityDispatcher = new SentegrityActivityDispatcher(context);
 
@@ -412,7 +413,7 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
             //first remove (maybe it was running from before
             ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(googleApiClient, getActivityDetectionPendingIntent());
             //then run every 1 minutes
-            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(googleApiClient, 60 * 1000, getActivityDetectionPendingIntent());
+            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(googleApiClient, 10 * 1000, getActivityDetectionPendingIntent());
         }
     }
     private PendingIntent getActivityDetectionPendingIntent() {

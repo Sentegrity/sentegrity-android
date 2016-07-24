@@ -283,7 +283,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
                 }
-            }, gyroSensor, 1000000);
+            }, gyroSensor, SensorManager.SENSOR_DELAY_UI, 100000);
         }
 
 
@@ -342,12 +342,12 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
 
                 }
             };
-            sensorManager.registerListener(listener, acc, 1000000);
-            sensorManager.registerListener(listener, mag, 1000000);
+            sensorManager.registerListener(listener, acc, SensorManager.SENSOR_DELAY_UI, 100000);
+            sensorManager.registerListener(listener, mag, SensorManager.SENSOR_DELAY_UI, 100000);
         }
 
         //MAGNETOMETER DATA
-        Sensor magnetometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED);
+        Sensor magnetometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
         if (magnetometerSensor == null) {
             SentegrityTrustFactorDatasets.getInstance().setMagneticHeadingDNEStatus(DNEStatusCode.UNSUPPORTED);
         } else {
@@ -367,7 +367,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
                 }
-            }, magnetometerSensor, 1000000);
+            }, magnetometerSensor, SensorManager.SENSOR_DELAY_UI, 100000);
         }
 
         //ACCELEROMETER DATA
@@ -391,7 +391,7 @@ public class SentegrityActivityDispatcher implements BTDeviceCallback {
                 public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
                 }
-            }, accelerometerData, 1000000);
+            }, accelerometerData, SensorManager.SENSOR_DELAY_UI, 100000);
         }
     }
 
