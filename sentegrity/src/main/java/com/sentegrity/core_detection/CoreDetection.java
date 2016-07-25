@@ -413,7 +413,7 @@ public class CoreDetection implements GoogleApiClient.ConnectionCallbacks, Googl
             //first remove (maybe it was running from before
             ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(googleApiClient, getActivityDetectionPendingIntent());
             //then run every 1 minutes
-            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(googleApiClient, 10 * 1000, getActivityDetectionPendingIntent());
+            ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(googleApiClient, 30 * 1000, getActivityDetectionPendingIntent());
         }
     }
     private PendingIntent getActivityDetectionPendingIntent() {

@@ -25,7 +25,7 @@ public class ActivitiesIntentService extends IntentService {
 
     private static final String TAG = "ActivitiesIntentService";
 
-    private static final long LOG_HISTORY_TIME = 1 * 15 * 60 * 1000; //keep history for 15 minutes
+    private static final long LOG_HISTORY_TIME = 1 * 10 * 60 * 1000; //keep history for 15 minutes
 
     public ActivitiesIntentService() {
         super(TAG);
