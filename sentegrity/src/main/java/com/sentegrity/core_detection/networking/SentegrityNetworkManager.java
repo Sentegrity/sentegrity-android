@@ -76,7 +76,7 @@ public class SentegrityNetworkManager {
         request.setPolicyRevision(currentPolicy.getRevision() + "");
         request.setPlatform(currentPolicy.getPlatform());
         request.setEmail(email);
-        request.setRunHistoryObjects(new ArrayList<SentegrityHistoryObject>());
+        request.setRunHistoryObjects(runHistoryObjects);
         request.setDeviceSalt(currentStartup.getDeviceSaltString());
         request.setApplicationVersionID(currentPolicy.getAppID());
         request.setDeviceName(Build.MODEL);

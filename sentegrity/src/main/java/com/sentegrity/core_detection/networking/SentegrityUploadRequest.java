@@ -3,6 +3,7 @@ package com.sentegrity.core_detection.networking;
 import com.google.gson.annotations.SerializedName;
 import com.sentegrity.core_detection.startup.SentegrityHistoryObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,6 +52,8 @@ public class SentegrityUploadRequest {
     }
 
     public void setRunHistoryObjects(List<SentegrityHistoryObject> runHistoryObjects) {
+        if(runHistoryObjects == null)
+            runHistoryObjects = new ArrayList<>();
         this.runHistoryObjects = runHistoryObjects;
     }
 
