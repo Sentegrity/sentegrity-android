@@ -1,13 +1,8 @@
 package com.sentegrity.core_detection.networking;
 
-import android.text.TextUtils;
-
 import com.google.gson.annotations.SerializedName;
-import com.sentegrity.core_detection.policy.SentegrityPolicy;
 import com.sentegrity.core_detection.startup.SentegrityHistoryObject;
-import com.sentegrity.core_detection.startup.SentegrityStartup;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,7 +17,7 @@ public class SentegrityUploadRequest {
     private String deviceSalt;
 
     @SerializedName("platform")
-    private String platform;
+    private int platform;
 
     @SerializedName("current_policy_id")
     private String policyID;
@@ -63,7 +58,7 @@ public class SentegrityUploadRequest {
         this.applicationVersionID = applicationVersionID;
     }
 
-    public void setPlatform(String platform) {
+    public void setPlatform(int platform) {
         this.platform = platform;
     }
 

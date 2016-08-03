@@ -17,7 +17,7 @@ public class SentegrityPolicy implements Serializable {
     private String appID;
 
     @SerializedName("platform")
-    private String platform;
+    private int platform;
 
     @SerializedName("revision")
     private int revision;
@@ -141,7 +141,7 @@ public class SentegrityPolicy implements Serializable {
         return statusUploadTimeFrequency;
     }
 
-    public String getPlatform() {
+    public int getPlatform() {
         return platform;
     }
 
