@@ -145,4 +145,7 @@ public class SentegrityPolicy implements Serializable {
         return platform;
     }
 
+    public void setAppID(String appID) {
+        this.appID = appID;
+    }
 }

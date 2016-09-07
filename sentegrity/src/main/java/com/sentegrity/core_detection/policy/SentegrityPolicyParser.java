@@ -227,6 +227,8 @@ public class SentegrityPolicyParser {
         try {
             policyJson = FileUtils.readFileToString(f);
             policy = new Gson().fromJson(policyJson, SentegrityPolicy.class);
+            if(TextUtils.isEmpty(policy.getAppID()))
+                policy.setAppID("1.0.0");
             return policy;
         } catch (IOException e) {
             Logger.INFO("Policy file json formatting problem");

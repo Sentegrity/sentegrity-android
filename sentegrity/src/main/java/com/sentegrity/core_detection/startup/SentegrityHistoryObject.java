@@ -40,6 +40,12 @@ public class SentegrityHistoryObject implements Serializable {
     @SerializedName("systemAnalysisResults")
     private List<String> systemAnalysisResults;
 
+    @SerializedName("userSuggestions")
+    private List<String> userSuggestions;
+
+    @SerializedName("systemSuggestions")
+    private List<String> systemSuggestions;
+
     @SerializedName("userScore")
     private int userScore;
 
@@ -99,5 +105,13 @@ public class SentegrityHistoryObject implements Serializable {
 
     public void setProtectModeAction(int protectModeAction) {
         this.protectModeAction = protectModeAction;
+    }
+
+    public void setUserSuggestions(List<String> userSuggestions) {
+        this.userSuggestions = userSuggestions;
+    }
+
+    public void setSystemSuggestions(List<String> systemSuggestions) {
+        this.systemSuggestions = systemSuggestions;
     }
 }

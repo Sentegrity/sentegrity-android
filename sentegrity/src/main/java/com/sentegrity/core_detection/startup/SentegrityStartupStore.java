@@ -115,6 +115,9 @@ public class SentegrityStartupStore {
         runHistoryObject.setSystemAnalysisResults(computationResults.getSystemAnalysisResults());
         runHistoryObject.setUserAnalysisResults(computationResults.getUserAnalysisResults());
 
+        runHistoryObject.setUserSuggestions(computationResults.getUserSuggestions());
+        runHistoryObject.setSystemSuggestions(computationResults.getSystemSuggestions());
+
         if(currentStartupStore.getRunHistoryObjects() == null || currentStartupStore.getRunHistoryObjects().size() < 1){
             List<SentegrityHistoryObject> objectList = new ArrayList<>();
             objectList.add(runHistoryObject);
